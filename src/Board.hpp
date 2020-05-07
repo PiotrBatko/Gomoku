@@ -15,6 +15,9 @@ public:
     const Field& at(std::size_t x, std::size_t y) const;
     Field& at(std::size_t x, std::size_t y);
 
+    std::size_t getHeight() const;
+    std::size_t getWidth() const;
+
 private:
 
     std::size_t m_Width;

@@ -21,3 +21,13 @@ Field& Board::at(std::size_t x, std::size_t y)
         std::as_const(*this).at(x, y)
     );
 }
+
+std::size_t Board::getHeight() const
+{
+    return m_Height;
+}
+
+std::size_t Board::getWidth() const
+{
+    return m_Width;
+}
