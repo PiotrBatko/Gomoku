@@ -12,9 +12,30 @@ int main()
     board.at(3, 1) = Field::White;
     board.at(2, 2) = Field::White;
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    constexpr std::size_t FieldWidthInPixels = 50;
+    constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
+    sf::RenderWindow window(
+        sf::VideoMode(FieldWidthInPixels * board.getWidth(), FieldHeightInPixels * board.getHeight()),
+        "Gomoku Bot Battle"
+    );
+
+    // Prepare board view
+    constexpr float FieldPadding = 1.0F;
+    constexpr float BlockRadius = FieldWidthInPixels / 2 - 2 * FieldPadding;
+
+    sf::CircleShape whiteBlockView(BlockRadius);
+    whiteBlockView.setFillColor(sf::Color(240, 240, 240));
+    whiteBlockView.setOrigin(BlockRadius, BlockRadius);
+
+    sf::CircleShape blackBlockView(BlockRadius);
+    blackBlockView.setFillColor(sf::Color(16, 16, 16));
+    blackBlockView.setOrigin(BlockRadius, BlockRadius);
+
+    sf::RectangleShape fieldView(sf::Vector2f(FieldWidthInPixels, FieldHeightInPixels));
+    fieldView.setFillColor(sf::Color(176, 144, 90));
+    fieldView.setOutlineThickness(-0.5F);
+    fieldView.setOutlineColor(sf::Color(214, 177, 114));
+    fieldView.setOrigin(FieldWidthInPixels / 2, FieldHeightInPixels / 2);
 
     while (window.isOpen())
     {
@@ -27,8 +48,32 @@ int main()
             }
         }
 
-        window.clear();
-        window.draw(shape);
+        // Draw game board
+        for (std::size_t y = 0; y < board.getHeight(); ++y)
+        {
+            for (std::size_t x = 0; x < board.getWidth(); ++x)
+            {
+                sf::Vector2f position(
+                    FieldWidthInPixels / 2 + x * FieldWidthInPixels,
+                    FieldHeightInPixels / 2 + y * FieldHeightInPixels
+                );
+                fieldView.setPosition(position);
+
+                window.draw(fieldView);
+
+                if (board.at(x, y) == Field::White)
+                {
+                    whiteBlockView.setPosition(position);
+                    window.draw(whiteBlockView);
+                }
+                else if (board.at(x, y) == Field::Black)
+                {
+                    blackBlockView.setPosition(position);
+                    window.draw(blackBlockView);
+                }
+            }
+        }
+
         window.display();
     }
 
