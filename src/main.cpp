@@ -1,18 +1,29 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 #include "Board.hpp"
+#include "Random.h"
+#include "CommonUtils.h"
+
+#include "BotRandomizer.hpp"
+#include "HumanPlayer.hpp"
 
 int main()
 {
-    constexpr std::size_t BoardSize = 19;
-    Board board(BoardSize, BoardSize);
-    board.at(1, 0) = Field::White;
-    board.at(1, 1) = Field::Black;
-    board.at(2, 1) = Field::Black;
-    board.at(3, 1) = Field::White;
-    board.at(2, 2) = Field::White;
+	Random::Initialize();
 
-    constexpr std::size_t FieldWidthInPixels = 50;
+    constexpr std::size_t BoardSize = 19u;
+    Board board(BoardSize, BoardSize);
+
+    #if 0 // Code for testing.
+    board.SetField(1, 0, Field::White);
+    board.SetField(1, 1, Field::Black);
+    board.SetField(2, 1, Field::Black);
+    board.SetField(3, 1, Field::White);
+    board.SetField(2, 2, Field::White);
+	#endif
+
+    constexpr std::size_t FieldWidthInPixels = 25u;
     constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
     sf::RenderWindow window(
         sf::VideoMode(FieldWidthInPixels * board.getWidth(), FieldHeightInPixels * board.getHeight()),
@@ -37,6 +48,9 @@ int main()
     fieldView.setOutlineColor(sf::Color(214, 177, 114));
     fieldView.setOrigin(FieldWidthInPixels / 2, FieldHeightInPixels / 2);
 
+    Player* playerWhite = NEW(HumanPlayer  (&board));
+	Player* playerBlack = NEW(BotRandomizer(&board));
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -48,33 +62,72 @@ int main()
             }
         }
 
-        // Draw game board
-        for (std::size_t y = 0; y < board.getHeight(); ++y)
-        {
-            for (std::size_t x = 0; x < board.getWidth(); ++x)
-            {
-                sf::Vector2f position(
-                    FieldWidthInPixels / 2 + x * FieldWidthInPixels,
-                    FieldHeightInPixels / 2 + y * FieldHeightInPixels
-                );
-                fieldView.setPosition(position);
+        bool battleFinished = false;
+        while (!battleFinished) {
 
-                window.draw(fieldView);
+			///*
+        	std::size_t x, y;
+        	// 1. White player's turn.
+        	bool result = playerWhite->MakeMove(x, y);
+			if (!result) {
+				return false;
+			}
 
-                if (board.at(x, y) == Field::White)
-                {
-                    whiteBlockView.setPosition(position);
-                    window.draw(whiteBlockView);
-                }
-                else if (board.at(x, y) == Field::Black)
-                {
-                    blackBlockView.setPosition(position);
-                    window.draw(blackBlockView);
-                }
-            }
+			result = false;
+			bool isFieldEmpty = board.IsFieldEmpty(x, y, result);
+			if (!result || !isFieldEmpty) {
+				return 1;
+			}
+			result = board.SetField(x, y, Field::White);
+			if (!result) {
+				return 1;
+			}
+
+			// 2. Black player's turn.
+			result = playerBlack->MakeMove(x, y);
+			if (!result) {
+				return false;
+			}
+
+			result = false;
+			isFieldEmpty = board.IsFieldEmpty(x, y, result);
+			if (!result || !isFieldEmpty) {
+				return 1;
+			}
+			result = board.SetField(x, y, Field::Black);
+			if (!result) {
+				return 1;
+			}
+			//*/
+
+			// Draw game board
+			for (std::size_t y = 0u; y < board.getHeight(); ++y)
+			{
+				for (std::size_t x = 0u; x < board.getWidth(); ++x)
+				{
+					sf::Vector2f position(
+						FieldWidthInPixels / 2 + x * FieldWidthInPixels,
+						FieldHeightInPixels / 2 + y * FieldHeightInPixels
+					);
+					fieldView.setPosition(position);
+
+					window.draw(fieldView);
+
+					if (board.at(x, y) == Field::White)
+					{
+						whiteBlockView.setPosition(position);
+						window.draw(whiteBlockView);
+					}
+					else if (board.at(x, y) == Field::Black)
+					{
+						blackBlockView.setPosition(position);
+						window.draw(blackBlockView);
+					}
+				}
+			}
+
+			window.display();
         }
-
-        window.display();
     }
 
     return 0;
