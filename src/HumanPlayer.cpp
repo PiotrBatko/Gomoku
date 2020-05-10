@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Board.hpp"
+#include "DebugInfo.h"
 
 HumanPlayer::HumanPlayer(Board* gameBoard): Player(gameBoard) {
 }
@@ -11,14 +12,17 @@ HumanPlayer::~HumanPlayer() {
 }
 
 bool HumanPlayer::MakeMove(std::size_t& x, std::size_t& y) {
+	static unsigned int turnCount = 1u;
 	bool isInputDataCorrect = false;
-	std::cout << "Please put column and row indices of your movement." << std::endl;
+
+	LOG_LN("Turn ", turnCount++, ".");
+	LOG_LN("Please put column and row indices of your movement.");
 	while (!isInputDataCorrect) {
 		std::cin >> x;
 		std::cin >> y;
 
 		if (!board->IsFieldOnBoard(x, y)) {
-			std::cout << "Coordinates are out of the game board. Please enter valid coordinates." << std::endl;
+			LOG_LN("Coordinates are out of the game board. Please enter not occupied coordinates.");
 			continue;
 		}
 		bool result = false;
@@ -27,7 +31,7 @@ bool HumanPlayer::MakeMove(std::size_t& x, std::size_t& y) {
 			return 1;
 		}
 		if (!isFieldEmpty) {
-			std::cout << "There is already a pawn on given coordinates. Please enter valid coordinates." << std::endl;
+			LOG_LN("There is already a pawn on given coordinates. Please enter valid coordinates.");
 			continue;
 		}
 		isInputDataCorrect = true;

@@ -16,7 +16,6 @@ public:
     Board(std::size_t width, std::size_t height);
 
     const Field& at(std::size_t x, std::size_t y) const;
-    //Field& at(std::size_t x, std::size_t y);
 
     std::size_t getHeight() const;
     std::size_t getWidth() const;
