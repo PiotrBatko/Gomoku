@@ -1,7 +1,9 @@
 #include "GameController.hpp"
 
-#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <string>
+
+#include <SFML/Graphics.hpp>
 
 #include "Board.hpp"
 #include "Random.h"
@@ -9,6 +11,7 @@
 #include "AppConfig/FileAppConfigContainer.h"
 #include "AppConfig/FileAppConfigLoader.h"
 #include "CommonEnums.hpp"
+#include "GameFinishedChecker.h"
 
 #include "BotRandomizer.hpp"
 #include "HumanPlayer.hpp"
@@ -73,6 +76,8 @@ bool GameController::Run() {
 	result = createPlayer(fileAppConfigContainer.PlayerBlack, playerBlack, board);
 	if (!result) return false;
 
+	bool battleFinished = false;
+
 	// Main window loop.
 	// TODO: extract it to new function.
 	while (window.isOpen())
@@ -86,33 +91,87 @@ bool GameController::Run() {
 			}
 		}
 
+		if (battleFinished) {
+			continue;
+		}
+
 		// Initial drawing of the game board, for the first player to see the board.
 		drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
+
+		GameFinishedChecker gameFinishedChecker(board);
 
 		// Player movement coordinates.
 		std::size_t x = 0u, y = 0u;
 
+		Field winner = Field::Empty;
+
 		// Main game loop.
 		// TODO: extract it to new function.
-		bool battleFinished = false;
 		while (!battleFinished) {
 
 			// 1. White player's turn.
-			bool result = makePlayerMove(board, playerWhite, x, y, Field::White);
-			if (!result) {
-				return false;
-			}
+			Field currentPlayerColor = Field::White;
+
+			bool result = false;
+
+			result = makePlayerMove(board, playerWhite, x, y, currentPlayerColor);
+			if (!result) return false;
+
+			#if 0 // CODE FOR TESTING - TO BE REMOVED
+			//---
+			x = 0u;
+			y = 16u;
+			board.SetField(x, y, Field::White);
+
+			x = 1u;
+			y = 15u;
+			board.SetField(x, y, Field::White);
+
+			x = 2u;
+			y = 14u;
+			board.SetField(x, y, Field::White);
+
+			x = 3u;
+			y = 13u;
+			board.SetField(x, y, Field::White);
+
+			x = 4u;
+			y = 12u;
+			board.SetField(x, y, Field::White);
+			//---
+			#endif
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
+
+			result = gameFinishedChecker.CheckIfGameFinished(x, y, currentPlayerColor, battleFinished);
+			if (!result) return false;
+			if (battleFinished) {
+				winner = currentPlayerColor;
+				continue;
+			}
 
 			// 2. Black player's turn.
-			result = makePlayerMove(board, playerBlack, x, y, Field::Black);
-			if (!result) {
-				return false;
-			}
+			currentPlayerColor = Field::Black;
+			result = makePlayerMove(board, playerBlack, x, y, currentPlayerColor);
+			if (!result) return false;
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
+
+			result = gameFinishedChecker.CheckIfGameFinished(x, y, currentPlayerColor, battleFinished);
+			if (!result) return false;
+			if (battleFinished) {
+				winner = currentPlayerColor;
+			}
 		}
+
+		// TODO: extract it to function.
+		std::string winnerColor;
+		if (winner == Field::White) {
+			winnerColor = "White";
+		} else {
+			winnerColor = "Black";
+		}
+		LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
 	}
 
 	SAFE_DELETE(playerWhite);
@@ -122,8 +181,8 @@ bool GameController::Run() {
 	unsigned long long int allocationCounter = AllocationCounter::GetCounter();
 	if (allocationCounter != 0uLL) {
 		LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
+		return false;
 	}
-
 	return true;
 }
 
