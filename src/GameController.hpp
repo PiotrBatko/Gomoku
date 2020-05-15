@@ -36,6 +36,8 @@ private:
 			  sf::CircleShape& blackBlockView);
 
 	bool Initialize();
+
+	bool createPlayer(const int playerTypeId, Player*& player, const Board& board);
 };
 
 #endif

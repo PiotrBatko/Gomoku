@@ -1,6 +1,7 @@
 #include "FileAppConfigLoader.h"
 
 #include "../DebugInfo.h"
+#include "../CommonEnums.hpp"
 
 FileAppConfigLoader::FileAppConfigLoader()
 	: constantDefinitionFixedText(FILE_APP_CONFIG_LOADER_CONST_KEYWORD) {
@@ -473,6 +474,20 @@ FileAppConfigErrorState FileAppConfigLoader::parseConstantTypeString(int indexOf
 }
 
 bool FileAppConfigLoader::checkLoadedValuesCorrectness(FileAppConfigContainer& fileAppConfigContainer) {
-	//TODO
+	if (fileAppConfigContainer.BoardSize < 1) {
+		LOG_ERROR("fileAppConfigContainer.BoardSize < 1");
+		return false;
+	}
+
+	const int PlayerMinId = 1;
+	const int PlayerMaxId = static_cast<int>(PlayerType::ELEMENT_COUNT);
+	if (fileAppConfigContainer.PlayerWhite < PlayerMinId || fileAppConfigContainer.PlayerWhite > PlayerMaxId) {
+		LOG_ERROR("fileAppConfigContainer.Player1 has wrong value.");
+		return false;
+	}
+	if (fileAppConfigContainer.PlayerBlack < PlayerMinId || fileAppConfigContainer.PlayerBlack > PlayerMaxId) {
+		LOG_ERROR("fileAppConfigContainer.Player2 has wrong value.");
+		return false;
+	}
 	return true;
 }

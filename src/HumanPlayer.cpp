@@ -5,14 +5,14 @@
 #include "Board.hpp"
 #include "DebugInfo.h"
 
-HumanPlayer::HumanPlayer(const Board* const gameBoard): Player(gameBoard) {
+HumanPlayer::HumanPlayer(const Board* const gameBoard)
+	: Player(gameBoard), turnCount(1u) {
 }
 
 HumanPlayer::~HumanPlayer() {
 }
 
 bool HumanPlayer::MakeMove(std::size_t& x, std::size_t& y) {
-	static unsigned int turnCount = 1u;
 	bool isInputDataCorrect = false;
 
 	LOG_LN("Turn ", turnCount++, ".");

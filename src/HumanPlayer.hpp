@@ -1,5 +1,5 @@
-#ifndef _BOT_CM_HPP
-#define _BOT_CM_HPP
+#ifndef _BOT_HUMAN_PLAYER_HPP
+#define _BOT_HUMAN_PLAYER_HPP
 
 #include "Player.hpp"
 
@@ -11,6 +11,9 @@ public:
 	virtual ~HumanPlayer();
 
 	bool MakeMove(std::size_t& x, std::size_t& y) override;
+
+private:
+	unsigned int turnCount;
 };
 
 #endif

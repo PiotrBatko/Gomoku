@@ -8,6 +8,7 @@
 #include "CommonUtils.h"
 #include "AppConfig/FileAppConfigContainer.h"
 #include "AppConfig/FileAppConfigLoader.h"
+#include "CommonEnums.hpp"
 
 #include "BotRandomizer.hpp"
 #include "HumanPlayer.hpp"
@@ -64,10 +65,13 @@ bool GameController::Run() {
 	fieldView.setOutlineColor(sf::Color(214, 177, 114));
 	fieldView.setOrigin(FieldWidthInPixels / 2, FieldHeightInPixels / 2);
 
-	Player* playerWhite = NEW(HumanPlayer  (&board));
-	Player* playerBlack = NEW(BotRandomizer(&board));
-	//Player* playerWhite = NEW(BotCM(&board));
-	//Player* playerBlack = NEW(BotPB(&board));
+	Player* playerWhite = nullptr;
+	Player* playerBlack = nullptr;
+
+	result = createPlayer(fileAppConfigContainer.PlayerWhite, playerWhite, board);
+	if (!result) return false;
+	result = createPlayer(fileAppConfigContainer.PlayerBlack, playerBlack, board);
+	if (!result) return false;
 
 	// Main window loop.
 	// TODO: extract it to new function.
@@ -99,6 +103,8 @@ bool GameController::Run() {
 				return false;
 			}
 
+			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
+
 			// 2. Black player's turn.
 			result = makePlayerMove(board, playerBlack, x, y, Field::Black);
 			if (!result) {
@@ -118,6 +124,29 @@ bool GameController::Run() {
 		LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
 	}
 
+	return true;
+}
+
+bool GameController::createPlayer(const int playerTypeId, Player*& player, const Board& board) {
+	PlayerType playerType = static_cast<PlayerType>(playerTypeId);
+
+	switch (playerType) {
+		case PlayerType::HUMAN:
+			player = NEW(HumanPlayer  (&board));
+			break;
+		case PlayerType::BOT_RANDOMIZER:
+			player = NEW(BotRandomizer(&board));
+			break;
+		case PlayerType::BOT_CM:
+			player = NEW(CM::BotCM    (&board));
+			break;
+		case PlayerType::BOT_PB:
+			player = NEW(PB::BotPB    (&board));
+			break;
+		default:
+			LOG_ERROR("Wrong player value.");
+			return false;
+	}
 	return true;
 }
 

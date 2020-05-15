@@ -3,3 +3,6 @@
 // Available types: int, long long int, bool and std::string.
 
 DEFINE_CONSTANT(int, BoardSize);
+
+DEFINE_CONSTANT(int, PlayerWhite);
+DEFINE_CONSTANT(int, PlayerBlack);
