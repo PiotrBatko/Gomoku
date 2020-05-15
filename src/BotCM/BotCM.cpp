@@ -2,7 +2,7 @@
 
 namespace CM {
 
-BotCM::BotCM(Board* gameBoard): Player(gameBoard) {
+BotCM::BotCM(const Board* const gameBoard): Player(gameBoard) {
 }
 
 BotCM::~BotCM() {

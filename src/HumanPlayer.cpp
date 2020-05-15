@@ -5,7 +5,7 @@
 #include "Board.hpp"
 #include "DebugInfo.h"
 
-HumanPlayer::HumanPlayer(Board* gameBoard): Player(gameBoard) {
+HumanPlayer::HumanPlayer(const Board* const gameBoard): Player(gameBoard) {
 }
 
 HumanPlayer::~HumanPlayer() {

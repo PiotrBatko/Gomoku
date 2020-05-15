@@ -108,6 +108,16 @@ bool GameController::Run() {
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 		}
 	}
+
+	SAFE_DELETE(playerWhite);
+	SAFE_DELETE(playerBlack);
+
+	// TODO: extract it to function.
+	unsigned long long int allocationCounter = AllocationCounter::GetCounter();
+	if (allocationCounter != 0uLL) {
+		LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
+	}
+
 	return true;
 }
 

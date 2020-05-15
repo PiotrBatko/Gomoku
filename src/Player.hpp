@@ -7,7 +7,7 @@ class Board;
 
 class Player {
 public:
-	Player(Board* gameBoard);
+	Player(const Board* gameBoard);
 	virtual ~Player();
 
 	// On input, x and y parameters hold last enemy's move. When there was no
@@ -16,7 +16,7 @@ public:
 	virtual bool MakeMove(std::size_t& x, std::size_t& y) = 0;
 
 protected:
-	Board* board;
+	const Board* const board;
 };
 
 #endif

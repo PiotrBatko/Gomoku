@@ -2,7 +2,7 @@
 
 namespace PB {
 
-BotPB::BotPB(Board* gameBoard): Player(gameBoard) {
+BotPB::BotPB(const Board* const gameBoard): Player(gameBoard) {
 }
 
 BotPB::~BotPB() {

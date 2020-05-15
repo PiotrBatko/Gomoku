@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-Player::Player(Board* gameBoard): board(gameBoard) {
+Player::Player(const Board* const gameBoard): board(gameBoard) {
 }
 
 Player::~Player() {

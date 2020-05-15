@@ -9,7 +9,7 @@ namespace PB {
 
 class BotPB : public Player {
 public:
-	BotPB(Board* gameBoard);
+	BotPB(const Board* gameBoard);
 	virtual ~BotPB();
 
 	bool MakeMove(std::size_t& x, std::size_t& y) override;

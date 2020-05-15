@@ -7,7 +7,7 @@ class Board;
 
 class HumanPlayer : public Player {
 public:
-	HumanPlayer(Board* gameBoard);
+	HumanPlayer(const Board* gameBoard);
 	virtual ~HumanPlayer();
 
 	bool MakeMove(std::size_t& x, std::size_t& y) override;

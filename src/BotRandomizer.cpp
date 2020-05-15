@@ -2,7 +2,7 @@
 #include "BotRandomizer.hpp"
 #include "Random.h"
 
-BotRandomizer::BotRandomizer(Board* gameBoard) : Player(gameBoard) {
+BotRandomizer::BotRandomizer(const Board* const gameBoard) : Player(gameBoard) {
 }
 
 BotRandomizer::~BotRandomizer() {
