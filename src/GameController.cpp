@@ -35,14 +35,6 @@ bool GameController::Run() {
 	const std::size_t BoardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
 	Board board(BoardSize, BoardSize);
 
-	#if 0 // Code for testing.
-	board.SetField(1, 0, Field::White);
-	board.SetField(1, 1, Field::Black);
-	board.SetField(2, 1, Field::Black);
-	board.SetField(3, 1, Field::White);
-	board.SetField(2, 2, Field::White);
-	#endif
-
 	constexpr std::size_t FieldWidthInPixels = 25u;
 	constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
 	sf::RenderWindow window(
