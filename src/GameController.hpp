@@ -3,6 +3,7 @@
 
 #include <utility>
 
+#include "Coordinates.hpp"
 #include "Field.hpp"
 
 class Board;
@@ -21,10 +22,8 @@ public:
 	bool Run();
 
 private:
-	bool makePlayerMove(Board& board,
+	Coordinates makePlayerMove(Board& board,
 			 Player* const player,
-			 std::size_t& x,
-			 std::size_t& y,
 			 const Field field);
 
 	void drawGameBoard(Board& board,

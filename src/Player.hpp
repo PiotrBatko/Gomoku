@@ -3,6 +3,8 @@
 
 #include <utility>
 
+#include "Coordinates.hpp"
+
 class Board;
 
 class Player {
@@ -10,10 +12,11 @@ public:
 	Player(const Board* gameBoard);
 	virtual ~Player();
 
-	// On input, x and y parameters hold last enemy's move. When there was no
-	// movement before current call, zeros are passed to this function.
-	// On output, x and y should contain current player's move.
-	virtual bool MakeMove(std::size_t& x, std::size_t& y) = 0;
+	// Player is notified after opponent's move. It is good moment
+	// to update some local informations about game progress.
+	virtual void NotifyAboutOpponentMove(Coordinates opponentMove) = 0;
+
+	virtual Coordinates MakeMove() = 0;
 
 protected:
 	const Board* const board;

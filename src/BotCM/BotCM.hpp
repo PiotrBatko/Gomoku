@@ -12,7 +12,8 @@ public:
 	BotCM(const Board* gameBoard);
 	virtual ~BotCM();
 
-	bool MakeMove(std::size_t& x, std::size_t& y) override;
+	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
+	Coordinates MakeMove() override;
 };
 
 }

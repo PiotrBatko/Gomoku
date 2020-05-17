@@ -1,5 +1,7 @@
 #include "BotCM.hpp"
 
+#include <stdexcept>
+
 namespace CM {
 
 BotCM::BotCM(const Board* const gameBoard): Player(gameBoard) {
@@ -8,10 +10,12 @@ BotCM::BotCM(const Board* const gameBoard): Player(gameBoard) {
 BotCM::~BotCM() {
 }
 
-bool BotCM::MakeMove(std::size_t& x, std::size_t& y) {
-	//TODO
+void BotCM::NotifyAboutOpponentMove(Coordinates) {
+}
 
-	return false;
+Coordinates BotCM::MakeMove() {
+	//TODO
+	throw std::runtime_error("Not implemented");
 }
 
 }

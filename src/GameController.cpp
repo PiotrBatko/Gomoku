@@ -92,9 +92,6 @@ bool GameController::Run() {
 
 		GameFinishedChecker gameFinishedChecker(board);
 
-		// Player movement coordinates.
-		std::size_t x = 0u, y = 0u;
-
 		Field winner = Field::Empty;
 
 		// Main game loop.
@@ -103,11 +100,8 @@ bool GameController::Run() {
 
 			// 1. White player's turn.
 			Field currentPlayerColor = Field::White;
-
-			bool result = false;
-
-			result = makePlayerMove(board, playerWhite, x, y, currentPlayerColor);
-			if (!result) return false;
+			Coordinates currentPlayerMove = makePlayerMove(board, playerWhite, currentPlayerColor);
+			playerBlack->NotifyAboutOpponentMove(currentPlayerMove);
 
 			#if 0 // CODE FOR TESTING - TO BE REMOVED
 			//---
@@ -135,7 +129,7 @@ bool GameController::Run() {
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 
-			result = gameFinishedChecker.CheckIfGameFinished(x, y, currentPlayerColor, battleFinished);
+			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove.x, currentPlayerMove.y, currentPlayerColor, battleFinished);
 			if (!result) return false;
 			if (battleFinished) {
 				winner = currentPlayerColor;
@@ -144,12 +138,12 @@ bool GameController::Run() {
 
 			// 2. Black player's turn.
 			currentPlayerColor = Field::Black;
-			result = makePlayerMove(board, playerBlack, x, y, currentPlayerColor);
-			if (!result) return false;
+			currentPlayerMove = makePlayerMove(board, playerBlack, currentPlayerColor);
+			playerWhite->NotifyAboutOpponentMove(currentPlayerMove);
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 
-			result = gameFinishedChecker.CheckIfGameFinished(x, y, currentPlayerColor, battleFinished);
+			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove.x, currentPlayerMove.y, currentPlayerColor, battleFinished);
 			if (!result) return false;
 			if (battleFinished) {
 				winner = currentPlayerColor;
@@ -212,30 +206,24 @@ bool GameController::Initialize() {
 	return true;
 }
 
-bool GameController::makePlayerMove(Board& board,
-								    Player* const player,
-								    std::size_t& x,
-								    std::size_t& y,
-								    const Field field) {
-
-	bool result = player->MakeMove(x, y);
-	if (!result) {
-		return false;
-	}
+Coordinates GameController::makePlayerMove(Board& board,
+                                           Player* const player,
+                                           const Field field) {
+	Coordinates move = player->MakeMove();
 
 	// Ensure that movement made by player is valid.
-	result = false;
-	bool isFieldEmpty = board.IsFieldEmpty(x, y, result);
+	bool result = false;
+	bool isFieldEmpty = board.IsFieldEmpty(move.x, move.y, result);
 	if (!result || !isFieldEmpty) {
-		return false;
+		throw std::runtime_error("Unnamed error");
 	}
 
 	// Set player's movement on the board.
-	result = board.SetField(x, y, field);
+	result = board.SetField(move.x, move.y, field);
 	if (!result) {
-		return false;
+        throw std::runtime_error("Unnamed error");
 	}
-	return true;
+	return move;
 }
 
 void GameController::drawGameBoard(Board& board,

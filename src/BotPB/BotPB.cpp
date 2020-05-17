@@ -1,17 +1,23 @@
 #include "BotPB.hpp"
 
+#include <stdexcept>
+
 namespace PB {
 
-BotPB::BotPB(const Board* const gameBoard): Player(gameBoard) {
+BotPB::BotPB(const Board* const gameBoard) :
+    Player(gameBoard)
+{
+
 }
 
-BotPB::~BotPB() {
+void BotPB::NotifyAboutOpponentMove(Coordinates opponentMove)
+{
+    (void) opponentMove;
 }
 
-bool BotPB::MakeMove(std::size_t& x, std::size_t& y) {
-	//TODO
-
-	return false;
+Coordinates BotPB::MakeMove()
+{
+    throw std::runtime_error("Not implemented");
 }
 
 }

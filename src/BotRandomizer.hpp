@@ -10,7 +10,8 @@ public:
 	BotRandomizer(const Board* gameBoard);
 	virtual ~BotRandomizer();
 
-	bool MakeMove(std::size_t& x, std::size_t& y) override;
+	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
+	Coordinates MakeMove() override;
 };
 
 #endif

@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "Board.hpp"
 #include "BotRandomizer.hpp"
 #include "Random.h"
@@ -8,16 +10,21 @@ BotRandomizer::BotRandomizer(const Board* const gameBoard) : Player(gameBoard) {
 BotRandomizer::~BotRandomizer() {
 }
 
-bool BotRandomizer::MakeMove(std::size_t& x, std::size_t& y) {
+void BotRandomizer::NotifyAboutOpponentMove(Coordinates) {
+}
+
+Coordinates BotRandomizer::MakeMove() {
+    Coordinates nextMove;
+
 	bool movementPlaceFound = false;
 	while (!movementPlaceFound) {
-		x = static_cast<std::size_t>(Random::RandomizeInt(board->getWidth ()));
-		y = static_cast<std::size_t>(Random::RandomizeInt(board->getHeight()));
+		nextMove.x = static_cast<std::size_t>(Random::RandomizeInt(board->getWidth ()));
+		nextMove.y = static_cast<std::size_t>(Random::RandomizeInt(board->getHeight()));
 
 		bool result = false;
-		bool isFieldEmpty = board->IsFieldEmpty(x, y, result, false);
+		bool isFieldEmpty = board->IsFieldEmpty(nextMove.x, nextMove.y, result, false);
 		if (!result) {
-			return false;
+		    throw std::runtime_error("Unnamed error");
 		}
 		movementPlaceFound = isFieldEmpty;
 	}
@@ -26,9 +33,9 @@ bool BotRandomizer::MakeMove(std::size_t& x, std::size_t& y) {
 
 	// Ensure that field which we want to set as player result movement, is not occupied.
 	bool result = false;
-	bool isFieldEmpty = board->IsFieldEmpty(x, y, result);
+	bool isFieldEmpty = board->IsFieldEmpty(nextMove.x, nextMove.y, result);
 	if (!result || !isFieldEmpty) {
-		return false;
+		throw std::runtime_error("Unnamed error");
 	}
-	return true;
+	return nextMove;
 }

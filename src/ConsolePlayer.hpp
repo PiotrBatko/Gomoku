@@ -10,7 +10,8 @@ public:
 	ConsolePlayer(const Board* gameBoard);
 	virtual ~ConsolePlayer();
 
-	bool MakeMove(std::size_t& x, std::size_t& y) override;
+	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
+	Coordinates MakeMove() override;
 
 private:
 	unsigned int turnCount;
