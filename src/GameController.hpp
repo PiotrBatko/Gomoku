@@ -3,16 +3,13 @@
 
 #include <utility>
 
+#include <SFML/Graphics/RenderWindow.hpp>
+
+#include "Board.hpp"
 #include "Coordinates.hpp"
 #include "Field.hpp"
 
-class Board;
 class Player;
-namespace sf {
-	class RectangleShape;
-	class RenderWindow;
-	class CircleShape;
-}
 
 class GameController {
 public:
@@ -22,21 +19,25 @@ public:
 	bool Run();
 
 private:
-	Coordinates makePlayerMove(Board& board,
-			 Player* const player,
+	Coordinates makePlayerMove(Player* const player,
 			 const Field field);
 
-	void drawGameBoard(Board& board,
-			  std::size_t FieldWidthInPixels,
-			  std::size_t FieldHeightInPixels,
-			  sf::RectangleShape& fieldView,
-			  sf::RenderWindow& window,
-			  sf::CircleShape& whiteBlockView,
-			  sf::CircleShape& blackBlockView);
+	void drawGameBoard();
 
 	bool Initialize();
 
-	bool createPlayer(const int playerTypeId, Player*& player, const Board& board);
+	bool createPlayer(const int playerTypeId, Player*& player);
+
+	Board m_Board;
+
+	Player * m_WhitePlayer = nullptr;
+	Player * m_BlackPlayer = nullptr;
+
+	// View related members
+	static constexpr std::size_t FieldWidthInPixels = 25u;
+	static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
+
+	sf::RenderWindow m_Window;
 };
 
 #endif
