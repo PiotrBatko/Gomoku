@@ -103,30 +103,6 @@ bool GameController::Run() {
 			Coordinates currentPlayerMove = makePlayerMove(board, playerWhite, currentPlayerColor);
 			playerBlack->NotifyAboutOpponentMove(currentPlayerMove);
 
-			#if 0 // CODE FOR TESTING - TO BE REMOVED
-			//---
-			x = 0u;
-			y = 16u;
-			board.SetField(x, y, Field::White);
-
-			x = 1u;
-			y = 15u;
-			board.SetField(x, y, Field::White);
-
-			x = 2u;
-			y = 14u;
-			board.SetField(x, y, Field::White);
-
-			x = 3u;
-			y = 13u;
-			board.SetField(x, y, Field::White);
-
-			x = 4u;
-			y = 12u;
-			board.SetField(x, y, Field::White);
-			//---
-			#endif
-
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 
 			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
