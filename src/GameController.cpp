@@ -14,7 +14,7 @@
 #include "GameFinishedChecker.h"
 
 #include "BotRandomizer.hpp"
-#include "HumanPlayer.hpp"
+#include "ConsolePlayer.hpp"
 #include "BotCM/BotCM.hpp"
 #include "BotPB/BotPB.hpp"
 
@@ -182,8 +182,8 @@ bool GameController::createPlayer(const int playerTypeId, Player*& player, const
 	PlayerType playerType = static_cast<PlayerType>(playerTypeId);
 
 	switch (playerType) {
-		case PlayerType::HUMAN:
-			player = NEW(HumanPlayer  (&board));
+		case PlayerType::HUMAN_CONSOLE:
+			player = NEW(ConsolePlayer(&board));
 			break;
 		case PlayerType::BOT_RANDOMIZER:
 			player = NEW(BotRandomizer(&board));

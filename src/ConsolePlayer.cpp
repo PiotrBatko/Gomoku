@@ -1,18 +1,18 @@
-#include "HumanPlayer.hpp"
+#include "ConsolePlayer.hpp"
 
 #include <iostream>
 
 #include "Board.hpp"
 #include "DebugInfo.h"
 
-HumanPlayer::HumanPlayer(const Board* const gameBoard)
+ConsolePlayer::ConsolePlayer(const Board* const gameBoard)
 	: Player(gameBoard), turnCount(1u) {
 }
 
-HumanPlayer::~HumanPlayer() {
+ConsolePlayer::~ConsolePlayer() {
 }
 
-bool HumanPlayer::MakeMove(std::size_t& x, std::size_t& y) {
+bool ConsolePlayer::MakeMove(std::size_t& x, std::size_t& y) {
 	bool isInputDataCorrect = false;
 
 	LOG_LN("Turn ", turnCount++, ".");
