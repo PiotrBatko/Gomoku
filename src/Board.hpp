@@ -13,6 +13,7 @@ class Board
 {
 public:
 
+    Board() = default;
     Board(std::size_t width, std::size_t height);
 
     void SetSize(std::size_t width, std::size_t height);
@@ -29,8 +30,8 @@ public:
 
 private:
 
-    std::size_t m_Width;
-    std::size_t m_Height;
+    std::size_t m_Width = 0;
+    std::size_t m_Height = 0;
     std::vector<Field> m_Fields;
 };
 
