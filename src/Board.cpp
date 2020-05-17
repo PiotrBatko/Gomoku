@@ -11,6 +11,13 @@ Board::Board(const std::size_t width, const std::size_t height):
 {
 }
 
+void Board::SetSize(std::size_t width, std::size_t height)
+{
+    m_Width = width;
+    m_Height = height;
+    m_Fields.assign(m_Width * m_Height, Field::Empty);
+}
+
 const Field& Board::at(const std::size_t x, const std::size_t y) const
 {
     return m_Fields[y * m_Height + x];
