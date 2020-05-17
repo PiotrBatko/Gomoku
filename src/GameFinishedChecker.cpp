@@ -23,13 +23,12 @@ GameFinishedChecker::~GameFinishedChecker() {
 }
 
 bool GameFinishedChecker::CheckIfGameFinished(
-		const std::size_t lastPlayerMovementX,
-		const std::size_t lastPlayerMovementY,
+		Coordinates lastPlayerMovement,
 		const Field lastPlayerColor,
 		bool& checkingResult) {
 
-	this->lastPlayerMovementX = lastPlayerMovementX;
-	this->lastPlayerMovementY = lastPlayerMovementY;
+	this->lastPlayerMovementX = lastPlayerMovement.x;
+	this->lastPlayerMovementY = lastPlayerMovement.y;
 	this->lastPlayerColor = lastPlayerColor;
 	pawnsInLineCounter = 0u;
 

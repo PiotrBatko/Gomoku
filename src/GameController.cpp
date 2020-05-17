@@ -129,7 +129,7 @@ bool GameController::Run() {
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 
-			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove.x, currentPlayerMove.y, currentPlayerColor, battleFinished);
+			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
 			if (!result) return false;
 			if (battleFinished) {
 				winner = currentPlayerColor;
@@ -143,7 +143,7 @@ bool GameController::Run() {
 
 			drawGameBoard(board, FieldWidthInPixels, FieldHeightInPixels, fieldView, window, whiteBlockView, blackBlockView);
 
-			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove.x, currentPlayerMove.y, currentPlayerColor, battleFinished);
+			result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
 			if (!result) return false;
 			if (battleFinished) {
 				winner = currentPlayerColor;

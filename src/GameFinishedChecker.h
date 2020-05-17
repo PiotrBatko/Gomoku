@@ -3,6 +3,7 @@
 
 #include <utility>
 
+#include "Coordinates.hpp"
 #include "Field.hpp"
 
 class Board;
@@ -12,8 +13,7 @@ public:
 	GameFinishedChecker(const Board& board);
 	virtual ~GameFinishedChecker();
 
-	bool CheckIfGameFinished(std::size_t lastPlayerMovementX,
-							 std::size_t lastPlayerMovementY,
+	bool CheckIfGameFinished(Coordinates lastPlayerMovement,
 							 Field lastPlayerColor,
 							 bool& checkingResult);
 
