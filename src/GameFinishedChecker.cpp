@@ -101,53 +101,47 @@ void GameFinishedChecker::processNonSlantingLines(bool& checkingResult) {
 }
 
 void GameFinishedChecker::processSlantingLines(bool& checkingResult) {
-	int K_Int= static_cast<int>(K);
-	std::size_t lastPlayerMovementMinValue = std::min(lastPlayerMovementX, lastPlayerMovementY);
-	iFirst = -K_Int;
-	if (lastPlayerMovementMinValue < pawnsLineLenghtToWin) {
-		iFirst = -1 * static_cast<int>(lastPlayerMovementMinValue);
-	}
+    lastPlayerMovementX_Int = static_cast<int>(lastPlayerMovementX);
+    lastPlayerMovementY_Int = static_cast<int>(lastPlayerMovementY);
 
-	std::size_t lastPlayerMovementMaxValue = std::max(lastPlayerMovementX, lastPlayerMovementY);
-	iLast = K_Int;
-	if (boardSize - lastPlayerMovementMaxValue < pawnsLineLenghtToWin) {
-		iLast = -1 * static_cast<int>(lastPlayerMovementMaxValue);
-	}
-
-	lastPlayerMovementX_Int = static_cast<int>(lastPlayerMovementX);
-	lastPlayerMovementY_Int = static_cast<int>(lastPlayerMovementY);
-
-	// Check slanting line from top left to bottom right.
-	checkingResult = checkSlantingLine(false);
-	if (checkingResult) {
-		return;
-	}
-	// Check slanting line from top right to bottom left.
-	checkingResult = checkSlantingLine(true);
+    // Check slanting line from top left to bottom right.
+    checkingResult = checkSlantingLine(false);
+    if (checkingResult) {
+        return;
+    }
+    // Check slanting line from top right to bottom left.
+    checkingResult = checkSlantingLine(true);
 }
 
 bool GameFinishedChecker::checkSlantingLine(const bool negateIForColumns) {
-	pawnsInLineCounter = 0u;
+    pawnsInLineCounter = 0u;
+    int K_Int = static_cast<int>(K);
 
-	for (int i = iFirst; i <= iLast; ++i) {
-		int iForColumns = i;
-		if (negateIForColumns) {
-			iForColumns = -i;
-		}
+    for (int i = -1 * K_Int; i <= K_Int; ++i) {
+        int iForColumns = i;
+        int iForRows    = i;
+        if (negateIForColumns) {
+            iForColumns = -i;
+        }
 
-		const std::size_t x = static_cast<std::size_t>(lastPlayerMovementX_Int + iForColumns);
-		const std::size_t y = static_cast<std::size_t>(lastPlayerMovementY_Int + i);
+        const std::size_t x = static_cast<std::size_t>(lastPlayerMovementX_Int + iForColumns);
+        const std::size_t y = static_cast<std::size_t>(lastPlayerMovementY_Int + iForRows);
 
-		const Field currentField = board.at(x, y);
-		if (currentField == lastPlayerColor) {
-			if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
-				// Player has won.
-				return true;
-			}
-		} else {
-			pawnsInLineCounter = 0u;
-		}
-	}
-	// Player didn't win.
-	return false;
+        const bool isFieldOnBoard = board.IsFieldOnBoard(x, y);
+        if (!isFieldOnBoard) {
+            continue;
+        }
+
+        const Field currentField = board.at(x, y);
+        if (currentField == lastPlayerColor) {
+            if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
+                // Player has won.
+                return true;
+            }
+        } else {
+            pawnsInLineCounter = 0u;
+        }
+    }
+    // Player didn't win.
+    return false;
 }
