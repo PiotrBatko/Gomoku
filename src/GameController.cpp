@@ -1,6 +1,7 @@
 #include "GameController.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include <SFML/Graphics.hpp>
@@ -157,6 +158,8 @@ bool GameController::Initialize() {
         "Gomoku Bot Battle"
     );
 
+    m_Font.loadFromFile("res/fonts/Ubuntu-L.ttf");
+
     return true;
 }
 
@@ -198,27 +201,43 @@ void GameController::drawGameBoard() {
     fieldView.setOutlineColor(sf::Color(214, 177, 114));
     fieldView.setOrigin(FieldWidthInPixels / 2, FieldHeightInPixels / 2);
 
+    sf::Text fieldCoordinatesView;
+    fieldCoordinatesView.setCharacterSize(10);
+    fieldCoordinatesView.setFont(m_Font);
+    fieldCoordinatesView.setFillColor(sf::Color(234, 193, 128));
+
     for (std::size_t y = 0u; y < m_Board.getHeight(); ++y)
     {
         for (std::size_t x = 0u; x < m_Board.getWidth(); ++x)
         {
-            sf::Vector2f position(
+            sf::Vector2f fieldCenter(
                 FieldWidthInPixels / 2 + x * FieldWidthInPixels,
                 FieldHeightInPixels / 2 + y * FieldHeightInPixels
             );
-            fieldView.setPosition(position);
+            fieldView.setPosition(fieldCenter);
 
             m_Window.draw(fieldView);
 
             if (m_Board.at(x, y) == Field::White)
             {
-                whiteBlockView.setPosition(position);
+                whiteBlockView.setPosition(fieldCenter);
                 m_Window.draw(whiteBlockView);
             }
             else if (m_Board.at(x, y) == Field::Black)
             {
-                blackBlockView.setPosition(position);
+                blackBlockView.setPosition(fieldCenter);
                 m_Window.draw(blackBlockView);
+            }
+            else
+            {
+                std::ostringstream coordinates;
+                coordinates << x << "\n" << y;
+
+                sf::Vector2f fieldTopLeft(x * FieldWidthInPixels, y * FieldHeightInPixels);
+                sf::Vector2f fieldCoordinatesMargin(3, 1);
+                fieldCoordinatesView.setPosition(fieldTopLeft + fieldCoordinatesMargin);
+                fieldCoordinatesView.setString(coordinates.str());
+                m_Window.draw(fieldCoordinatesView);
             }
         }
     }

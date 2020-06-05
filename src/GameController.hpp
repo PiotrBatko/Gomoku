@@ -3,6 +3,7 @@
 
 #include <utility>
 
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include "Board.hpp"
@@ -39,6 +40,7 @@ private:
     static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
 
     sf::RenderWindow m_Window;
+    sf::Font m_Font;
 };
 
 #endif
