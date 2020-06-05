@@ -13,31 +13,32 @@ class Player;
 
 class GameController {
 public:
-	GameController();
-	virtual ~GameController();
 
-	bool Run();
+    GameController();
+    virtual ~GameController();
+
+    bool Run();
 
 private:
-	Coordinates makePlayerMove(Player* const player,
-			 const Field field);
 
-	void drawGameBoard();
+    Coordinates makePlayerMove(Player* const player, const Field field);
 
-	bool Initialize();
+    void drawGameBoard();
 
-	bool createPlayer(const int playerTypeId, Player*& player);
+    bool Initialize();
 
-	Board m_Board;
+    bool createPlayer(const int playerTypeId, Player*& player);
 
-	Player * m_WhitePlayer = nullptr;
-	Player * m_BlackPlayer = nullptr;
+    Board m_Board;
 
-	// View related members
-	static constexpr std::size_t FieldWidthInPixels = 25u;
-	static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
+    Player * m_WhitePlayer = nullptr;
+    Player * m_BlackPlayer = nullptr;
 
-	sf::RenderWindow m_Window;
+    // View related members
+    static constexpr std::size_t FieldWidthInPixels = 25u;
+    static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
+
+    sf::RenderWindow m_Window;
 };
 
 #endif
