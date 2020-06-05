@@ -1,6 +1,7 @@
 #ifndef _GAME_CONTROLLER_HPP_
 #define _GAME_CONTROLLER_HPP_
 
+#include <memory>
 #include <utility>
 
 #include <SFML/Graphics/Font.hpp>
@@ -28,12 +29,12 @@ private:
 
     bool Initialize();
 
-    bool createPlayer(const int playerTypeId, Player*& player);
+    std::unique_ptr<Player> createPlayer(const int playerTypeId);
 
     Board m_Board;
 
-    Player * m_WhitePlayer = nullptr;
-    Player * m_BlackPlayer = nullptr;
+    std::unique_ptr<Player> m_WhitePlayer;
+    std::unique_ptr<Player> m_BlackPlayer;
 
     // View related members
     static constexpr std::size_t FieldWidthInPixels = 25u;

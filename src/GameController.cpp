@@ -33,10 +33,8 @@ bool GameController::Run() {
         return false;
     }
 
-    result = createPlayer(fileAppConfigContainer.PlayerWhite, m_WhitePlayer);
-    if (!result) return false;
-    result = createPlayer(fileAppConfigContainer.PlayerBlack, m_BlackPlayer);
-    if (!result) return false;
+    m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite);
+    m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack);
 
     bool battleFinished = false;
 
@@ -70,7 +68,7 @@ bool GameController::Run() {
 
             // 1. White player's turn.
             Field currentPlayerColor = Field::White;
-            Coordinates currentPlayerMove = makePlayerMove(m_WhitePlayer, currentPlayerColor);
+            Coordinates currentPlayerMove = makePlayerMove(m_WhitePlayer.get(), currentPlayerColor);
             m_BlackPlayer->NotifyAboutOpponentMove(currentPlayerMove);
 
             drawGameBoard();
@@ -84,7 +82,7 @@ bool GameController::Run() {
 
             // 2. Black player's turn.
             currentPlayerColor = Field::Black;
-            currentPlayerMove = makePlayerMove(m_BlackPlayer, currentPlayerColor);
+            currentPlayerMove = makePlayerMove(m_BlackPlayer.get(), currentPlayerColor);
             m_WhitePlayer->NotifyAboutOpponentMove(currentPlayerMove);
 
             drawGameBoard();
@@ -106,9 +104,6 @@ bool GameController::Run() {
         LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
     }
 
-    SAFE_DELETE(m_WhitePlayer);
-    SAFE_DELETE(m_BlackPlayer);
-
     // TODO: extract it to function.
     unsigned long long int allocationCounter = AllocationCounter::GetCounter();
     if (allocationCounter != 0uLL) {
@@ -118,27 +113,22 @@ bool GameController::Run() {
     return true;
 }
 
-bool GameController::createPlayer(const int playerTypeId, Player*& player) {
+std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId) {
     PlayerType playerType = static_cast<PlayerType>(playerTypeId);
 
-    switch (playerType) {
+    switch (playerType)
+    {
         case PlayerType::HUMAN_CONSOLE:
-            player = NEW(ConsolePlayer(&m_Board));
-            break;
+            return std::make_unique<ConsolePlayer>(&m_Board);
         case PlayerType::BOT_RANDOMIZER:
-            player = NEW(BotRandomizer(&m_Board));
-            break;
+            return std::make_unique<BotRandomizer>(&m_Board);
         case PlayerType::BOT_CM:
-            player = NEW(CM::BotCM    (&m_Board));
-            break;
+            return std::make_unique<CM::BotCM>(&m_Board);
         case PlayerType::BOT_PB:
-            player = NEW(PB::BotPB    (&m_Board));
-            break;
+            return std::make_unique<PB::BotPB>(&m_Board);
         default:
-            LOG_ERROR("Wrong player value.");
-            return false;
+            throw std::runtime_error("Wrong player type id");
     }
-    return true;
 }
 
 bool GameController::Initialize() {
