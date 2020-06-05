@@ -2,8 +2,9 @@
 #define _FILE_APP_CONFIG_LOADER_H
 
 #include <fstream>
-#include <string>
 #include <iostream>
+#include <memory>
+#include <string>
 #include "FileAppConfigContainer.h"
 #include "../CommonUtils.h"
 
@@ -53,8 +54,6 @@ class FileAppConfigLoader {
 public:
     /// Class constructor.
     FileAppConfigLoader();
-    /// Class destructor.
-    ~FileAppConfigLoader();
 
     /// Load application configuration constants from external file to given
     /// container of file application configuration. There is assumed that there are
@@ -68,7 +67,7 @@ public:
 
 private:
     /// Pointer to application configuration constants external file.
-    std::ifstream* appConfigValuesFile;
+    std::unique_ptr<std::ifstream> appConfigValuesFile;
     /// String for current read line from application configuration file.
     std::string currentReadLine;
     /// Container of application configuration constants defined in external file(s)

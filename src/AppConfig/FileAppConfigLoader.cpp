@@ -9,13 +9,6 @@ FileAppConfigLoader::FileAppConfigLoader()
     fileAppConfigContainer = nullptr;
 }
 
-FileAppConfigLoader::~FileAppConfigLoader() {
-    if (!appConfigValuesFile) {
-        SAFE_DELETE(appConfigValuesFile);
-        appConfigValuesFile = nullptr;
-    }
-}
-
 // Load application configuration constants from external file to given
 // container of file application configuration. There is assumed that there are
 // two files with application configuration constants:
@@ -85,7 +78,7 @@ FileAppConfigErrorState FileAppConfigLoader::loadFileAppConfigConstants(FileAppC
     this->fileAppConfigContainer = &fileAppConfigContainer;
 
     // 1. Open external file.
-    appConfigValuesFile = NEW(std::ifstream(APP_CONFIG_VALUES_FILE_PATH, std::ios::in));
+    appConfigValuesFile = std::make_unique<std::ifstream>(APP_CONFIG_VALUES_FILE_PATH, std::ios::in);
     if (!appConfigValuesFile->is_open()) {
         return FileAppConfigErrorState_FileOpenError;
     }
