@@ -14,6 +14,8 @@ public:
 	Coordinates MakeMove() override;
 
 private:
+	bool checkForNotNumberValue();
+
 	unsigned int turnCount;
 };
 

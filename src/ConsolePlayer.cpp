@@ -21,9 +21,16 @@ Coordinates ConsolePlayer::MakeMove() {
 
 	LOG_LN("Turn ", turnCount++, ".");
 	LOG_LN("Please put column and row indices of your movement.");
+
 	while (!isInputDataCorrect) {
 		std::cin >> nextMove.x;
+		if (checkForNotNumberValue()) {
+            continue;
+		}
 		std::cin >> nextMove.y;
+		if (checkForNotNumberValue()) {
+            continue;
+        }
 
 		if (!board->IsFieldOnBoard(nextMove.x, nextMove.y)) {
 			LOG_LN("Coordinates are out of the game board. Please enter not occupied coordinates.");
@@ -41,4 +48,14 @@ Coordinates ConsolePlayer::MakeMove() {
 		isInputDataCorrect = true;
 	}
 	return nextMove;
+}
+
+bool ConsolePlayer::checkForNotNumberValue() {
+    if (std::cin.fail()) {
+        LOG_LN("Entered value is not a number. Please enter two number values.");
+        std::cin.clear();
+        std::cin.ignore(10000,'\n');
+        return true;
+    }
+    return false;
 }
