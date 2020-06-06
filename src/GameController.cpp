@@ -79,6 +79,7 @@ bool GameController::Run() {
                 winner = currentPlayerColor;
                 continue;
             }
+            waitForEnterKeyIfNeeded();
 
             // 2. Black player's turn.
             currentPlayerColor = Field::Black;
@@ -92,6 +93,7 @@ bool GameController::Run() {
             if (battleFinished) {
                 winner = currentPlayerColor;
             }
+            waitForEnterKeyIfNeeded();
         }
 
         // TODO: extract it to function.
@@ -233,4 +235,19 @@ void GameController::drawGameBoard() {
     }
 
     m_Window.display();
+}
+
+void GameController::waitForEnterKeyIfNeeded() {
+    const int humanConsolePlayerId = static_cast<int>(PlayerType::HUMAN_CONSOLE);
+
+    // Ensure that both players are not human players.
+    if (   fileAppConfigContainer.PlayerWhite != humanConsolePlayerId
+        && fileAppConfigContainer.PlayerBlack != humanConsolePlayerId) {
+
+        if (fileAppConfigContainer.EnterPressedNeededToMakeNextMove) {
+            // There is getchar() function used because it finishes just after pressing enter key
+            // when "cin >> value" needs other key to be pressed before enter key.
+            getchar();
+        }
+    }
 }

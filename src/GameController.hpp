@@ -31,6 +31,8 @@ private:
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId);
 
+    void waitForEnterKeyIfNeeded();
+
     Board m_Board;
 
     std::unique_ptr<Player> m_WhitePlayer;
