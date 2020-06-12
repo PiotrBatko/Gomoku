@@ -44,7 +44,7 @@ bool Board::IsFieldOnBoard(const std::size_t x, const std::size_t y) const
     return false;
 }
 
-bool Board::IsFieldEmpty(const std::size_t x, const std::size_t y, bool & executionStatus, bool logErrorWhenOccured) const
+bool Board::IsFieldEmpty(const std::size_t x, const std::size_t y, bool& executionStatus, bool logErrorWhenOccured) const
 {
     if (!IsFieldOnBoard(x, y))
     {

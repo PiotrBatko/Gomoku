@@ -12,6 +12,7 @@
 #include "Field.hpp"
 
 class Player;
+class GameFinishedChecker;
 
 class GameController {
 public:
@@ -23,6 +24,12 @@ public:
 
 private:
 
+    enum class FinishCause {
+        None,
+        EnoughPlayerPawnsInLine,
+        PlayerTurnMaxTimeExceeded
+    };
+
     Coordinates makePlayerMove(Player* const player, const Field field);
 
     void drawGameBoard();
@@ -31,12 +38,23 @@ private:
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId);
 
+    bool processPlayerTurn(
+            const Field currentPlayerColor,
+            const Field notCurrentPlayerColor,
+            const std::unique_ptr<Player>& currentPlayer,
+            const std::unique_ptr<Player>& notCurrentPlayer,
+            bool& battleFinished,
+            Field& winner,
+            FinishCause& battleFinishCause);
+
     void waitForEnterKeyIfNeeded();
 
     Board m_Board;
 
     std::unique_ptr<Player> m_WhitePlayer;
     std::unique_ptr<Player> m_BlackPlayer;
+
+    GameFinishedChecker* gameFinishedChecker;
 
     // View related members
     static constexpr std::size_t FieldWidthInPixels = 25u;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <chrono>
 
 #include <SFML/Graphics.hpp>
 
@@ -24,7 +25,7 @@ GameController::GameController() {
 }
 
 GameController::~GameController() {
-
+    SAFE_DELETE(gameFinishedChecker);
 }
 
 bool GameController::Run() {
@@ -58,42 +59,43 @@ bool GameController::Run() {
         // Initial drawing of the game board, for the first player to see the board.
         drawGameBoard();
 
-        GameFinishedChecker gameFinishedChecker(m_Board);
+        gameFinishedChecker = NEW(GameFinishedChecker(m_Board));
 
         Field winner = Field::Empty;
+        FinishCause battleFinishCause = FinishCause::None;
 
         // Main game loop.
         // TODO: extract it to new function.
         while (!battleFinished) {
 
             // 1. White player's turn.
-            Field currentPlayerColor = Field::White;
-            Coordinates currentPlayerMove = makePlayerMove(m_WhitePlayer.get(), currentPlayerColor);
-            m_BlackPlayer->NotifyAboutOpponentMove(currentPlayerMove);
-
-            drawGameBoard();
-
-            result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
-            if (!result) return false;
+            result = processPlayerTurn(
+                    Field::White,
+                    Field::Black,
+                    m_WhitePlayer,
+                    m_BlackPlayer,
+                    battleFinished,
+                    winner,
+                    battleFinishCause);
+            if (!result) {
+                return false;
+            }
             if (battleFinished) {
-                winner = currentPlayerColor;
                 continue;
             }
-            waitForEnterKeyIfNeeded();
 
             // 2. Black player's turn.
-            currentPlayerColor = Field::Black;
-            currentPlayerMove = makePlayerMove(m_BlackPlayer.get(), currentPlayerColor);
-            m_WhitePlayer->NotifyAboutOpponentMove(currentPlayerMove);
-
-            drawGameBoard();
-
-            result = gameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
-            if (!result) return false;
-            if (battleFinished) {
-                winner = currentPlayerColor;
+            result = processPlayerTurn(
+                    Field::Black,
+                    Field::White,
+                    m_BlackPlayer,
+                    m_WhitePlayer,
+                    battleFinished,
+                    winner,
+                    battleFinishCause);
+            if (!result) {
+                return false;
             }
-            waitForEnterKeyIfNeeded();
         }
 
         // TODO: extract it to function.
@@ -104,6 +106,17 @@ bool GameController::Run() {
             winnerColor = "Black";
         }
         LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
+        switch (battleFinishCause) {
+            case FinishCause::EnoughPlayerPawnsInLine:
+                LOG_LN("The cause of finish was enough pawns in line.");
+                break;
+            case FinishCause::PlayerTurnMaxTimeExceeded:
+                LOG_LN("The cause of finish was because of player turn maximum time exceeded.");
+                break;
+            default:
+                LOG_ERROR("Wrong value of 'battleFinishCause'.");
+                return false;
+        }
     }
 
     // TODO: extract it to function.
@@ -112,6 +125,47 @@ bool GameController::Run() {
         LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
         return false;
     }
+    return true;
+}
+
+bool GameController::processPlayerTurn(
+        const Field currentPlayerColor,
+        const Field notCurrentPlayerColor,
+        const std::unique_ptr<Player>& currentPlayer,
+        const std::unique_ptr<Player>& notCurrentPlayer,
+        bool& battleFinished,
+        Field& winner,
+        FinishCause& battleFinishCause) {
+
+    const auto startTime = std::chrono::high_resolution_clock::now();
+
+    Coordinates currentPlayerMove = makePlayerMove(currentPlayer.get(), currentPlayerColor);
+
+    const auto endTime = std::chrono::high_resolution_clock::now();
+    const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime-startTime).count();
+
+    notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
+    drawGameBoard();
+
+    const int elapsedTimeInt = static_cast<int>(elapsedTime);
+    const int playerTurnMaxTime = fileAppConfigContainer.PlayerTurnMaxTime;
+    if (elapsedTimeInt > playerTurnMaxTime) {
+        battleFinished = true;
+        winner = notCurrentPlayerColor;
+        battleFinishCause = FinishCause::PlayerTurnMaxTimeExceeded;
+        return true;
+    }
+
+    const bool result = gameFinishedChecker->CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
+    if (!result) {
+        return false;
+    }
+    if (battleFinished) {
+        winner = currentPlayerColor;
+        battleFinishCause = FinishCause::EnoughPlayerPawnsInLine;
+        return true;
+    }
+    waitForEnterKeyIfNeeded();
     return true;
 }
 
@@ -157,21 +211,21 @@ bool GameController::Initialize() {
 
 Coordinates GameController::makePlayerMove(Player* const player,
                                            const Field field) {
-    Coordinates move = player->MakeMove();
+    const Coordinates movement = player->MakeMove();
 
     // Ensure that movement made by player is valid.
     bool result = false;
-    bool isFieldEmpty = m_Board.IsFieldEmpty(move.x, move.y, result);
+    bool isFieldEmpty = m_Board.IsFieldEmpty(movement.x, movement.y, result);
     if (!result || !isFieldEmpty) {
         throw std::runtime_error("Unnamed error");
     }
 
     // Set player's movement on the board.
-    result = m_Board.SetField(move.x, move.y, field);
+    result = m_Board.SetField(movement.x, movement.y, field);
     if (!result) {
         throw std::runtime_error("Unnamed error");
     }
-    return move;
+    return movement;
 }
 
 void GameController::drawGameBoard() {
