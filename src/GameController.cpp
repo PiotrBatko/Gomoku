@@ -111,7 +111,10 @@ bool GameController::Run() {
                 LOG_LN("The cause of finish was enough pawns in line.");
                 break;
             case FinishCause::PlayerTurnMaxTimeExceeded:
-                LOG_LN("The cause of finish was because of player turn maximum time exceeded.");
+                LOG_LN("The cause of finish: player turn maximum time exceeded.");
+                break;
+            case FinishCause::WrongMovement:
+                LOG_LN("The cause of finish: player made an invalid movement.");
                 break;
             default:
                 LOG_ERROR("Wrong value of 'battleFinishCause'.");
@@ -139,10 +142,23 @@ bool GameController::processPlayerTurn(
 
     const auto startTime = std::chrono::high_resolution_clock::now();
 
-    Coordinates currentPlayerMove = makePlayerMove(currentPlayer.get(), currentPlayerColor);
+    PlayerMovementStatus playerMovementStatus;
+    Coordinates currentPlayerMove = makePlayerMove(currentPlayer.get(), currentPlayerColor, playerMovementStatus);
 
     const auto endTime = std::chrono::high_resolution_clock::now();
     const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime-startTime).count();
+
+    switch (playerMovementStatus) {
+        case PlayerMovementStatus::ValidMovement:
+            break;
+        case PlayerMovementStatus::WrongMovement:
+            battleFinished = true;
+            winner = notCurrentPlayerColor;
+            battleFinishCause = FinishCause::WrongMovement;
+            return true;
+        default:
+            LOG_ERROR("Error occurred.");
+    }
 
     notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
     drawGameBoard();
@@ -210,21 +226,26 @@ bool GameController::Initialize() {
 }
 
 Coordinates GameController::makePlayerMove(Player* const player,
-                                           const Field field) {
+                                           const Field field,
+                                           PlayerMovementStatus& playerMovementStatus) {
+
     const Coordinates movement = player->MakeMove();
 
     // Ensure that movement made by player is valid.
     bool result = false;
-    bool isFieldEmpty = m_Board.IsFieldEmpty(movement.x, movement.y, result);
+    bool isFieldEmpty = m_Board.IsFieldEmpty(movement.x, movement.y, result, true);
     if (!result || !isFieldEmpty) {
-        throw std::runtime_error("Unnamed error");
+        playerMovementStatus = PlayerMovementStatus::WrongMovement;
+        return Coordinates();
     }
 
     // Set player's movement on the board.
     result = m_Board.SetField(movement.x, movement.y, field);
     if (!result) {
-        throw std::runtime_error("Unnamed error");
+        playerMovementStatus = PlayerMovementStatus::Error;
     }
+
+    playerMovementStatus = PlayerMovementStatus::ValidMovement;
     return movement;
 }
 

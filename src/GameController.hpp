@@ -27,10 +27,18 @@ private:
     enum class FinishCause {
         None,
         EnoughPlayerPawnsInLine,
-        PlayerTurnMaxTimeExceeded
+        PlayerTurnMaxTimeExceeded,
+        WrongMovement
     };
 
-    Coordinates makePlayerMove(Player* const player, const Field field);
+    enum class PlayerMovementStatus {
+        None,
+        ValidMovement,
+        WrongMovement,
+        Error
+    };
+
+    Coordinates makePlayerMove(Player* const player, const Field field, PlayerMovementStatus& playerMovementStatus);
 
     void drawGameBoard();
 
