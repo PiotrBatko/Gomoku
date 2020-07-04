@@ -11,7 +11,7 @@ class BotPB : public Player
 {
 public:
 
-    BotPB(const Board* gameBoard);
+    BotPB(const Board* gameBoard, PlayerType playerType);
 
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;
     Coordinates MakeMove() override;

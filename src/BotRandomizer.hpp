@@ -7,7 +7,7 @@ class Board;
 
 class BotRandomizer : public Player {
 public:
-	BotRandomizer(const Board* gameBoard);
+	BotRandomizer(const Board* gameBoard, PlayerType playerType);
 	virtual ~BotRandomizer();
 
 	void NotifyAboutOpponentMove(Coordinates opponentMove) override;

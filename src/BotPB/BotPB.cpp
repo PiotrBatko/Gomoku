@@ -4,8 +4,8 @@
 
 namespace PB {
 
-BotPB::BotPB(const Board* const gameBoard) :
-    Player(gameBoard)
+BotPB::BotPB(const Board* const gameBoard, const PlayerType playerType) :
+    Player(gameBoard, playerType)
 {
 
 }

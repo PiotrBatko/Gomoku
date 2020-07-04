@@ -163,13 +163,21 @@ bool GameController::processPlayerTurn(
     notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
     drawGameBoard();
 
-    const int elapsedTimeInt = static_cast<int>(elapsedTime);
-    const int playerTurnMaxTime = fileAppConfigContainer.PlayerTurnMaxTime;
-    if (elapsedTimeInt > playerTurnMaxTime) {
-        battleFinished = true;
-        winner = notCurrentPlayerColor;
-        battleFinishCause = FinishCause::PlayerTurnMaxTimeExceeded;
-        return true;
+    // If current player is not a console human player, he/she has limited time to perform the movement.
+    if (currentPlayer->GetPlayerType() != PlayerType::HUMAN_CONSOLE) {
+        const int playerTurnMaxTime = fileAppConfigContainer.PlayerTurnMaxTime;
+        const bool isPlayerTurnTimeLimitDisabled = (playerTurnMaxTime == 0);
+
+        if (!isPlayerTurnTimeLimitDisabled) {
+            const int elapsedTimeInt = static_cast<int>(elapsedTime);
+
+            if (elapsedTimeInt > playerTurnMaxTime) {
+                battleFinished = true;
+                winner = notCurrentPlayerColor;
+                battleFinishCause = FinishCause::PlayerTurnMaxTimeExceeded;
+                return true;
+            }
+        }
     }
 
     const bool result = gameFinishedChecker->CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
@@ -191,13 +199,13 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId) {
     switch (playerType)
     {
         case PlayerType::HUMAN_CONSOLE:
-            return std::make_unique<ConsolePlayer>(&m_Board);
+            return std::make_unique<ConsolePlayer>(&m_Board, playerType);
         case PlayerType::BOT_RANDOMIZER:
-            return std::make_unique<BotRandomizer>(&m_Board);
+            return std::make_unique<BotRandomizer>(&m_Board, playerType);
         case PlayerType::BOT_CM:
-            return std::make_unique<CM::BotCM>(&m_Board);
+            return std::make_unique<CM::BotCM>(&m_Board, playerType);
         case PlayerType::BOT_PB:
-            return std::make_unique<PB::BotPB>(&m_Board);
+            return std::make_unique<PB::BotPB>(&m_Board, playerType);
         default:
             throw std::runtime_error("Wrong player type id");
     }

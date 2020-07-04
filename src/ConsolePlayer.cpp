@@ -5,8 +5,8 @@
 #include "Board.hpp"
 #include "DebugInfo.h"
 
-ConsolePlayer::ConsolePlayer(const Board* const gameBoard)
-	: Player(gameBoard), turnCount(1u) {
+ConsolePlayer::ConsolePlayer(const Board* const gameBoard, const PlayerType playerType)
+	: Player(gameBoard, playerType), turnCount(1u) {
 }
 
 ConsolePlayer::~ConsolePlayer() {
