@@ -19,12 +19,12 @@
 #include "BotCM/BotCM.hpp"
 #include "BotPB/BotPB.hpp"
 
-GameController::GameController() {
-
+GameController::GameController() :
+    m_GameFinishedChecker(m_Board)
+{
 }
 
 GameController::~GameController() {
-    SAFE_DELETE(gameFinishedChecker);
 }
 
 bool GameController::Run() {
@@ -57,8 +57,6 @@ bool GameController::Run() {
 
         // Initial drawing of the game board, for the first player to see the board.
         drawGameBoard();
-
-        gameFinishedChecker = NEW(GameFinishedChecker(m_Board));
 
         Field winner = Field::Empty;
         FinishCause battleFinishCause = FinishCause::None;
@@ -179,7 +177,7 @@ bool GameController::processPlayerTurn(
         }
     }
 
-    const bool result = gameFinishedChecker->CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
+    const bool result = m_GameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
     if (!result) {
         return false;
     }

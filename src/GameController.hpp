@@ -10,9 +10,9 @@
 #include "Board.hpp"
 #include "Coordinates.hpp"
 #include "Field.hpp"
+#include "GameFinishedChecker.h"
 
 class Player;
-class GameFinishedChecker;
 
 class GameController {
 public:
@@ -62,7 +62,7 @@ private:
     std::unique_ptr<Player> m_WhitePlayer;
     std::unique_ptr<Player> m_BlackPlayer;
 
-    GameFinishedChecker* gameFinishedChecker;
+    GameFinishedChecker m_GameFinishedChecker;
 
     // View related members
     static constexpr std::size_t FieldWidthInPixels = 25u;
