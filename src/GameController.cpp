@@ -11,7 +11,6 @@
 #include "Random.h"
 #include "CommonUtils.h"
 #include "AppConfig/FileAppConfigContainer.h"
-#include "AppConfig/FileAppConfigLoader.h"
 #include "CommonEnums.hpp"
 #include "GameFinishedChecker.h"
 
@@ -213,12 +212,6 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId) {
 
 bool GameController::Initialize() {
     Random::Initialize();
-
-    FileAppConfigLoader fileAppConfigLoader;
-    bool result = fileAppConfigLoader.LoadFileAppConfigConstants(fileAppConfigContainer);
-    if (!result) {
-        return false;
-    }
 
     const std::size_t BoardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
     m_Board.SetSize(BoardSize, BoardSize);
