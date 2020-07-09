@@ -1,7 +1,7 @@
 #include "FileAppConfigLoader.h"
 
-#include "../DebugInfo.h"
 #include "../CommonEnums.hpp"
+#include "../DebugInfo.hpp"
 
 FileAppConfigLoader::FileAppConfigLoader()
 	: constantDefinitionFixedText(FILE_APP_CONFIG_LOADER_CONST_KEYWORD) {

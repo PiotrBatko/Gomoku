@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "DebugInfo.h"
+#include "DebugInfo.hpp"
 
 Board::Board(const std::size_t width, const std::size_t height):
     m_Width(width),

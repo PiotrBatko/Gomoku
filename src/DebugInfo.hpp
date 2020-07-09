@@ -1,5 +1,5 @@
-#ifndef DEBUGINFO_H
-#define DEBUGINFO_H
+#ifndef DEBUGINFO_HPP
+#define DEBUGINFO_HPP
 
 #include <iostream>
 #include <string>
@@ -55,4 +55,4 @@ class DebugInfo {
 		}
 };
 
-#endif // DEBUGINFO_H
+#endif

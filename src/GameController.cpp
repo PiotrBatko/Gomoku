@@ -7,12 +7,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Board.hpp"
-#include "Random.h"
-#include "DebugInfo.h"
 #include "AppConfig/FileAppConfigContainer.h"
+#include "Board.hpp"
 #include "CommonEnums.hpp"
+#include "DebugInfo.hpp"
 #include "GameFinishedChecker.h"
+#include "Random.h"
 
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
