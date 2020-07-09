@@ -11,7 +11,7 @@
 #include "Board.hpp"
 #include "CommonEnums.hpp"
 #include "DebugInfo.hpp"
-#include "GameFinishedChecker.h"
+#include "GameFinishedChecker.hpp"
 #include "Random.hpp"
 
 #include "BotRandomizer.hpp"

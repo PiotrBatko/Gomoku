@@ -1,5 +1,5 @@
-#ifndef _GAME_FINISHED_CHECKER_H_
-#define _GAME_FINISHED_CHECKER_H_
+#ifndef GAMEFINISHEDCHECKER_HPP
+#define GAMEFINISHEDCHECKER_HPP
 
 #include <utility>
 

@@ -10,7 +10,7 @@
 #include "Board.hpp"
 #include "Coordinates.hpp"
 #include "Field.hpp"
-#include "GameFinishedChecker.h"
+#include "GameFinishedChecker.hpp"
 
 class Player;
 

@@ -1,4 +1,4 @@
-#include "GameFinishedChecker.h"
+#include "GameFinishedChecker.hpp"
 
 #include "AppConfig/FileAppConfigContainer.h"
 #include "Field.hpp"
