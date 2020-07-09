@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "../Random.h"
 #include "../Board.hpp"
+#include "../Random.hpp"
 
 namespace CM {
 

@@ -1,5 +1,5 @@
-#ifndef _RANDOM_H_
-#define _RANDOM_H_
+#ifndef RANDOM_HPP
+#define RANDOM_HPP
 
 #include <random>
 #include <time.h>

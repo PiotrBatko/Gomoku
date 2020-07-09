@@ -12,7 +12,7 @@
 #include "CommonEnums.hpp"
 #include "DebugInfo.hpp"
 #include "GameFinishedChecker.h"
-#include "Random.h"
+#include "Random.hpp"
 
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"

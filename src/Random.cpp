@@ -1,4 +1,4 @@
-#include "Random.h"
+#include "Random.hpp"
 
 std::default_random_engine		   Random::defaultRandomEngine;
 std::uniform_int_distribution<int> Random::uniformIntDistribution;
