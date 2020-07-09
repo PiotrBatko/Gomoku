@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 #include "FileAppConfigContainer.h"
-#include "../CommonUtils.h"
 
 #define APP_CONFIG_VALUES_FILE_PATH          "AppConfigValues.ini"
 #define FILE_APP_CONFIG_LOADER_CONST_KEYWORD "const"

@@ -9,7 +9,7 @@
 
 #include "Board.hpp"
 #include "Random.h"
-#include "CommonUtils.h"
+#include "DebugInfo.h"
 #include "AppConfig/FileAppConfigContainer.h"
 #include "CommonEnums.hpp"
 #include "GameFinishedChecker.h"
@@ -119,12 +119,6 @@ bool GameController::Run() {
         }
     }
 
-    // TODO: extract it to function.
-    unsigned long long int allocationCounter = AllocationCounter::GetCounter();
-    if (allocationCounter != 0uLL) {
-        LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
-        return false;
-    }
     return true;
 }
 
