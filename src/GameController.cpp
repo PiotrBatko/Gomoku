@@ -13,6 +13,7 @@
 #include "DebugInfo.hpp"
 #include "GameFinishedChecker.hpp"
 #include "Random.hpp"
+#include "CommonUtils.h"
 
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
@@ -119,6 +120,16 @@ bool GameController::Run() {
         }
     }
 
+    result = verifyAllocationCounter();
+    return result;
+}
+
+bool GameController::verifyAllocationCounter() {
+    unsigned long long int allocationCounter = AllocationCounter::GetCounter();
+    if (allocationCounter != 0uLL) {
+        LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
+        return false;
+    }
     return true;
 }
 
