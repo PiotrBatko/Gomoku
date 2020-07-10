@@ -44,7 +44,7 @@ private:
 
     bool Initialize();
 
-    std::unique_ptr<Player> createPlayer(const int playerTypeId);
+    std::unique_ptr<Player> createPlayer(const int playerTypeId, Field playerColor);
 
     bool processPlayerTurn(
             const Field currentPlayerColor,

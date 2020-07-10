@@ -5,12 +5,13 @@
 
 #include "Coordinates.hpp"
 #include "CommonEnums.hpp"
+#include "Field.hpp"
 
 class Board;
 
 class Player {
 public:
-	Player(const Board* gameBoard, PlayerType playerType);
+	Player(const Board* gameBoard, PlayerType playerType, Field playerColor);
 	virtual ~Player();
 
 	// Player is notified after opponent's move. It is good moment
@@ -24,7 +25,8 @@ public:
 protected:
 	const Board* const board;
 
-	PlayerType playerType;
+	const PlayerType playerType;
+	const Field playerColor;
 };
 
 #endif

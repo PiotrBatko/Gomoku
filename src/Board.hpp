@@ -6,6 +6,8 @@
 
 #include "Field.hpp"
 
+struct Coordinates;
+
 // For the whole Board class:
 // 'x' - column index,
 // 'y' - row index.
@@ -19,6 +21,7 @@ public:
     void SetSize(std::size_t width, std::size_t height);
 
     const Field& at(std::size_t x, std::size_t y) const;
+    const Field& at(const Coordinates& coordinates) const;
 
     std::size_t getHeight() const;
     std::size_t getWidth() const;

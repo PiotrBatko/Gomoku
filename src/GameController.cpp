@@ -34,8 +34,8 @@ bool GameController::Run() {
         return false;
     }
 
-    m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite);
-    m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack);
+    m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite, Field::White);
+    m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, Field::Black);
 
     bool battleFinished = false;
 
@@ -195,19 +195,19 @@ bool GameController::processPlayerTurn(
     return true;
 }
 
-std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId) {
+std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, const Field playerColor) {
     PlayerType playerType = static_cast<PlayerType>(playerTypeId);
 
     switch (playerType)
     {
         case PlayerType::HUMAN_CONSOLE:
-            return std::make_unique<ConsolePlayer>(&m_Board, playerType);
+            return std::make_unique<ConsolePlayer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_RANDOMIZER:
-            return std::make_unique<BotRandomizer>(&m_Board, playerType);
+            return std::make_unique<BotRandomizer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_CM:
-            return std::make_unique<CM::BotCM>(&m_Board, playerType);
+            return std::make_unique<CM::BotCM>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_PB:
-            return std::make_unique<PB::BotPB>(&m_Board, playerType);
+            return std::make_unique<PB::BotPB>(&m_Board, playerType, playerColor);
         default:
             throw std::runtime_error("Wrong player type id");
     }

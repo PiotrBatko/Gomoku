@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "DebugInfo.hpp"
+#include "Coordinates.hpp"
 
 Board::Board(const std::size_t width, const std::size_t height):
     m_Width(width),
@@ -21,6 +22,11 @@ void Board::SetSize(std::size_t width, std::size_t height)
 const Field& Board::at(const std::size_t x, const std::size_t y) const
 {
     return m_Fields[y * m_Height + x];
+}
+
+const Field& Board::at(const Coordinates& coordinates) const
+{
+    return m_Fields[coordinates.y * m_Height + coordinates.x];
 }
 
 std::size_t Board::getHeight() const

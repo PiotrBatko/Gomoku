@@ -1,7 +1,7 @@
 #include "Player.hpp"
 
-Player::Player(const Board* const gameBoard, const PlayerType playerType)
-    : board(gameBoard), playerType(playerType) {
+Player::Player(const Board* const gameBoard, const PlayerType playerType, const Field playerColor)
+    : board(gameBoard), playerType(playerType), playerColor(playerColor) {
 }
 
 Player::~Player() {
