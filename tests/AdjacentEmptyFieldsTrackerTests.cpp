@@ -28,9 +28,14 @@ SCENARIO ("Tracker returns adjacent empty fields", "[AdjacentEmptyFieldsTracker]
 
             THEN ("All surrounding fields are tracked")
             {
-                const auto& trackedFields = tracker.GetAdjacentFields();
+                using C = Coordinates;
+                const std::vector<Coordinates> RequiredTrackedFields = {
+                    C(1, 1), C(2, 1), C(3, 1),
+                    C(1, 2), /*move*/ C(3, 2),
+                    C(1, 3), C(2, 3), C(3, 3)
+                };
 
-                REQUIRE(trackedFields.size() == 8);
+                REQUIRE(tracker.GetAdjacentFields() == RequiredTrackedFields);
             }
         }
     }
