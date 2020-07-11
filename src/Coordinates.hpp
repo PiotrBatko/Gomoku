@@ -10,6 +10,8 @@ struct Coordinates
 
     Coordinates() = default;
     Coordinates(std::size_t x, std::size_t y);
+
+    bool operator==(const Coordinates& rhs) const;
 };
 
 #endif
