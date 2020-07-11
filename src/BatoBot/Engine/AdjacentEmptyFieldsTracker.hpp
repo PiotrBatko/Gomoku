@@ -20,6 +20,7 @@ public:
 
 private:
 
+    std::vector<Coordinates>::iterator FindAdjacent(Coordinates move);
     void InsertAdjacentIfNotPresent(Coordinates move);
 
     std::vector<Coordinates> m_AdjacentFields;
