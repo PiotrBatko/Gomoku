@@ -5,8 +5,11 @@
 
 struct Coordinates
 {
-    std::size_t x;
-    std::size_t y;
+    std::size_t x = 0;
+    std::size_t y = 0;
+
+    Coordinates() = default;
+    Coordinates(std::size_t x, std::size_t y);
 };
 
 #endif
