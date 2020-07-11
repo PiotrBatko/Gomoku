@@ -26,6 +26,9 @@ private:
     void InsertOccupied(Coordinates move);
     bool IsOccupied(Coordinates move) const;
 
+    std::size_t m_BoardWidth;
+    std::size_t m_BoardHeight;
+
     std::vector<Coordinates> m_OccupiedFields;
     std::vector<Coordinates> m_AdjacentFields;
 };

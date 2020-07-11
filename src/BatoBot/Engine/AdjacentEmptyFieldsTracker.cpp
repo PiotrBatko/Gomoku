@@ -6,7 +6,9 @@
 namespace batobot
 {
 
-AdjacentEmptyFieldsTracker::AdjacentEmptyFieldsTracker(std::size_t, std::size_t)
+AdjacentEmptyFieldsTracker::AdjacentEmptyFieldsTracker(std::size_t boardWidth, std::size_t boardHeight) :
+     m_BoardWidth(boardWidth),
+     m_BoardHeight(boardHeight)
 {
 }
 
