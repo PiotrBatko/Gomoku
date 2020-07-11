@@ -61,6 +61,11 @@ std::vector<Coordinates>::iterator AdjacentEmptyFieldsTracker::FindAdjacent(Coor
 
 void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
 {
+    if (IsOccupied(move))
+    {
+        return;
+    }
+
     const auto MoveIter = FindAdjacent(move);
 
     if (MoveIter == std::end(m_AdjacentFields))
@@ -80,6 +85,15 @@ void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
 void AdjacentEmptyFieldsTracker::InsertOccupied(Coordinates move)
 {
     m_OccupiedFields.push_back(move);
+}
+
+bool AdjacentEmptyFieldsTracker::IsOccupied(Coordinates move) const
+{
+    return std::find(
+        std::begin(m_OccupiedFields),
+        std::end(m_OccupiedFields),
+        move
+    ) != std::end(m_OccupiedFields);
 }
 
 }
