@@ -22,6 +22,7 @@ private:
 
     std::vector<Coordinates>::iterator FindAdjacent(Coordinates move);
     void InsertAdjacentIfNotPresent(Coordinates move);
+    void RemoveAdjacentIfPresent(Coordinates move);
     void InsertOccupied(Coordinates move);
     bool IsOccupied(Coordinates move) const;
 
