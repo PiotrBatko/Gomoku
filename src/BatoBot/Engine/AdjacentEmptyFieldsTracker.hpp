@@ -25,6 +25,7 @@ private:
     void RemoveAdjacentIfPresent(Coordinates move);
     void InsertOccupied(Coordinates move);
     bool IsOccupied(Coordinates move) const;
+    bool IsOnBoard(Coordinates move) const;
 
     std::size_t m_BoardWidth;
     std::size_t m_BoardHeight;

@@ -64,6 +64,11 @@ std::vector<Coordinates>::iterator AdjacentEmptyFieldsTracker::FindAdjacent(Coor
 
 void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
 {
+    if (not IsOnBoard(move))
+    {
+        return;
+    }
+
     if (IsOccupied(move))
     {
         return;
@@ -112,6 +117,14 @@ bool AdjacentEmptyFieldsTracker::IsOccupied(Coordinates move) const
         std::end(m_OccupiedFields),
         move
     ) != std::end(m_OccupiedFields);
+}
+
+bool AdjacentEmptyFieldsTracker::IsOnBoard(Coordinates move) const
+{
+    const bool XInRange = 0 <= move.x && move.x < m_BoardWidth;
+    const bool YInRange = 0 <= move.y && move.y < m_BoardHeight;
+
+    return XInRange && YInRange;
 }
 
 }
