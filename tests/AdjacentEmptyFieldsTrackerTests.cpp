@@ -38,5 +38,24 @@ SCENARIO ("Tracker returns adjacent empty fields", "[AdjacentEmptyFieldsTracker]
                 REQUIRE(tracker.GetAdjacentFields() == RequiredTrackedFields);
             }
         }
+
+        WHEN ("Two moves are registered")
+        {
+            tracker.RegisterMove(Coordinates(2, 2));
+            tracker.RegisterMove(Coordinates(3, 3));
+
+            THEN ("All surrounding fields are tracked")
+            {
+                using C = Coordinates;
+                const std::vector<Coordinates> RequiredTrackedFields = {
+                    C(1, 1), C(2, 1), C(3, 1),
+                    C(1, 2), /*move*/ C(3, 2), C(4, 2),
+                    C(1, 3), C(2, 3), /*move*/ C(4, 3),
+                             C(2, 4), C(3, 4), C(4, 4)
+                };
+
+                REQUIRE(tracker.GetAdjacentFields() == RequiredTrackedFields);
+            }
+        }
     }
 }
