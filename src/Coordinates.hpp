@@ -8,10 +8,17 @@ struct Coordinates
     std::size_t x = 0;
     std::size_t y = 0;
 
-    Coordinates() = default;
-    Coordinates(std::size_t x, std::size_t y);
+    constexpr Coordinates() = default;
+    constexpr Coordinates(std::size_t x, std::size_t y) :
+        x(x),
+        y(y)
+    {
+    }
 
-    bool operator==(const Coordinates& rhs) const;
+    constexpr bool operator==(const Coordinates& rhs) const
+    {
+        return x == rhs.x and y == rhs.y;
+    }
 };
 
 #endif
