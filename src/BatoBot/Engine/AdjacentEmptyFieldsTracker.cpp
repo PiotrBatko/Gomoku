@@ -11,6 +11,8 @@ AdjacentEmptyFieldsTracker::AdjacentEmptyFieldsTracker(std::size_t, std::size_t)
 
 void AdjacentEmptyFieldsTracker::RegisterMove(Coordinates move)
 {
+    InsertOccupied(move);
+
     InsertAdjacentIfNotPresent(move.WithOffset(-1, -1));
     InsertAdjacentIfNotPresent(move.WithOffset( 0, -1));
     InsertAdjacentIfNotPresent(move.WithOffset(+1, -1));
@@ -71,6 +73,11 @@ void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
     }
 
     m_AdjacentFields.insert(MoveIter, move);
+}
+
+void AdjacentEmptyFieldsTracker::InsertOccupied(Coordinates move)
+{
+    m_OccupiedFields.push_back(move);
 }
 
 }
