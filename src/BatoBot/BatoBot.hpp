@@ -1,17 +1,18 @@
-#ifndef _BOT_PB_HPP
-#define _BOT_PB_HPP
+#ifndef BATOBOT_HPP
+#define BATOBOT_HPP
 
 #include "../Player.hpp"
 
 class Board;
 
-namespace PB {
+namespace batobot
+{
 
-class BotPB : public Player
+class BatoBot : public Player
 {
 public:
 
-    BotPB(const Board* gameBoard, PlayerType playerType, Field playerColor);
+    BatoBot(const Board* gameBoard, PlayerType playerType, Field playerColor);
 
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;
     Coordinates MakeMove() override;

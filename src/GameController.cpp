@@ -15,10 +15,10 @@
 #include "Random.hpp"
 #include "CommonUtils.h"
 
+#include "BatoBot/BatoBot.hpp"
+#include "BotCM/BotCM.hpp"
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
-#include "BotCM/BotCM.hpp"
-#include "BotPB/BotPB.hpp"
 
 GameController::GameController() :
     m_GameFinishedChecker(m_Board)
@@ -206,8 +206,8 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, con
             return std::make_unique<BotRandomizer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_CM:
             return std::make_unique<CM::BotCM>(&m_Board, playerType, playerColor);
-        case PlayerType::BOT_PB:
-            return std::make_unique<PB::BotPB>(&m_Board, playerType, playerColor);
+        case PlayerType::BOT_BATOBOT:
+            return std::make_unique<batobot::BatoBot>(&m_Board, playerType, playerColor);
         default:
             throw std::runtime_error("Wrong player type id");
     }
