@@ -20,6 +20,8 @@ public:
 
 private:
 
+    void InsertMoveIfNotPresent(Coordinates move);
+
     std::vector<Coordinates> m_TrackedFields;
 };
 
