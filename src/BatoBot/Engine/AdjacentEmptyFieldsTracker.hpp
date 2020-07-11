@@ -15,6 +15,7 @@ public:
 
     AdjacentEmptyFieldsTracker(std::size_t boardWidth, std::size_t boardHeight);
 
+    void RegisterMove(Coordinates move);
     const std::vector<Coordinates>& GetAdjacentFields() const;
 
 private:

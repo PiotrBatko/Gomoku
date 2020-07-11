@@ -2,6 +2,8 @@
 
 #include "BatoBot/Engine/AdjacentEmptyFieldsTracker.hpp"
 
+#include <algorithm>
+
 using namespace batobot;
 
 namespace
@@ -19,5 +21,17 @@ SCENARIO ("Tracker returns adjacent empty fields", "[AdjacentEmptyFieldsTracker]
         AdjacentEmptyFieldsTracker tracker(BoardWidth, BoardHeight);
 
         REQUIRE(tracker.GetAdjacentFields().empty());
+
+        WHEN ("Single move is registered")
+        {
+            tracker.RegisterMove(Coordinates(2, 2));
+
+            THEN ("All surrounding fields are tracked")
+            {
+                const auto& trackedFields = tracker.GetAdjacentFields();
+
+                REQUIRE(trackedFields.size() == 8);
+            }
+        }
     }
 }
