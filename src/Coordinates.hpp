@@ -15,6 +15,11 @@ struct Coordinates
     {
     }
 
+    constexpr Coordinates WithOffset(int offsetX, int offsetY) const
+    {
+        return Coordinates(x + offsetX, y + offsetY);
+    }
+
     constexpr bool operator==(const Coordinates& rhs) const
     {
         return x == rhs.x and y == rhs.y;
