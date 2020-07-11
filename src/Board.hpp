@@ -26,6 +26,8 @@ public:
     std::size_t getHeight() const;
     std::size_t getWidth() const;
 
+    bool IsEmpty() const;
+
     bool IsFieldOnBoard(std::size_t x, std::size_t y) const;
     bool IsFieldEmpty(std::size_t x, std::size_t y, bool& executionStatus, bool logErrorWhenOccured = true) const;
 
