@@ -20,9 +20,9 @@ public:
 
 private:
 
-    void InsertMoveIfNotPresent(Coordinates move);
+    void InsertAdjacentIfNotPresent(Coordinates move);
 
-    std::vector<Coordinates> m_TrackedFields;
+    std::vector<Coordinates> m_AdjacentFields;
 };
 
 }

@@ -11,28 +11,28 @@ AdjacentEmptyFieldsTracker::AdjacentEmptyFieldsTracker(std::size_t, std::size_t)
 
 void AdjacentEmptyFieldsTracker::RegisterMove(Coordinates move)
 {
-    InsertMoveIfNotPresent(move.WithOffset(-1, -1));
-    InsertMoveIfNotPresent(move.WithOffset( 0, -1));
-    InsertMoveIfNotPresent(move.WithOffset(+1, -1));
+    InsertAdjacentIfNotPresent(move.WithOffset(-1, -1));
+    InsertAdjacentIfNotPresent(move.WithOffset( 0, -1));
+    InsertAdjacentIfNotPresent(move.WithOffset(+1, -1));
 
-    InsertMoveIfNotPresent(move.WithOffset(-1,  0));
-    InsertMoveIfNotPresent(move.WithOffset(+1,  0));
+    InsertAdjacentIfNotPresent(move.WithOffset(-1,  0));
+    InsertAdjacentIfNotPresent(move.WithOffset(+1,  0));
 
-    InsertMoveIfNotPresent(move.WithOffset(-1, +1));
-    InsertMoveIfNotPresent(move.WithOffset( 0, +1));
-    InsertMoveIfNotPresent(move.WithOffset(+1, +1));
+    InsertAdjacentIfNotPresent(move.WithOffset(-1, +1));
+    InsertAdjacentIfNotPresent(move.WithOffset( 0, +1));
+    InsertAdjacentIfNotPresent(move.WithOffset(+1, +1));
 }
 
 const std::vector<Coordinates>& AdjacentEmptyFieldsTracker::GetAdjacentFields() const
 {
-    return m_TrackedFields;
+    return m_AdjacentFields;
 }
 
-void AdjacentEmptyFieldsTracker::InsertMoveIfNotPresent(Coordinates move)
+void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
 {
     const auto MoveIter = std::lower_bound(
-        std::begin(m_TrackedFields),
-        std::end(m_TrackedFields),
+        std::begin(m_AdjacentFields),
+        std::end(m_AdjacentFields),
         move,
         [](const Coordinates& lhs, const Coordinates& rhs)
         {
@@ -54,9 +54,9 @@ void AdjacentEmptyFieldsTracker::InsertMoveIfNotPresent(Coordinates move)
         }
     );
 
-    if (MoveIter == std::end(m_TrackedFields))
+    if (MoveIter == std::end(m_AdjacentFields))
     {
-        m_TrackedFields.push_back(move);
+        m_AdjacentFields.push_back(move);
         return;
     }
 
@@ -65,7 +65,7 @@ void AdjacentEmptyFieldsTracker::InsertMoveIfNotPresent(Coordinates move)
         return;
     }
 
-    m_TrackedFields.insert(MoveIter, move);
+    m_AdjacentFields.insert(MoveIter, move);
 }
 
 }
