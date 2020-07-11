@@ -57,29 +57,7 @@ std::vector<Coordinates>::iterator AdjacentEmptyFieldsTracker::FindAdjacent(Coor
 
 void AdjacentEmptyFieldsTracker::InsertAdjacentIfNotPresent(Coordinates move)
 {
-    const auto MoveIter = std::lower_bound(
-        std::begin(m_AdjacentFields),
-        std::end(m_AdjacentFields),
-        move,
-        [](const Coordinates& lhs, const Coordinates& rhs)
-        {
-            if (lhs.y < rhs.y)
-            {
-                return true;
-            }
-            else if (lhs.y > rhs.y)
-            {
-                return false;
-            }
-
-            if (lhs.x < rhs.x)
-            {
-                return true;
-            }
-
-            return false;
-        }
-    );
+    const auto MoveIter = FindAdjacent(move);
 
     if (MoveIter == std::end(m_AdjacentFields))
     {
