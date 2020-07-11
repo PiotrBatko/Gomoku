@@ -1,6 +1,7 @@
 #include "AdjacentEmptyFieldsTracker.hpp"
 
 #include <algorithm>
+#include <cassert>
 
 namespace batobot
 {
@@ -11,6 +12,7 @@ AdjacentEmptyFieldsTracker::AdjacentEmptyFieldsTracker(std::size_t, std::size_t)
 
 void AdjacentEmptyFieldsTracker::RegisterMove(Coordinates move)
 {
+    assert(not IsOccupied(move));
     InsertOccupied(move);
 
     InsertAdjacentIfNotPresent(move.WithOffset(-1, -1));
