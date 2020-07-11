@@ -1,7 +1,7 @@
 #ifndef BATOBOT_HPP
 #define BATOBOT_HPP
 
-#include "../Player.hpp"
+#include "Player.hpp"
 
 class Board;
 
