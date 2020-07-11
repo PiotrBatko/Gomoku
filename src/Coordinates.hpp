@@ -24,6 +24,11 @@ struct Coordinates
     {
         return x == rhs.x and y == rhs.y;
     }
+
+    constexpr bool operator!=(const Coordinates& rhs) const
+    {
+        return not (*this == rhs);
+    }
 };
 
 #endif
