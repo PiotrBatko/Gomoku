@@ -1,11 +1,11 @@
-#ifndef _FILE_APP_CONFIG_LOADER_H
-#define _FILE_APP_CONFIG_LOADER_H
+#ifndef FILE_APP_CONFIG_LOADER_HPP
+#define FILE_APP_CONFIG_LOADER_HPP
 
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
-#include "FileAppConfigContainer.h"
+#include "FileAppConfigContainer.hpp"
 
 #define APP_CONFIG_VALUES_FILE_PATH          "AppConfigValues.ini"
 #define FILE_APP_CONFIG_LOADER_CONST_KEYWORD "const"
@@ -113,4 +113,4 @@ private:
 	bool checkLoadedValuesCorrectness(FileAppConfigContainer& fileAppConfigContainer);
 };
 
-#endif // _FILE_APP_CONFIG_LOADER_H
+#endif

@@ -1,6 +1,6 @@
 #include "GameFinishedChecker.hpp"
 
-#include "AppConfig/FileAppConfigContainer.h"
+#include "AppConfig/FileAppConfigContainer.hpp"
 #include "Field.hpp"
 #include "Board.hpp"
 

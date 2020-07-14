@@ -2,7 +2,7 @@
 #define _COMMON_UTILS_H_
 
 #include "DebugInfo.hpp"
-#include "AllocationCounter.h"
+#include "AllocationCounter.hpp"
 
 #define NEW(ptr) \
 	new ptr; \

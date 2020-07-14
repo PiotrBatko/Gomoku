@@ -1,4 +1,4 @@
-#include "AllocationCounter.h"
+#include "AllocationCounter.hpp"
 
 unsigned long long int AllocationCounter::counter = 0ULL;
 

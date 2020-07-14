@@ -1,4 +1,4 @@
-#include "FileAppConfigLoader.h"
+#include "FileAppConfigLoader.hpp"
 
 #include "../CommonEnums.hpp"
 #include "../DebugInfo.hpp"
@@ -94,7 +94,7 @@ FileAppConfigErrorState FileAppConfigLoader::loadFileAppConfigConstants(FileAppC
         if (errorState != FileAppConfigErrorState_NoError) { \
             return errorState; \
         }
-    #include "AppConfigDefinitions.h"
+    #include "AppConfigDefinitions.hpp"
     #undef DEFINE_CONSTANT
     return FileAppConfigErrorState_NoError;
 }

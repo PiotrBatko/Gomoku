@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include "AppConfig/FileAppConfigLoader.h"
+#include "AppConfig/FileAppConfigLoader.hpp"
 #include "GameController.hpp"
 
 int main()

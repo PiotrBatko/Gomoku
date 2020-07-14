@@ -7,13 +7,13 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "AppConfig/FileAppConfigContainer.h"
+#include "AppConfig/FileAppConfigContainer.hpp"
 #include "Board.hpp"
 #include "CommonEnums.hpp"
+#include "CommonUtils.hpp"
 #include "DebugInfo.hpp"
 #include "GameFinishedChecker.hpp"
 #include "Random.hpp"
-#include "CommonUtils.h"
 
 #include "BatoBot/BatoBot.hpp"
 #include "BotCM/BotCM.hpp"
