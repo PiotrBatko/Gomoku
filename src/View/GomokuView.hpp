@@ -12,6 +12,7 @@ public:
 private:
 
     void CreateWindow();
+    void MainLoop();
 
     static constexpr std::size_t FieldWidthInPixels = 25u;
     static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
