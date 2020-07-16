@@ -4,6 +4,8 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 
 #include "BoardView.hpp"
+#include "Coordinates.hpp"
+#include "PawnColor.hpp"
 
 class GomokuView
 {
@@ -11,6 +13,9 @@ public:
 
     void SetBoardDimensions(std::size_t width, std::size_t height);
     void Run();
+
+    void ClearBoard();
+    void RegisterMove(PawnColor color, Coordinates coordinates);
 
 private:
 

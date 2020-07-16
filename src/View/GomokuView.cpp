@@ -15,6 +15,16 @@ void GomokuView::Run()
     MainLoop();
 }
 
+void GomokuView::ClearBoard()
+{
+    m_BoardView.Clear();
+}
+
+void GomokuView::RegisterMove(PawnColor color, Coordinates coordinates)
+{
+    m_BoardView.RegisterMove(color, coordinates);
+}
+
 void GomokuView::CreateWindow()
 {
     m_Window.create(
