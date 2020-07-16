@@ -3,7 +3,9 @@
 
 #include "SFML/Graphics/Drawable.hpp"
 
+#include "Coordinates.hpp"
 #include "FieldView.hpp"
+#include "PawnColor.hpp"
 #include "PawnView.hpp"
 
 class BoardView :
@@ -25,6 +27,9 @@ public:
     std::size_t GetNumberOfRows() const;
     void SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows);
 
+    void Clear();
+    void RegisterMove(PawnColor color, Coordinates coordinates);
+
 private:
 
     static constexpr float FieldPadding = 1.0F;
@@ -36,6 +41,8 @@ private:
 
     std::size_t m_NumberOfColumns = 0;
     std::size_t m_NumberOfRows = 0;
+
+    std::vector<std::pair<PawnColor, Coordinates>> m_Moves;
 };
 
 #endif

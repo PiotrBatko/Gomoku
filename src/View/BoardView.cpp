@@ -56,3 +56,13 @@ void BoardView::SetBoardDimensions(std::size_t numberOfColumns, std::size_t numb
     m_NumberOfColumns = numberOfColumns;
     m_NumberOfRows = numberOfRows;
 }
+
+void BoardView::Clear()
+{
+    m_Moves.clear();
+}
+
+void BoardView::RegisterMove(PawnColor color, Coordinates coordinates)
+{
+    m_Moves.emplace_back(color, coordinates);
+}
