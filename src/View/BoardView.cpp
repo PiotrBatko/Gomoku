@@ -39,6 +39,24 @@ void BoardView::DrawFields(sf::RenderTarget& target, sf::RenderStates states) co
 
 void BoardView::DrawPawns(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    for (const auto& [color, coordinates] : m_Moves)
+    {
+        sf::Vector2f fieldCenter(
+            FieldWidthInPixels / 2 + coordinates.x * FieldWidthInPixels,
+            FieldHeightInPixels / 2 + coordinates.y * FieldHeightInPixels
+        );
+
+        if (color == PawnColor::White)
+        {
+            m_WhitePawnView.SetPosition(fieldCenter);
+            target.draw(m_WhitePawnView, states);
+        }
+        else
+        {
+            m_BlackPawnView.SetPosition(fieldCenter);
+            target.draw(m_BlackPawnView, states);
+        }
+    }
 }
 
 std::size_t BoardView::GetNumberOfColumns() const
