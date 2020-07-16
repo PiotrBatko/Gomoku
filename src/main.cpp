@@ -13,6 +13,10 @@ int main()
     }
 
     GomokuView view;
+    view.SetBoardDimensions(
+        fileAppConfigContainer.BoardSize,
+        fileAppConfigContainer.BoardSize
+    );
     view.Run();
     return 0;
 

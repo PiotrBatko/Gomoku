@@ -4,14 +4,9 @@
 
 #include "AppConfig/FileAppConfigContainer.hpp"
 
-GomokuView::GomokuView() :
-    m_FieldView(
-        sf::Vector2f(
-            FieldWidthInPixels,
-            FieldHeightInPixels
-        )
-    )
+void GomokuView::SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows)
 {
+    m_BoardView.SetBoardDimensions(numberOfColumns, numberOfRows);
 }
 
 void GomokuView::Run()
@@ -24,8 +19,8 @@ void GomokuView::CreateWindow()
 {
     m_Window.create(
         sf::VideoMode(
-            FieldWidthInPixels * fileAppConfigContainer.BoardSize,
-            FieldHeightInPixels * fileAppConfigContainer.BoardSize
+            BoardView::FieldWidthInPixels * m_BoardView.GetNumberOfColumns(),
+            BoardView::FieldHeightInPixels * m_BoardView.GetNumberOfRows()
         ),
         "Gomoku Bot Battle"
     );
@@ -55,20 +50,6 @@ void GomokuView::MainLoop()
 void GomokuView::Draw()
 {
     m_Window.clear(sf::Color::Black);
-
-    for (int y = 0; y < fileAppConfigContainer.BoardSize; ++y)
-    {
-        for (int x = 0; x < fileAppConfigContainer.BoardSize; ++x)
-        {
-            sf::Vector2f fieldCenter(
-                FieldWidthInPixels / 2 + x * FieldWidthInPixels,
-                FieldHeightInPixels / 2 + y * FieldHeightInPixels
-            );
-
-            m_FieldView.SetPosition(fieldCenter);
-            m_Window.draw(m_FieldView);
-        }
-    }
-
+    m_Window.draw(m_BoardView);
     m_Window.display();
 }

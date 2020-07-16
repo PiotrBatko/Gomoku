@@ -3,13 +3,13 @@
 
 #include "SFML/Graphics/RenderWindow.hpp"
 
-#include "FieldView.hpp"
+#include "BoardView.hpp"
 
 class GomokuView
 {
 public:
 
-    GomokuView();
+    void SetBoardDimensions(std::size_t width, std::size_t height);
     void Run();
 
 private:
@@ -18,11 +18,9 @@ private:
     void MainLoop();
     void Draw();
 
-    static constexpr std::size_t FieldWidthInPixels = 25u;
-    static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
-
     sf::RenderWindow m_Window;
-    FieldView m_FieldView;
+
+    BoardView m_BoardView;
 };
 
 #endif
