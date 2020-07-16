@@ -1,15 +1,15 @@
-#ifndef BLOCKVIEW_HPP
-#define BLOCKVIEW_HPP
+#ifndef PAWNVIEW_HPP
+#define PAWNVIEW_HPP
 
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Drawable.hpp"
 
-class BlockView :
+class PawnView :
     public sf::Drawable
 {
 public:
 
-    BlockView(float radius, sf::Color color);
+    PawnView(float radius, sf::Color color);
     void SetPosition(sf::Vector2f position);
 
 private:

@@ -3,8 +3,8 @@
 
 #include "SFML/Graphics/Drawable.hpp"
 
-#include "BlockView.hpp"
 #include "FieldView.hpp"
+#include "PawnView.hpp"
 
 class BoardView :
     public sf::Drawable
@@ -19,7 +19,7 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     void DrawFields(sf::RenderTarget& target, sf::RenderStates states) const;
-    void DrawBlocks(sf::RenderTarget& target, sf::RenderStates states) const;
+    void DrawPawns(sf::RenderTarget& target, sf::RenderStates states) const;
 
     std::size_t GetNumberOfColumns() const;
     std::size_t GetNumberOfRows() const;
@@ -28,10 +28,10 @@ public:
 private:
 
     static constexpr float FieldPadding = 1.0F;
-    static constexpr float BlockRadius = FieldWidthInPixels / 2 - 2 * FieldPadding;
+    static constexpr float PawnRadius = FieldWidthInPixels / 2 - 2 * FieldPadding;
 
-    mutable BlockView m_WhiteBlockView;
-    mutable BlockView m_BlackBlockView;
+    mutable PawnView m_WhitePawnView;
+    mutable PawnView m_BlackPawnView;
     mutable FieldView m_FieldView;
 
     std::size_t m_NumberOfColumns = 0;

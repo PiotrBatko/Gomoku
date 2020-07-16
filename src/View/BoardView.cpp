@@ -3,8 +3,8 @@
 #include "SFML/Graphics.hpp"
 
 BoardView::BoardView() :
-    m_WhiteBlockView(BlockRadius, sf::Color(240, 240, 240)),
-    m_BlackBlockView(BlockRadius, sf::Color(16, 16, 16)),
+    m_WhitePawnView(PawnRadius, sf::Color(240, 240, 240)),
+    m_BlackPawnView(PawnRadius, sf::Color(16, 16, 16)),
     m_FieldView(
         sf::Vector2f(
             FieldWidthInPixels,
@@ -17,7 +17,7 @@ BoardView::BoardView() :
 void BoardView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     DrawFields(target, states);
-    DrawBlocks(target, states);
+    DrawPawns(target, states);
 }
 
 void BoardView::DrawFields(sf::RenderTarget& target, sf::RenderStates states) const
@@ -37,7 +37,7 @@ void BoardView::DrawFields(sf::RenderTarget& target, sf::RenderStates states) co
     }
 }
 
-void BoardView::DrawBlocks(sf::RenderTarget& target, sf::RenderStates states) const
+void BoardView::DrawPawns(sf::RenderTarget& target, sf::RenderStates states) const
 {
 }
 
