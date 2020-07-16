@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <thread>
 
 #include "AppConfig/FileAppConfigLoader.hpp"
 #include "GameController.hpp"
@@ -17,7 +18,14 @@ int main()
         fileAppConfigContainer.BoardSize,
         fileAppConfigContainer.BoardSize
     );
-    view.Run();
+    std::thread viewThread(
+        [&view]()
+        {
+            view.Run();
+        }
+    );
+
+    viewThread.join();
     return 0;
 
     // Temporarily stop GameController creation and running
