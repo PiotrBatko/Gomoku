@@ -32,7 +32,7 @@ class DebugInfo {
 			Log(std::forward<T>(arg1));
 			Log(std::forward<Args>(args)...);
 		}
-		
+
 		template <typename T>
 		static void LogLn(T&& valueToLog) {
 			//if (debugInfoShowMode == DebugInfoShowMode_ToConsole) {

@@ -1,5 +1,6 @@
 #include "Board.hpp"
 
+#include <algorithm>
 #include <utility>
 
 #include "DebugInfo.hpp"
@@ -69,6 +70,20 @@ bool Board::IsFieldEmpty(const std::size_t x, const std::size_t y, bool& executi
         return true;
     }
     return false;
+}
+
+bool Board::IsEmpty() const
+{
+    auto foundNonEmptyField = std::find_if(
+        std::begin(m_Fields),
+        std::end(m_Fields),
+        [](Field field)
+        {
+            return field != Field::Empty;
+        }
+    );
+
+    return foundNonEmptyField == std::end(m_Fields);
 }
 
 bool Board::SetField(const std::size_t x, const std::size_t y, const Field fieldValueToSet)

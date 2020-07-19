@@ -1,5 +1,5 @@
-#ifndef _ALLOCATION_COUNTER_H_
-#define _ALLOCATION_COUNTER_H_
+#ifndef ALLOCATION_COUNTER_HPP
+#define ALLOCATION_COUNTER_HPP
 
 // This class holds count of memory heap allocations. Each "new" call increases
 // counter when each "delete" and "delete[]" decreases counter.

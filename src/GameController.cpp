@@ -7,18 +7,17 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "AppConfig/FileAppConfigContainer.h"
+#include "AppConfig/FileAppConfigContainer.hpp"
 #include "Board.hpp"
 #include "CommonEnums.hpp"
 #include "DebugInfo.hpp"
 #include "GameFinishedChecker.hpp"
 #include "Random.hpp"
-#include "CommonUtils.h"
 
+#include "BatoBot/BatoBot.hpp"
+#include "BotCM/BotCM.hpp"
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
-#include "BotCM/BotCM.hpp"
-#include "BotPB/BotPB.hpp"
 
 GameController::GameController() :
     m_GameFinishedChecker(m_Board)
@@ -119,17 +118,6 @@ bool GameController::Run() {
                 return false;
         }
     }
-
-    result = verifyAllocationCounter();
-    return result;
-}
-
-bool GameController::verifyAllocationCounter() {
-    unsigned long long int allocationCounter = AllocationCounter::GetCounter();
-    if (allocationCounter != 0uLL) {
-        LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
-        return false;
-    }
     return true;
 }
 
@@ -206,8 +194,8 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, con
             return std::make_unique<BotRandomizer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_CM:
             return std::make_unique<CM::BotCM>(&m_Board, playerType, playerColor);
-        case PlayerType::BOT_PB:
-            return std::make_unique<PB::BotPB>(&m_Board, playerType, playerColor);
+        case PlayerType::BOT_BATOBOT:
+            return std::make_unique<batobot::BatoBot>(&m_Board, playerType, playerColor);
         default:
             throw std::runtime_error("Wrong player type id");
     }
