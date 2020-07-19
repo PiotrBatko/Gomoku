@@ -14,6 +14,9 @@ public:
 
 	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
 	Coordinates MakeMove() override;
+
+private:
+	bool verifyAllocationCounter();
 };
 
 }

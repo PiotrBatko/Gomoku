@@ -10,7 +10,6 @@
 #include "AppConfig/FileAppConfigContainer.hpp"
 #include "Board.hpp"
 #include "CommonEnums.hpp"
-#include "CommonUtils.hpp"
 #include "DebugInfo.hpp"
 #include "GameFinishedChecker.hpp"
 #include "Random.hpp"
@@ -118,17 +117,6 @@ bool GameController::Run() {
                 LOG_ERROR("Wrong value of 'battleFinishCause'.");
                 return false;
         }
-    }
-
-    result = verifyAllocationCounter();
-    return result;
-}
-
-bool GameController::verifyAllocationCounter() {
-    unsigned long long int allocationCounter = AllocationCounter::GetCounter();
-    if (allocationCounter != 0uLL) {
-        LOG_LN("Allocation counter is not zero. At least one 'new' has no corresponding 'delete'.");
-        return false;
     }
     return true;
 }
