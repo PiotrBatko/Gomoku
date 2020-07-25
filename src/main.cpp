@@ -3,6 +3,7 @@
 
 #include "AppConfig/FileAppConfigLoader.hpp"
 #include "GameController.hpp"
+#include "View/FontsContainer.hpp"
 #include "View/GomokuView.hpp"
 
 int main()
@@ -12,6 +13,8 @@ int main()
     if (!result) {
         return EXIT_FAILURE;
     }
+
+    fontsContainer.LoadFont("default", "res/fonts/Ubuntu-L.ttf");
 
     GomokuView view;
     view.SetBoardDimensions(
