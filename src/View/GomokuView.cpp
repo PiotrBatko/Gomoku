@@ -1,5 +1,7 @@
 #include "GomokuView.hpp"
 
+#include <chrono>
+
 #include "SFML/Window.hpp"
 
 #include "AppConfig/FileAppConfigContainer.hpp"
@@ -44,6 +46,9 @@ void GomokuView::CreateWindow()
 
 void GomokuView::MainLoop()
 {
+    using namespace std::chrono_literals;
+
+    auto nextFpsUpdate = std::chrono::system_clock::now() + 1s;
     while (m_Window.isOpen())
     {
         sf::Event event;
@@ -60,6 +65,12 @@ void GomokuView::MainLoop()
             }
         }
 
+        if (std::chrono::system_clock::now() >= nextFpsUpdate)
+        {
+            m_FpsCounter.RegisterElapsedSecond();
+            nextFpsUpdate += 1s;
+        }
+
         Draw();
     }
 }
@@ -68,5 +79,8 @@ void GomokuView::Draw()
 {
     m_Window.clear(sf::Color::Black);
     m_Window.draw(m_BoardView);
+    m_Window.draw(m_FpsCounter);
     m_Window.display();
+
+    m_FpsCounter.RegisterDrawnFrame();
 }

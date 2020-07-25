@@ -1,16 +1,20 @@
 #ifndef GOMOKUVIEW_HPP
 #define GOMOKUVIEW_HPP
 
+#include <chrono>
+
 #include "SFML/Graphics/RenderWindow.hpp"
 
 #include "BoardView.hpp"
 #include "Coordinates.hpp"
+#include "FpsCounter.hpp"
 #include "PawnColor.hpp"
 
 class GomokuView
 {
 public:
 
+    GomokuView();
     void SetBoardDimensions(std::size_t width, std::size_t height);
     void Run();
 
@@ -26,6 +30,7 @@ private:
     sf::RenderWindow m_Window;
 
     BoardView m_BoardView;
+    FpsCounter m_FpsCounter;
 };
 
 #endif
