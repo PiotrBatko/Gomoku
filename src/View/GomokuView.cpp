@@ -3,6 +3,12 @@
 #include "SFML/Window.hpp"
 
 #include "AppConfig/FileAppConfigContainer.hpp"
+#include "FontsContainer.hpp"
+
+GomokuView::GomokuView()
+{
+    fontsContainer.LoadFont("default", "res/fonts/Ubuntu-L.ttf");
+}
 
 void GomokuView::SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows)
 {
