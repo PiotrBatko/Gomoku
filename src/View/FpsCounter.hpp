@@ -4,6 +4,7 @@
 #include <string>
 
 #include "SFML/Graphics/Drawable.hpp"
+#include "SFML/Graphics/Text.hpp"
 
 class FpsCounter :
     public sf::Drawable
@@ -21,8 +22,8 @@ private:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
+    sf::Text m_Text;
     int m_FramesInThisSecond = 0;
-    std::string m_CachedLastFps = "-";
     bool m_Visible = false;
 };
 

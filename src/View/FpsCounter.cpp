@@ -4,8 +4,10 @@
 
 #include "FontsContainer.hpp"
 
-FpsCounter::FpsCounter()
+FpsCounter::FpsCounter() :
+    m_Text("-", fontsContainer.GetFont("default"), 20)
 {
+    m_Text.setFillColor(sf::Color::Black);
 }
 
 void FpsCounter::RegisterDrawnFrame()
@@ -15,7 +17,7 @@ void FpsCounter::RegisterDrawnFrame()
 
 void FpsCounter::RegisterElapsedSecond()
 {
-    m_CachedLastFps = std::to_string(m_FramesInThisSecond);
+    m_Text.setString(std::to_string(m_FramesInThisSecond));
     m_FramesInThisSecond = 0;
 }
 
@@ -41,8 +43,5 @@ void FpsCounter::draw(sf::RenderTarget& target, sf::RenderStates states) const
         return;
     }
 
-    const sf::Font& font = fontsContainer.GetFont("default");
-    sf::Text text = sf::Text(m_CachedLastFps, font, 20);
-    text.setFillColor(sf::Color::Black);
-    target.draw(text, states);
+    target.draw(m_Text, states);
 }
