@@ -13,6 +13,9 @@ public:
     FpsCounter();
     void RegisterDrawnFrame();
     void RegisterElapsedSecond();
+    void MakeVisible();
+    void MakeInvisible();
+    void ToggleVisibility();
 
 private:
 
@@ -20,6 +23,7 @@ private:
 
     int m_FramesInThisSecond = 0;
     std::string m_CachedLastFps = "-";
+    bool m_Visible = false;
 };
 
 #endif

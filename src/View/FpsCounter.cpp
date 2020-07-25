@@ -19,8 +19,28 @@ void FpsCounter::RegisterElapsedSecond()
     m_FramesInThisSecond = 0;
 }
 
+void FpsCounter::MakeVisible()
+{
+    m_Visible = true;
+}
+
+void FpsCounter::MakeInvisible()
+{
+    m_Visible = false;
+}
+
+void FpsCounter::ToggleVisibility()
+{
+    m_Visible = not m_Visible;
+}
+
 void FpsCounter::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (not m_Visible)
+    {
+        return;
+    }
+
     const sf::Font& font = fontsContainer.GetFont("default");
     sf::Text text = sf::Text(m_CachedLastFps, font, 20);
     text.setFillColor(sf::Color::Black);
