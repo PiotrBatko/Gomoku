@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -11,6 +12,7 @@
 #include "Coordinates.hpp"
 #include "Field.hpp"
 #include "GameFinishedChecker.hpp"
+#include "GameView.hpp"
 
 class Player;
 
@@ -21,6 +23,8 @@ public:
     virtual ~GameController();
 
     bool Run();
+
+    void RegisterView(GameView& gameView);
 
 private:
 
@@ -65,6 +69,8 @@ private:
     GameFinishedChecker m_GameFinishedChecker;
 
     // View related members
+    std::vector<GameView*> m_Views;
+
     static constexpr std::size_t FieldWidthInPixels = 25u;
     static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
 

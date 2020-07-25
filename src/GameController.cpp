@@ -121,6 +121,11 @@ bool GameController::Run() {
     return true;
 }
 
+void GameController::RegisterView(GameView& gameView)
+{
+    m_Views.push_back(&gameView);
+}
+
 bool GameController::processPlayerTurn(
         const Field currentPlayerColor,
         const Field notCurrentPlayerColor,
