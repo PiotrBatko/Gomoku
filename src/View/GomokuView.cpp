@@ -60,6 +60,13 @@ void GomokuView::MainLoop()
                 m_Window.close();
                 return;
 
+            case sf::Event::KeyPressed:
+                if (event.key.code == sf::Keyboard::Key::F12)
+                {
+                    m_FpsCounter.ToggleVisibility();
+                }
+                break;
+
             default:
                 break;
             }
