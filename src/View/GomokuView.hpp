@@ -14,7 +14,7 @@ class GomokuView
 {
 public:
 
-    void SetBoardDimensions(std::size_t width, std::size_t height);
+    void SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows);
     void Run();
 
     void ClearBoard();
