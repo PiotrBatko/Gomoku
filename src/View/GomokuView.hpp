@@ -25,6 +25,7 @@ public:
 private:
 
     void GameStarted(std::size_t numberOfColumns, std::size_t numberOfRows) override;
+    void Terminate() override;
 
     void CreateWindow();
     void MainLoop();
@@ -35,6 +36,8 @@ private:
 
     BoardView m_BoardView;
     FpsCounter m_FpsCounter;
+
+    bool m_WindowShouldBeOpened = false;
 };
 
 #endif

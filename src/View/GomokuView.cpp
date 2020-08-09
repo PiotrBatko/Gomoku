@@ -25,8 +25,18 @@ void GomokuView::RegisterMove(PawnColor color, Coordinates coordinates)
 void GomokuView::GameStarted(std::size_t numberOfColumns, std::size_t numberOfRows)
 {
     m_BoardView.SetBoardDimensions(numberOfColumns, numberOfRows);
+    m_WindowShouldBeOpened = true;
 
     m_Thread = std::thread(&GomokuView::Run, this);
+}
+
+void GomokuView::Terminate()
+{
+    if (m_Thread.joinable())
+    {
+        m_WindowShouldBeOpened = false;
+        m_Thread.join();
+    }
 }
 
 void GomokuView::CreateWindow()
@@ -75,6 +85,11 @@ void GomokuView::MainLoop()
         }
 
         Draw();
+
+        if (not m_WindowShouldBeOpened)
+        {
+            m_Window.close();
+        }
     }
 }
 
