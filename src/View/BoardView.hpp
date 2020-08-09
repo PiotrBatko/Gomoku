@@ -32,6 +32,8 @@ public:
     void Clear();
     void RegisterMove(PawnColor color, Coordinates coordinates);
 
+    Coordinates MapPixelsToFieldCoordinates(sf::Vector2u pixelCoordinates) const;
+
 private:
 
     static constexpr float FieldPadding = 1.0F;

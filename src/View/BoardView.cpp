@@ -110,3 +110,11 @@ void BoardView::RegisterMove(PawnColor color, Coordinates coordinates)
 {
     m_Moves.emplace_back(color, coordinates);
 }
+
+Coordinates BoardView::MapPixelsToFieldCoordinates(sf::Vector2u pixelCoordinates) const
+{
+    return Coordinates(
+        pixelCoordinates.x / FieldWidthInPixels,
+        pixelCoordinates.y / FieldHeightInPixels
+    );
+}
