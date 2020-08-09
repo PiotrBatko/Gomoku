@@ -67,7 +67,7 @@ void GomokuView::MainLoop()
             switch (event.type)
             {
             case sf::Event::Closed:
-                m_Window.close();
+                GetGameModel().Terminate();
                 return;
 
             case sf::Event::KeyPressed:
