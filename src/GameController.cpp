@@ -124,6 +124,7 @@ bool GameController::Run() {
 void GameController::RegisterView(GameView& gameView)
 {
     m_Views.push_back(&gameView);
+    gameView.SetGameModel(*this);
 }
 
 bool GameController::processPlayerTurn(
