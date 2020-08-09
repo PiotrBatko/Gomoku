@@ -29,11 +29,18 @@ GameController::GameController() :
 GameController::~GameController() {
 }
 
+void GameController::Terminate()
+{
+    m_ShouldRun = false;
+}
+
 bool GameController::Run() {
     bool result = Initialize();
     if (!result) {
         return false;
     }
+
+    m_ShouldRun = true;
 
     for (auto view : m_Views)
     {

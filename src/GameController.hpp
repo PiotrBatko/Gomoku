@@ -25,6 +25,8 @@ public:
     GameController();
     virtual ~GameController();
 
+    void Terminate() override;
+
     bool Run();
 
     void RegisterView(GameView& gameView);
@@ -72,6 +74,8 @@ private:
     std::unique_ptr<Player> m_BlackPlayer;
 
     GameFinishedChecker m_GameFinishedChecker;
+
+    bool m_ShouldRun = false;
 
     // View related members
     std::vector<GameView*> m_Views;
