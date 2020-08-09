@@ -11,3 +11,8 @@ PlayerType Player::GetPlayerType()
 {
     return m_PlayerType;
 }
+
+PawnColor Player::GetColor() const
+{
+    return m_PlayerColor;
+}

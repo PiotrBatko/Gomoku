@@ -23,6 +23,7 @@ public:
     virtual Coordinates MakeMove() = 0;
 
     PlayerType GetPlayerType();
+    PawnColor GetColor() const;
 
 protected:
 
