@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #ifdef GAME_CONTROLLER_IS_ALSO_VIEW
 #include <SFML/Graphics.hpp>
@@ -136,6 +137,22 @@ bool GameController::Run() {
 #ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     }
 #endif
+
+    for (auto view : m_Views)
+    {
+        view->GameFinished();
+    }
+
+    while (m_ShouldRun)
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(10ms);
+    }
+
+    for (auto view : m_Views)
+    {
+        view->Terminate();
+    }
 
     return true;
 }
