@@ -56,7 +56,6 @@ private:
             FinishCause& battleFinishCause);
 
     void waitForEnterKeyIfNeeded();
-    bool verifyAllocationCounter();
 
     Board m_Board;
 
