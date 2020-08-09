@@ -17,17 +17,6 @@ int main()
     fontsContainer.LoadFont("default", "res/fonts/Ubuntu-L.ttf");
 
     GomokuView view;
-    std::thread viewThread(
-        [&view]()
-        {
-            view.Run();
-        }
-    );
-
-    viewThread.join();
-    return 0;
-
-    // Temporarily stop GameController creation and running
 
     GameController gameController;
     const bool status = gameController.Run();
