@@ -1,10 +1,15 @@
 #ifndef GAMEMODEL_HPP
 #define GAMEMODEL_HPP
 
+#include "Coordinates.hpp"
+
 /// Game model interface for views
 class GameModel
 {
 public:
+
+    /// Invoked when move is requested.
+    virtual void MakeMove(Coordinates coordinates) = 0;
 
     /// Invoked when model should be terminated.
     virtual void Terminate() = 0;
