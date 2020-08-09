@@ -180,6 +180,12 @@ bool GameController::processPlayerTurn(
     const auto endTime = std::chrono::high_resolution_clock::now();
     const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime-startTime).count();
 
+    PawnColor color = currentPlayerColor == Field::White ? PawnColor::White : PawnColor::Black;
+    for (auto view : m_Views)
+    {
+        view->PawnAdded(color, currentPlayerMove);
+    }
+
     switch (playerMovementStatus) {
         case PlayerMovementStatus::ValidMovement:
             break;
