@@ -1,12 +1,9 @@
-#ifndef _GAME_CONTROLLER_HPP_
-#define _GAME_CONTROLLER_HPP_
+#ifndef GAMECONTROLLER_HPP
+#define GAMECONTROLLER_HPP
 
 #include <memory>
 #include <utility>
 #include <vector>
-
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
 
 #include "Board.hpp"
 #include "Coordinates.hpp"
@@ -49,10 +46,6 @@ private:
 
     Coordinates makePlayerMove(Player* const player, const Field field, PlayerMovementStatus& playerMovementStatus);
 
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-    void drawGameBoard();
-#endif
-
     bool Initialize();
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId, Field playerColor);
@@ -77,16 +70,7 @@ private:
 
     bool m_ShouldRun = false;
 
-    // View related members
     std::vector<GameView*> m_Views;
-
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-    static constexpr std::size_t FieldWidthInPixels = 25u;
-    static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
-
-    sf::RenderWindow m_Window;
-    sf::Font m_Font;
-#endif
 };
 
 #endif

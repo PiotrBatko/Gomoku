@@ -6,10 +6,6 @@
 #include <string>
 #include <thread>
 
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-#include <SFML/Graphics.hpp>
-#endif
-
 #include "AppConfig/FileAppConfigContainer.hpp"
 #include "Board.hpp"
 #include "CommonEnums.hpp"
@@ -53,90 +49,65 @@ bool GameController::Run() {
 
     bool battleFinished = false;
 
-    // Main window loop.
-    // TODO: extract it to new function.
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-    while (m_Window.isOpen())
-    {
-        sf::Event event;
-        while (m_Window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                m_Window.close();
-            }
-        }
+    Field winner = Field::Empty;
+    FinishCause battleFinishCause = FinishCause::None;
 
+    // Main game loop.
+    // TODO: extract it to new function.
+    while (!battleFinished) {
+
+        // 1. White player's turn.
+        result = processPlayerTurn(
+                Field::White,
+                Field::Black,
+                m_WhitePlayer,
+                m_BlackPlayer,
+                battleFinished,
+                winner,
+                battleFinishCause);
+        if (!result) {
+            return false;
+        }
         if (battleFinished) {
             continue;
         }
 
-        // Initial drawing of the game board, for the first player to see the board.
-        drawGameBoard();
-#endif
-
-        Field winner = Field::Empty;
-        FinishCause battleFinishCause = FinishCause::None;
-
-        // Main game loop.
-        // TODO: extract it to new function.
-        while (!battleFinished) {
-
-            // 1. White player's turn.
-            result = processPlayerTurn(
-                    Field::White,
-                    Field::Black,
-                    m_WhitePlayer,
-                    m_BlackPlayer,
-                    battleFinished,
-                    winner,
-                    battleFinishCause);
-            if (!result) {
-                return false;
-            }
-            if (battleFinished) {
-                continue;
-            }
-
-            // 2. Black player's turn.
-            result = processPlayerTurn(
-                    Field::Black,
-                    Field::White,
-                    m_BlackPlayer,
-                    m_WhitePlayer,
-                    battleFinished,
-                    winner,
-                    battleFinishCause);
-            if (!result) {
-                return false;
-            }
+        // 2. Black player's turn.
+        result = processPlayerTurn(
+                Field::Black,
+                Field::White,
+                m_BlackPlayer,
+                m_WhitePlayer,
+                battleFinished,
+                winner,
+                battleFinishCause);
+        if (!result) {
+            return false;
         }
-
-        // TODO: extract it to function.
-        std::string winnerColor;
-        if (winner == Field::White) {
-            winnerColor = "White";
-        } else {
-            winnerColor = "Black";
-        }
-        LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
-        switch (battleFinishCause) {
-            case FinishCause::EnoughPlayerPawnsInLine:
-                LOG_LN("The cause of finish was enough pawns in line.");
-                break;
-            case FinishCause::PlayerTurnMaxTimeExceeded:
-                LOG_LN("The cause of finish: player turn maximum time exceeded.");
-                break;
-            case FinishCause::WrongMovement:
-                LOG_LN("The cause of finish: player made an invalid movement.");
-                break;
-            default:
-                LOG_ERROR("Wrong value of 'battleFinishCause'.");
-                return false;
-        }
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     }
-#endif
+
+    // TODO: extract it to function.
+    std::string winnerColor;
+    if (winner == Field::White) {
+        winnerColor = "White";
+    } else {
+        winnerColor = "Black";
+    }
+    LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
+    switch (battleFinishCause) {
+        case FinishCause::EnoughPlayerPawnsInLine:
+            LOG_LN("The cause of finish was enough pawns in line.");
+            break;
+        case FinishCause::PlayerTurnMaxTimeExceeded:
+            LOG_LN("The cause of finish: player turn maximum time exceeded.");
+            break;
+        case FinishCause::WrongMovement:
+            LOG_LN("The cause of finish: player made an invalid movement.");
+            break;
+        default:
+            LOG_ERROR("Wrong value of 'battleFinishCause'.");
+            return false;
+    }
 
     for (auto view : m_Views)
     {
@@ -199,9 +170,6 @@ bool GameController::processPlayerTurn(
     }
 
     notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-    drawGameBoard();
-#endif
 
     // If current player is not a console human player, he/she has limited time to perform the movement.
     if (currentPlayer->GetPlayerType() != PlayerType::HUMAN_CONSOLE) {
@@ -257,15 +225,6 @@ bool GameController::Initialize() {
     const std::size_t BoardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
     m_Board.SetSize(BoardSize, BoardSize);
 
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-    m_Window.create(
-        sf::VideoMode(FieldWidthInPixels * m_Board.getWidth(), FieldHeightInPixels * m_Board.getHeight()),
-        "Gomoku Bot Battle"
-    );
-
-    m_Font.loadFromFile("res/fonts/Ubuntu-L.ttf");
-#endif
-
     return true;
 }
 
@@ -292,71 +251,6 @@ Coordinates GameController::makePlayerMove(Player* const player,
     playerMovementStatus = PlayerMovementStatus::ValidMovement;
     return movement;
 }
-
-#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
-void GameController::drawGameBoard() {
-    // Prepare board view
-    constexpr float FieldPadding = 1.0F;
-    constexpr float BlockRadius = FieldWidthInPixels / 2 - 2 * FieldPadding;
-
-    sf::CircleShape whiteBlockView(BlockRadius);
-    whiteBlockView.setFillColor(sf::Color(240, 240, 240));
-    whiteBlockView.setOrigin(BlockRadius, BlockRadius);
-
-    sf::CircleShape blackBlockView(BlockRadius);
-    blackBlockView.setFillColor(sf::Color(16, 16, 16));
-    blackBlockView.setOrigin(BlockRadius, BlockRadius);
-
-    sf::RectangleShape fieldView(sf::Vector2f(FieldWidthInPixels, FieldHeightInPixels));
-    fieldView.setFillColor(sf::Color(176, 144, 90));
-    fieldView.setOutlineThickness(-0.5F);
-    fieldView.setOutlineColor(sf::Color(214, 177, 114));
-    fieldView.setOrigin(FieldWidthInPixels / 2, FieldHeightInPixels / 2);
-
-    sf::Text fieldCoordinatesView;
-    fieldCoordinatesView.setCharacterSize(10);
-    fieldCoordinatesView.setFont(m_Font);
-    fieldCoordinatesView.setFillColor(sf::Color(234, 193, 128));
-
-    for (std::size_t y = 0u; y < m_Board.getHeight(); ++y)
-    {
-        for (std::size_t x = 0u; x < m_Board.getWidth(); ++x)
-        {
-            sf::Vector2f fieldCenter(
-                FieldWidthInPixels / 2 + x * FieldWidthInPixels,
-                FieldHeightInPixels / 2 + y * FieldHeightInPixels
-            );
-            fieldView.setPosition(fieldCenter);
-
-            m_Window.draw(fieldView);
-
-            if (m_Board.at(x, y) == Field::White)
-            {
-                whiteBlockView.setPosition(fieldCenter);
-                m_Window.draw(whiteBlockView);
-            }
-            else if (m_Board.at(x, y) == Field::Black)
-            {
-                blackBlockView.setPosition(fieldCenter);
-                m_Window.draw(blackBlockView);
-            }
-            else
-            {
-                std::ostringstream coordinates;
-                coordinates << x << "\n" << y;
-
-                sf::Vector2f fieldTopLeft(x * FieldWidthInPixels, y * FieldHeightInPixels);
-                sf::Vector2f fieldCoordinatesMargin(3, 1);
-                fieldCoordinatesView.setPosition(fieldTopLeft + fieldCoordinatesMargin);
-                fieldCoordinatesView.setString(coordinates.str());
-                m_Window.draw(fieldCoordinatesView);
-            }
-        }
-    }
-
-    m_Window.display();
-}
-#endif
 
 void GameController::waitForEnterKeyIfNeeded() {
     const int humanConsolePlayerId = static_cast<int>(PlayerType::HUMAN_CONSOLE);
