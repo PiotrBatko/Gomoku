@@ -18,6 +18,7 @@
 #include "BotCM/BotCM.hpp"
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
+#include "UserControlledPlayer.hpp"
 
 GameController::GameController() :
     m_GameFinishedChecker(m_Board)
@@ -185,6 +186,8 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, con
     {
         case PlayerType::HUMAN_CONSOLE:
             return std::make_unique<ConsolePlayer>(&m_Board, playerType, playerColor);
+        case PlayerType::HUMAN:
+            return std::make_unique<UserControlledPlayer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_RANDOMIZER:
             return std::make_unique<BotRandomizer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_CM:
