@@ -1,9 +1,9 @@
 #include "GameController.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <chrono>
 
 #include <SFML/Graphics.hpp>
 
