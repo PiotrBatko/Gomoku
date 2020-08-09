@@ -1,12 +1,13 @@
 #include "Player.hpp"
 
-Player::Player(const Board* const gameBoard, const PlayerType playerType, const Field playerColor)
-    : board(gameBoard), playerType(playerType), playerColor(playerColor) {
+Player::Player(const Board* const gameBoard, const PlayerType playerType, const Field playerColor) :
+    m_Board(gameBoard),
+    m_PlayerType(playerType),
+    m_PlayerColor(playerColor)
+{
 }
 
-Player::~Player() {
-}
-
-PlayerType Player::GetPlayerType() {
-    return playerType;
+PlayerType Player::GetPlayerType()
+{
+    return m_PlayerType;
 }

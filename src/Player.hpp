@@ -1,5 +1,5 @@
-#ifndef _PLAYER_H_
-#define _PLAYER_H_
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
 
 #include <utility>
 
@@ -9,10 +9,12 @@
 
 class Board;
 
-class Player {
+class Player
+{
 public:
+
     Player(const Board* gameBoard, PlayerType playerType, Field playerColor);
-    virtual ~Player();
+    virtual ~Player() = default;
 
     // Player is notified after opponent's move. It is good moment
     // to update some local informations about game progress.
@@ -23,10 +25,11 @@ public:
     PlayerType GetPlayerType();
 
 protected:
-    const Board* const board;
 
-    const PlayerType playerType;
-    const Field playerColor;
+    const Board* const m_Board;
+
+    const PlayerType m_PlayerType;
+    const Field m_PlayerColor;
 };
 
 #endif
