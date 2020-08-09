@@ -2,19 +2,21 @@
 #define GOMOKUVIEW_HPP
 
 #include <chrono>
+#include <thread>
 
 #include "SFML/Graphics/RenderWindow.hpp"
 
 #include "BoardView.hpp"
 #include "Coordinates.hpp"
 #include "FpsCounter.hpp"
+#include "GameView.hpp"
 #include "PawnColor.hpp"
 
-class GomokuView
+class GomokuView :
+    public GameView
 {
 public:
 
-    void SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows);
     void Run();
 
     void ClearBoard();
@@ -22,10 +24,13 @@ public:
 
 private:
 
+    void GameStarted(std::size_t numberOfColumns, std::size_t numberOfRows) override;
+
     void CreateWindow();
     void MainLoop();
     void Draw();
 
+    std::thread m_Thread;
     sf::RenderWindow m_Window;
 
     BoardView m_BoardView;

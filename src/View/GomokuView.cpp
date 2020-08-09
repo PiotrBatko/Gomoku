@@ -6,11 +6,6 @@
 
 #include "AppConfig/FileAppConfigContainer.hpp"
 
-void GomokuView::SetBoardDimensions(std::size_t numberOfColumns, std::size_t numberOfRows)
-{
-    m_BoardView.SetBoardDimensions(numberOfColumns, numberOfRows);
-}
-
 void GomokuView::Run()
 {
     CreateWindow();
@@ -25,6 +20,13 @@ void GomokuView::ClearBoard()
 void GomokuView::RegisterMove(PawnColor color, Coordinates coordinates)
 {
     m_BoardView.RegisterMove(color, coordinates);
+}
+
+void GomokuView::GameStarted(std::size_t numberOfColumns, std::size_t numberOfRows)
+{
+    m_BoardView.SetBoardDimensions(numberOfColumns, numberOfRows);
+
+    m_Thread = std::thread(&GomokuView::Run, this);
 }
 
 void GomokuView::CreateWindow()

@@ -17,10 +17,6 @@ int main()
     fontsContainer.LoadFont("default", "res/fonts/Ubuntu-L.ttf");
 
     GomokuView view;
-    view.SetBoardDimensions(
-        fileAppConfigContainer.BoardSize,
-        fileAppConfigContainer.BoardSize
-    );
     std::thread viewThread(
         [&view]()
         {
