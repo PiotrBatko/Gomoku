@@ -4,7 +4,6 @@
 
 #include "SFML/Window.hpp"
 
-#include "AppConfig/FileAppConfigContainer.hpp"
 #include "DebugInfo.hpp"
 
 GomokuView::~GomokuView()
