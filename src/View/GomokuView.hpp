@@ -17,6 +17,8 @@ class GomokuView :
 {
 public:
 
+    ~GomokuView();
+
     void Run();
 
     void ClearBoard();

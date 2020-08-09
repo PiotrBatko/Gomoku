@@ -5,6 +5,16 @@
 #include "SFML/Window.hpp"
 
 #include "AppConfig/FileAppConfigContainer.hpp"
+#include "DebugInfo.hpp"
+
+GomokuView::~GomokuView()
+{
+    if (m_Thread.joinable())
+    {
+        LOG_ERROR("GomokuView thread wasn't joined before destruction");
+        m_Thread.join();
+    }
+}
 
 void GomokuView::Run()
 {
