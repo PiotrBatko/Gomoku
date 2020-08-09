@@ -35,6 +35,8 @@ private:
     static constexpr float FieldPadding = 1.0F;
     static constexpr float PawnRadius = FieldWidthInPixels / 2 - 2 * FieldPadding;
 
+    // These member variables are mutable, because during drawing (which must be
+    // const function) they are moved, so their position is changing.
     mutable PawnView m_WhitePawnView;
     mutable PawnView m_BlackPawnView;
     mutable FieldView m_FieldView;
