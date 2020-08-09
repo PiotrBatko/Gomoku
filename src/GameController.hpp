@@ -2,6 +2,7 @@
 #define GAMECONTROLLER_HPP
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -44,16 +45,19 @@ private:
         Error
     };
 
+    struct GameResult
+    {
+        FinishCause m_FinishCause;
+        PawnColor m_WinnerColor;
+    };
+
     Coordinates makePlayerMove(Player* const player, PlayerMovementStatus& playerMovementStatus);
 
     bool Initialize();
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId, PawnColor playerColor);
 
-    bool processPlayerTurn(
-            bool& battleFinished,
-            PawnColor& winner,
-            FinishCause& battleFinishCause);
+    std::optional<GameResult> ProcessPlayerTurn();
 
     void waitForEnterKeyIfNeeded();
 

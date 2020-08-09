@@ -30,6 +30,7 @@ bool GameFinishedChecker::CheckIfGameFinished(
     this->lastPlayerMovementY = lastPlayerMovement.y;
     this->lastPlayerColor = lastPlayerColor;
     pawnsInLineCounter = 0u;
+    checkingResult = false;
 
     // 1. Check non-slanting lines.
     processNonSlantingLines(checkingResult);

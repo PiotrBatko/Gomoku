@@ -49,28 +49,20 @@ bool GameController::Run()
     m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite, PawnColor::White);
     m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, PawnColor::Black);
 
-    bool battleFinished = false;
     m_CurrentPlayer = m_WhitePlayer.get();
     m_OppositePlayer = m_BlackPlayer.get();
 
-    PawnColor winner;
-    FinishCause battleFinishCause = FinishCause::None;
-
     // Main game loop.
-    // TODO: extract it to new function.
-    while (!battleFinished)
+    std::optional<GameResult> gameResult;
+    while (not gameResult.has_value())
     {
-        result = processPlayerTurn(battleFinished, winner, battleFinishCause);
-        if (!result) {
-            return false;
-        }
-
+        gameResult = ProcessPlayerTurn();
         SwitchNextPlayerTurn();
     }
 
     // TODO: extract it to function.
     std::string winnerColor;
-    if (winner == PawnColor::White)
+    if (gameResult->m_WinnerColor == PawnColor::White)
     {
         winnerColor = "White";
     }
@@ -80,7 +72,8 @@ bool GameController::Run()
     }
 
     LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
-    switch (battleFinishCause) {
+    switch (gameResult->m_FinishCause)
+    {
         case FinishCause::EnoughPlayerPawnsInLine:
             LOG_LN("The cause of finish was enough pawns in line.");
             break;
@@ -120,11 +113,8 @@ void GameController::RegisterView(GameView& gameView)
     gameView.SetGameModel(*this);
 }
 
-bool GameController::processPlayerTurn(
-        bool& battleFinished,
-        PawnColor& winner,
-        FinishCause& battleFinishCause) {
-
+std::optional<GameController::GameResult> GameController::ProcessPlayerTurn()
+{
     const auto startTime = std::chrono::high_resolution_clock::now();
 
     PlayerMovementStatus playerMovementStatus;
@@ -142,10 +132,12 @@ bool GameController::processPlayerTurn(
         case PlayerMovementStatus::ValidMovement:
             break;
         case PlayerMovementStatus::WrongMovement:
-            battleFinished = true;
-            winner = m_OppositePlayer->GetColor();
-            battleFinishCause = FinishCause::WrongMovement;
-            return true;
+        {
+            return GameResult{
+                FinishCause::WrongMovement,
+                m_OppositePlayer->GetColor()
+            };
+        }
         default:
             LOG_ERROR("Error occurred.");
     }
@@ -161,25 +153,27 @@ bool GameController::processPlayerTurn(
             const int elapsedTimeInt = static_cast<int>(elapsedTime);
 
             if (elapsedTimeInt > playerTurnMaxTime) {
-                battleFinished = true;
-                winner = m_OppositePlayer->GetColor();
-                battleFinishCause = FinishCause::PlayerTurnMaxTimeExceeded;
-                return true;
+                return GameResult{
+                    FinishCause::PlayerTurnMaxTimeExceeded,
+                    m_OppositePlayer->GetColor()
+                };
             }
         }
     }
 
+    bool battleFinished;
     const bool result = m_GameFinishedChecker.CheckIfGameFinished(currentPlayerMove, m_CurrentPlayer->GetColor(), battleFinished);
     if (!result) {
-        return false;
+        throw std::runtime_error("Unnamed error");
     }
     if (battleFinished) {
-        winner = m_OppositePlayer->GetColor();
-        battleFinishCause = FinishCause::EnoughPlayerPawnsInLine;
-        return true;
+        return GameResult{
+            FinishCause::EnoughPlayerPawnsInLine,
+            m_OppositePlayer->GetColor()
+        };
     }
     waitForEnterKeyIfNeeded();
-    return true;
+    return std::nullopt;
 }
 
 std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, const PawnColor playerColor) {
