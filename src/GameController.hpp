@@ -12,11 +12,14 @@
 #include "Coordinates.hpp"
 #include "Field.hpp"
 #include "GameFinishedChecker.hpp"
+#include "GameModel.hpp"
 #include "GameView.hpp"
 
 class Player;
 
-class GameController {
+class GameController :
+    public GameModel
+{
 public:
 
     GameController();
