@@ -35,6 +35,11 @@ bool GameController::Run() {
         return false;
     }
 
+    for (auto view : m_Views)
+    {
+        view->GameStarted(m_Board.getWidth(), m_Board.getHeight());
+    }
+
     m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite, Field::White);
     m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, Field::Black);
 
