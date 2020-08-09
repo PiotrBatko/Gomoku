@@ -1,6 +1,10 @@
 #include "BoardView.hpp"
 
+#include <sstream>
+
 #include "SFML/Graphics.hpp"
+
+#include "FontsContainer.hpp"
 
 BoardView::BoardView() :
     m_WhitePawnView(PawnRadius, sf::Color(240, 240, 240)),
@@ -10,13 +14,16 @@ BoardView::BoardView() :
             FieldWidthInPixels,
             FieldHeightInPixels
         )
-    )
+    ),
+    m_CoordinatesView("-", fontsContainer.GetFont("default"), 10)
 {
+    m_CoordinatesView.setFillColor(sf::Color(234, 193, 128));
 }
 
 void BoardView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     DrawFields(target, states);
+    DrawCoordinates(target, states);
     DrawPawns(target, states);
 }
 
@@ -33,6 +40,25 @@ void BoardView::DrawFields(sf::RenderTarget& target, sf::RenderStates states) co
 
             m_FieldView.SetPosition(fieldCenter);
             target.draw(m_FieldView, states);
+        }
+    }
+}
+
+void BoardView::DrawCoordinates(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    for (std::size_t y = 0; y < m_NumberOfRows; ++y)
+    {
+        for (std::size_t x = 0; x < m_NumberOfColumns; ++x)
+        {
+            std::ostringstream coordinates;
+            coordinates << x << "\n" << y;
+
+            sf::Vector2f fieldTopLeft(x * FieldWidthInPixels, y * FieldHeightInPixels);
+            sf::Vector2f fieldCoordinatesMargin(3, 1);
+            m_CoordinatesView.setPosition(fieldTopLeft + fieldCoordinatesMargin);
+            m_CoordinatesView.setString(coordinates.str());
+
+            target.draw(m_CoordinatesView, states);
         }
     }
 }

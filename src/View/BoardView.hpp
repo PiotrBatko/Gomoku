@@ -2,6 +2,7 @@
 #define BOARDVIEW_HPP
 
 #include "SFML/Graphics/Drawable.hpp"
+#include "SFML/Graphics/Text.hpp"
 
 #include "Coordinates.hpp"
 #include "FieldView.hpp"
@@ -21,6 +22,7 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     void DrawFields(sf::RenderTarget& target, sf::RenderStates states) const;
+    void DrawCoordinates(sf::RenderTarget& target, sf::RenderStates states) const;
     void DrawPawns(sf::RenderTarget& target, sf::RenderStates states) const;
 
     std::size_t GetNumberOfColumns() const;
@@ -40,6 +42,7 @@ private:
     mutable PawnView m_WhitePawnView;
     mutable PawnView m_BlackPawnView;
     mutable FieldView m_FieldView;
+    mutable sf::Text m_CoordinatesView;
 
     std::size_t m_NumberOfColumns = 0;
     std::size_t m_NumberOfRows = 0;
