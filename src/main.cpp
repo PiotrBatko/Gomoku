@@ -16,9 +16,11 @@ int main()
 
     fontsContainer.LoadFont("default", "res/fonts/Ubuntu-L.ttf");
 
-    GomokuView view;
-
     GameController gameController;
+
+    GomokuView view;
+    gameController.RegisterView(view);
+
     const bool status = gameController.Run();
     if (!status) {
        return EXIT_FAILURE;
