@@ -12,6 +12,7 @@
 #include "GameFinishedChecker.hpp"
 #include "GameModel.hpp"
 #include "GameView.hpp"
+#include "Player.hpp"
 
 class Player;
 
