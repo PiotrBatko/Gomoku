@@ -23,6 +23,7 @@ public:
 
     GameController();
 
+    void MakeMove(Coordinates coordinates) override;
     void Terminate() override;
 
     bool Run();

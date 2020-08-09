@@ -24,6 +24,11 @@ GameController::GameController() :
 {
 }
 
+void GameController::MakeMove(Coordinates coordinates)
+{
+    m_CurrentPlayer->NotifyAboutRequestedMove(coordinates);
+}
+
 void GameController::Terminate()
 {
     m_ShouldRun = false;
