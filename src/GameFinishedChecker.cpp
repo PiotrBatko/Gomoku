@@ -5,99 +5,99 @@
 #include "Board.hpp"
 
 GameFinishedChecker::GameFinishedChecker(const Board& board)
-	: board(board) {
-	pawnsInLineCounter = 0u;
-	lastPlayerMovementX_Int = 0;
-	lastPlayerMovementY_Int = 0;
-	iFirst = 0;
-	iLast = 0;
-	lastPlayerMovementX = 0u,
-	lastPlayerMovementY = 0u,
-	lastPlayerColor = Field::Empty;
-	pawnsLineLenghtToWin = static_cast<std::size_t>(fileAppConfigContainer.PawnsLineLenghtToWin);
-	K = pawnsLineLenghtToWin - 1u;
-	boardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
+    : board(board) {
+    pawnsInLineCounter = 0u;
+    lastPlayerMovementX_Int = 0;
+    lastPlayerMovementY_Int = 0;
+    iFirst = 0;
+    iLast = 0;
+    lastPlayerMovementX = 0u,
+    lastPlayerMovementY = 0u,
+    lastPlayerColor = Field::Empty;
+    pawnsLineLenghtToWin = static_cast<std::size_t>(fileAppConfigContainer.PawnsLineLenghtToWin);
+    K = pawnsLineLenghtToWin - 1u;
+    boardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
 }
 
 GameFinishedChecker::~GameFinishedChecker() {
 }
 
 bool GameFinishedChecker::CheckIfGameFinished(
-		Coordinates lastPlayerMovement,
-		const Field lastPlayerColor,
-		bool& checkingResult) {
+        Coordinates lastPlayerMovement,
+        const Field lastPlayerColor,
+        bool& checkingResult) {
 
-	this->lastPlayerMovementX = lastPlayerMovement.x;
-	this->lastPlayerMovementY = lastPlayerMovement.y;
-	this->lastPlayerColor = lastPlayerColor;
-	pawnsInLineCounter = 0u;
+    this->lastPlayerMovementX = lastPlayerMovement.x;
+    this->lastPlayerMovementY = lastPlayerMovement.y;
+    this->lastPlayerColor = lastPlayerColor;
+    pawnsInLineCounter = 0u;
 
-	// 1. Check non-slanting lines.
-	processNonSlantingLines(checkingResult);
-	if (checkingResult) {
-		return true;
-	}
+    // 1. Check non-slanting lines.
+    processNonSlantingLines(checkingResult);
+    if (checkingResult) {
+        return true;
+    }
 
-	// 2. Check slanting lines.
-	processSlantingLines(checkingResult);
-	return true;
+    // 2. Check slanting lines.
+    processSlantingLines(checkingResult);
+    return true;
 }
 
 void GameFinishedChecker::processNonSlantingLines(bool& checkingResult) {
-	// TODO: checking for columns and checking for rows are extremely similar - extract it
-	// to one function called twice.
+    // TODO: checking for columns and checking for rows are extremely similar - extract it
+    // to one function called twice.
 
-	// 1. Check column.
+    // 1. Check column.
 
-	// First and last column to check when checking pawns line in single row.
-	std::size_t firstColumn = 0u;
-	std::size_t lastColumn = boardSize - 1u;
+    // First and last column to check when checking pawns line in single row.
+    std::size_t firstColumn = 0u;
+    std::size_t lastColumn = boardSize - 1u;
 
-	if (K < lastPlayerMovementX) {
-		firstColumn = lastPlayerMovementX - K;
-	}
-	if (boardSize - lastPlayerMovementX > K) {
-		lastColumn = lastPlayerMovementX + K;
-	}
+    if (K < lastPlayerMovementX) {
+        firstColumn = lastPlayerMovementX - K;
+    }
+    if (boardSize - lastPlayerMovementX > K) {
+        lastColumn = lastPlayerMovementX + K;
+    }
 
-	pawnsInLineCounter = 0u;
-	for (std::size_t x = firstColumn; x <= lastColumn; ++x) {
-		const Field currentField = board.at(x, lastPlayerMovementY);
-		if (currentField == lastPlayerColor) {
-			if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
-				checkingResult = true;
-				return;
-			}
-		} else {
-			pawnsInLineCounter = 0u;
-		}
-	}
+    pawnsInLineCounter = 0u;
+    for (std::size_t x = firstColumn; x <= lastColumn; ++x) {
+        const Field currentField = board.at(x, lastPlayerMovementY);
+        if (currentField == lastPlayerColor) {
+            if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
+                checkingResult = true;
+                return;
+            }
+        } else {
+            pawnsInLineCounter = 0u;
+        }
+    }
 
-	// 2. Check row.
+    // 2. Check row.
 
-	// First and last row to check when checking pawns line in single column.
-	std::size_t firstRow = 0u;
-	std::size_t lastRow = boardSize - 1u;
+    // First and last row to check when checking pawns line in single column.
+    std::size_t firstRow = 0u;
+    std::size_t lastRow = boardSize - 1u;
 
-	if (K < lastPlayerMovementY) {
-		firstRow = lastPlayerMovementY - K;
-	}
-	if (boardSize - lastPlayerMovementY > K) {
-		lastRow = lastPlayerMovementY + K;
-	}
+    if (K < lastPlayerMovementY) {
+        firstRow = lastPlayerMovementY - K;
+    }
+    if (boardSize - lastPlayerMovementY > K) {
+        lastRow = lastPlayerMovementY + K;
+    }
 
-	pawnsInLineCounter = 0u;
-	for (std::size_t y = firstRow; y <= lastRow; ++y) {
-		const Field currentField = board.at(lastPlayerMovementX, y);
-		if (currentField == lastPlayerColor) {
-			if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
-				checkingResult = true;
-				return;
-			}
-		} else {
-			pawnsInLineCounter = 0u;
-		}
-	}
+    pawnsInLineCounter = 0u;
+    for (std::size_t y = firstRow; y <= lastRow; ++y) {
+        const Field currentField = board.at(lastPlayerMovementX, y);
+        if (currentField == lastPlayerColor) {
+            if (++pawnsInLineCounter >= pawnsLineLenghtToWin) {
+                checkingResult = true;
+                return;
+            }
+        } else {
+            pawnsInLineCounter = 0u;
+        }
+    }
 }
 
 void GameFinishedChecker::processSlantingLines(bool& checkingResult) {

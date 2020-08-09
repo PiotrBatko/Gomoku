@@ -8,50 +8,53 @@
 
 class Board;
 
-class GameFinishedChecker {
+class GameFinishedChecker
+{
 public:
-	GameFinishedChecker(const Board& board);
-	virtual ~GameFinishedChecker();
 
-	bool CheckIfGameFinished(Coordinates lastPlayerMovement,
-							 Field lastPlayerColor,
-							 bool& checkingResult);
+    GameFinishedChecker(const Board& board);
+    virtual ~GameFinishedChecker();
+
+    bool CheckIfGameFinished(Coordinates lastPlayerMovement,
+                             Field lastPlayerColor,
+                             bool& checkingResult);
 
 private:
-	// This function checks non-slanting lines (one horizontal and one vertical)
-	// in both directions.
-	void processNonSlantingLines(bool& checkingResult);
 
-	// This function checks slanting lines in both directions.
-	void processSlantingLines(bool& checkingResult);
+    // This function checks non-slanting lines (one horizontal and one vertical)
+    // in both directions.
+    void processNonSlantingLines(bool& checkingResult);
 
-	// Value of parameter 'revertGFirst':
-	// false - function checks slanting line from top left to bottom right,
-	// true  - function checks slanting line from top right to bottom left,
-	// True as returned value means that player has won.
-	bool checkSlantingLine(bool negateIForColumns);
+    // This function checks slanting lines in both directions.
+    void processSlantingLines(bool& checkingResult);
 
-	std::size_t lastPlayerMovementX;
-	std::size_t lastPlayerMovementY;
+    // Value of parameter 'revertGFirst':
+    // false - function checks slanting line from top left to bottom right,
+    // true  - function checks slanting line from top right to bottom left,
+    // True as returned value means that player has won.
+    bool checkSlantingLine(bool negateIForColumns);
 
-	Field lastPlayerColor;
+    std::size_t lastPlayerMovementX;
+    std::size_t lastPlayerMovementY;
 
-	const Board& board;
-	std::size_t pawnsLineLenghtToWin;
+    Field lastPlayerColor;
 
-	std::size_t pawnsInLineCounter;
+    const Board& board;
+    std::size_t pawnsLineLenghtToWin;
 
-	int lastPlayerMovementX_Int;
-	int lastPlayerMovementY_Int;
+    std::size_t pawnsInLineCounter;
 
-	// These two variables are used for checking slanting lines.
-	int iFirst;
-	int iLast;
+    int lastPlayerMovementX_Int;
+    int lastPlayerMovementY_Int;
 
-	// Symbolic name for 'pawnsLineLenghtToWin' minus 1.
-	std::size_t K;
+    // These two variables are used for checking slanting lines.
+    int iFirst;
+    int iLast;
 
-	std::size_t boardSize;
+    // Symbolic name for 'pawnsLineLenghtToWin' minus 1.
+    std::size_t K;
+
+    std::size_t boardSize;
 };
 
 #endif
