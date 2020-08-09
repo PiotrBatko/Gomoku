@@ -21,7 +21,6 @@ class GameController :
 public:
 
     GameController();
-    virtual ~GameController();
 
     void Terminate() override;
 

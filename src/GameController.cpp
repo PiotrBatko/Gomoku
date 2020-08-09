@@ -24,9 +24,6 @@ GameController::GameController() :
 {
 }
 
-GameController::~GameController() {
-}
-
 void GameController::Terminate()
 {
     m_ShouldRun = false;
