@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "Coordinates.hpp"
-#include "Field.hpp"
+#include "PawnColor.hpp"
 
 class Board;
 
@@ -16,7 +16,7 @@ public:
     virtual ~GameFinishedChecker();
 
     bool CheckIfGameFinished(Coordinates lastPlayerMovement,
-                             Field lastPlayerColor,
+                             PawnColor lastPlayerColor,
                              bool& checkingResult);
 
 private:
@@ -37,7 +37,7 @@ private:
     std::size_t lastPlayerMovementX;
     std::size_t lastPlayerMovementY;
 
-    Field lastPlayerColor;
+    PawnColor lastPlayerColor = PawnColor::White;
 
     const Board& board;
     std::size_t pawnsLineLenghtToWin;

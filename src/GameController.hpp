@@ -44,27 +44,27 @@ private:
         Error
     };
 
-    Coordinates makePlayerMove(Player* const player, const Field field, PlayerMovementStatus& playerMovementStatus);
+    Coordinates makePlayerMove(Player* const player, PlayerMovementStatus& playerMovementStatus);
 
     bool Initialize();
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId, PawnColor playerColor);
 
     bool processPlayerTurn(
-            const Field currentPlayerColor,
-            const Field notCurrentPlayerColor,
-            const std::unique_ptr<Player>& currentPlayer,
-            const std::unique_ptr<Player>& notCurrentPlayer,
             bool& battleFinished,
-            Field& winner,
+            PawnColor& winner,
             FinishCause& battleFinishCause);
 
     void waitForEnterKeyIfNeeded();
+
+    void SwitchNextPlayerTurn();
 
     Board m_Board;
 
     std::unique_ptr<Player> m_WhitePlayer;
     std::unique_ptr<Player> m_BlackPlayer;
+    Player* m_CurrentPlayer = nullptr;
+    Player* m_OppositePlayer = nullptr;
 
     GameFinishedChecker m_GameFinishedChecker;
 

@@ -13,7 +13,6 @@ GameFinishedChecker::GameFinishedChecker(const Board& board)
     iLast = 0;
     lastPlayerMovementX = 0u,
     lastPlayerMovementY = 0u,
-    lastPlayerColor = Field::Empty;
     pawnsLineLenghtToWin = static_cast<std::size_t>(fileAppConfigContainer.PawnsLineLenghtToWin);
     K = pawnsLineLenghtToWin - 1u;
     boardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
@@ -24,7 +23,7 @@ GameFinishedChecker::~GameFinishedChecker() {
 
 bool GameFinishedChecker::CheckIfGameFinished(
         Coordinates lastPlayerMovement,
-        const Field lastPlayerColor,
+        const PawnColor lastPlayerColor,
         bool& checkingResult) {
 
     this->lastPlayerMovementX = lastPlayerMovement.x;

@@ -1,5 +1,6 @@
 #include "GameController.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <sstream>
@@ -31,7 +32,8 @@ void GameController::Terminate()
     m_ShouldRun = false;
 }
 
-bool GameController::Run() {
+bool GameController::Run()
+{
     bool result = Initialize();
     if (!result) {
         return false;
@@ -48,51 +50,35 @@ bool GameController::Run() {
     m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, PawnColor::Black);
 
     bool battleFinished = false;
+    m_CurrentPlayer = m_WhitePlayer.get();
+    m_OppositePlayer = m_BlackPlayer.get();
 
-    Field winner = Field::Empty;
+    PawnColor winner;
     FinishCause battleFinishCause = FinishCause::None;
 
     // Main game loop.
     // TODO: extract it to new function.
-    while (!battleFinished) {
-
-        // 1. White player's turn.
-        result = processPlayerTurn(
-                Field::White,
-                Field::Black,
-                m_WhitePlayer,
-                m_BlackPlayer,
-                battleFinished,
-                winner,
-                battleFinishCause);
+    while (!battleFinished)
+    {
+        result = processPlayerTurn(battleFinished, winner, battleFinishCause);
         if (!result) {
             return false;
         }
-        if (battleFinished) {
-            continue;
-        }
 
-        // 2. Black player's turn.
-        result = processPlayerTurn(
-                Field::Black,
-                Field::White,
-                m_BlackPlayer,
-                m_WhitePlayer,
-                battleFinished,
-                winner,
-                battleFinishCause);
-        if (!result) {
-            return false;
-        }
+        SwitchNextPlayerTurn();
     }
 
     // TODO: extract it to function.
     std::string winnerColor;
-    if (winner == Field::White) {
+    if (winner == PawnColor::White)
+    {
         winnerColor = "White";
-    } else {
+    }
+    else
+    {
         winnerColor = "Black";
     }
+
     LOG_LN("Game finished. The winner is ", winnerColor, " player. Congratulations!");
     switch (battleFinishCause) {
         case FinishCause::EnoughPlayerPawnsInLine:
@@ -135,26 +121,21 @@ void GameController::RegisterView(GameView& gameView)
 }
 
 bool GameController::processPlayerTurn(
-        const Field currentPlayerColor,
-        const Field notCurrentPlayerColor,
-        const std::unique_ptr<Player>& currentPlayer,
-        const std::unique_ptr<Player>& notCurrentPlayer,
         bool& battleFinished,
-        Field& winner,
+        PawnColor& winner,
         FinishCause& battleFinishCause) {
 
     const auto startTime = std::chrono::high_resolution_clock::now();
 
     PlayerMovementStatus playerMovementStatus;
-    Coordinates currentPlayerMove = makePlayerMove(currentPlayer.get(), currentPlayerColor, playerMovementStatus);
+    Coordinates currentPlayerMove = makePlayerMove(m_CurrentPlayer, playerMovementStatus);
 
     const auto endTime = std::chrono::high_resolution_clock::now();
     const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime-startTime).count();
 
-    PawnColor color = currentPlayerColor == Field::White ? PawnColor::White : PawnColor::Black;
     for (auto view : m_Views)
     {
-        view->PawnAdded(color, currentPlayerMove);
+        view->PawnAdded(m_CurrentPlayer->GetColor(), currentPlayerMove);
     }
 
     switch (playerMovementStatus) {
@@ -162,17 +143,17 @@ bool GameController::processPlayerTurn(
             break;
         case PlayerMovementStatus::WrongMovement:
             battleFinished = true;
-            winner = notCurrentPlayerColor;
+            winner = m_OppositePlayer->GetColor();
             battleFinishCause = FinishCause::WrongMovement;
             return true;
         default:
             LOG_ERROR("Error occurred.");
     }
 
-    notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
+    m_OppositePlayer->NotifyAboutOpponentMove(currentPlayerMove);
 
     // If current player is not a console human player, he/she has limited time to perform the movement.
-    if (currentPlayer->GetPlayerType() != PlayerType::HUMAN_CONSOLE) {
+    if (m_CurrentPlayer->GetPlayerType() != PlayerType::HUMAN_CONSOLE) {
         const int playerTurnMaxTime = fileAppConfigContainer.PlayerTurnMaxTime;
         const bool isPlayerTurnTimeLimitDisabled = (playerTurnMaxTime == 0);
 
@@ -181,19 +162,19 @@ bool GameController::processPlayerTurn(
 
             if (elapsedTimeInt > playerTurnMaxTime) {
                 battleFinished = true;
-                winner = notCurrentPlayerColor;
+                winner = m_OppositePlayer->GetColor();
                 battleFinishCause = FinishCause::PlayerTurnMaxTimeExceeded;
                 return true;
             }
         }
     }
 
-    const bool result = m_GameFinishedChecker.CheckIfGameFinished(currentPlayerMove, currentPlayerColor, battleFinished);
+    const bool result = m_GameFinishedChecker.CheckIfGameFinished(currentPlayerMove, m_CurrentPlayer->GetColor(), battleFinished);
     if (!result) {
         return false;
     }
     if (battleFinished) {
-        winner = currentPlayerColor;
+        winner = m_OppositePlayer->GetColor();
         battleFinishCause = FinishCause::EnoughPlayerPawnsInLine;
         return true;
     }
@@ -229,7 +210,6 @@ bool GameController::Initialize() {
 }
 
 Coordinates GameController::makePlayerMove(Player* const player,
-                                           const Field field,
                                            PlayerMovementStatus& playerMovementStatus) {
 
     const Coordinates movement = player->MakeMove();
@@ -243,7 +223,7 @@ Coordinates GameController::makePlayerMove(Player* const player,
     }
 
     // Set player's movement on the board.
-    result = m_Board.SetField(movement.x, movement.y, field);
+    result = m_Board.SetField(movement.x, movement.y, player->GetColor());
     if (!result) {
         playerMovementStatus = PlayerMovementStatus::Error;
     }
@@ -265,4 +245,9 @@ void GameController::waitForEnterKeyIfNeeded() {
             getchar();
         }
     }
+}
+
+void GameController::SwitchNextPlayerTurn()
+{
+    std::swap(m_CurrentPlayer, m_OppositePlayer);
 }
