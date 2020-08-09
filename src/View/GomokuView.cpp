@@ -30,6 +30,11 @@ void GomokuView::GameStarted(std::size_t numberOfColumns, std::size_t numberOfRo
     m_Thread = std::thread(&GomokuView::Run, this);
 }
 
+void GomokuView::PawnAdded(PawnColor pawnColor, Coordinates coordinates)
+{
+    m_BoardView.RegisterMove(pawnColor, coordinates);
+}
+
 void GomokuView::GameFinished()
 {
 }
