@@ -5,7 +5,9 @@
 #include <sstream>
 #include <string>
 
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
 #include <SFML/Graphics.hpp>
+#endif
 
 #include "AppConfig/FileAppConfigContainer.hpp"
 #include "Board.hpp"
@@ -40,6 +42,7 @@ bool GameController::Run() {
 
     // Main window loop.
     // TODO: extract it to new function.
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     while (m_Window.isOpen())
     {
         sf::Event event;
@@ -57,6 +60,7 @@ bool GameController::Run() {
 
         // Initial drawing of the game board, for the first player to see the board.
         drawGameBoard();
+#endif
 
         Field winner = Field::Empty;
         FinishCause battleFinishCause = FinishCause::None;
@@ -117,7 +121,10 @@ bool GameController::Run() {
                 LOG_ERROR("Wrong value of 'battleFinishCause'.");
                 return false;
         }
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     }
+#endif
+
     return true;
 }
 
@@ -157,7 +164,9 @@ bool GameController::processPlayerTurn(
     }
 
     notCurrentPlayer->NotifyAboutOpponentMove(currentPlayerMove);
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     drawGameBoard();
+#endif
 
     // If current player is not a console human player, he/she has limited time to perform the movement.
     if (currentPlayer->GetPlayerType() != PlayerType::HUMAN_CONSOLE) {
@@ -213,12 +222,14 @@ bool GameController::Initialize() {
     const std::size_t BoardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
     m_Board.SetSize(BoardSize, BoardSize);
 
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     m_Window.create(
         sf::VideoMode(FieldWidthInPixels * m_Board.getWidth(), FieldHeightInPixels * m_Board.getHeight()),
         "Gomoku Bot Battle"
     );
 
     m_Font.loadFromFile("res/fonts/Ubuntu-L.ttf");
+#endif
 
     return true;
 }
@@ -247,6 +258,7 @@ Coordinates GameController::makePlayerMove(Player* const player,
     return movement;
 }
 
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
 void GameController::drawGameBoard() {
     // Prepare board view
     constexpr float FieldPadding = 1.0F;
@@ -309,6 +321,7 @@ void GameController::drawGameBoard() {
 
     m_Window.display();
 }
+#endif
 
 void GameController::waitForEnterKeyIfNeeded() {
     const int humanConsolePlayerId = static_cast<int>(PlayerType::HUMAN_CONSOLE);

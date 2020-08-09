@@ -47,7 +47,9 @@ private:
 
     Coordinates makePlayerMove(Player* const player, const Field field, PlayerMovementStatus& playerMovementStatus);
 
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     void drawGameBoard();
+#endif
 
     bool Initialize();
 
@@ -74,11 +76,13 @@ private:
     // View related members
     std::vector<GameView*> m_Views;
 
+#ifdef GAME_CONTROLLER_IS_ALSO_VIEW
     static constexpr std::size_t FieldWidthInPixels = 25u;
     static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
 
     sf::RenderWindow m_Window;
     sf::Font m_Font;
+#endif
 };
 
 #endif
