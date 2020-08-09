@@ -91,6 +91,19 @@ void GomokuView::MainLoop()
                 }
                 break;
 
+            case sf::Event::MouseButtonPressed:
+                if (event.mouseButton.button == sf::Mouse::Button::Left)
+                {
+                    Coordinates move = m_BoardView.MapPixelsToFieldCoordinates(
+                        sf::Vector2u(
+                            event.mouseButton.x,
+                            event.mouseButton.y
+                        )
+                    );
+                    GetGameModel().MakeMove(move);
+                }
+                break;
+
             default:
                 break;
             }
