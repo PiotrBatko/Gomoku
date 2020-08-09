@@ -7,6 +7,10 @@ Player::Player(const Board* const gameBoard, const PlayerType playerType, const 
 {
 }
 
+void Player::NotifyAboutRequestedMove(Coordinates)
+{
+}
+
 PlayerType Player::GetPlayerType()
 {
     return m_PlayerType;
