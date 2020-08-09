@@ -44,8 +44,8 @@ bool GameController::Run() {
         view->GameStarted(m_Board.getWidth(), m_Board.getHeight());
     }
 
-    m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite, Field::White);
-    m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, Field::Black);
+    m_WhitePlayer = createPlayer(fileAppConfigContainer.PlayerWhite, PawnColor::White);
+    m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, PawnColor::Black);
 
     bool battleFinished = false;
 
@@ -201,7 +201,7 @@ bool GameController::processPlayerTurn(
     return true;
 }
 
-std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, const Field playerColor) {
+std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, const PawnColor playerColor) {
     PlayerType playerType = static_cast<PlayerType>(playerTypeId);
 
     switch (playerType)

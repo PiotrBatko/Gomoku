@@ -5,7 +5,7 @@
 
 #include "Coordinates.hpp"
 #include "CommonEnums.hpp"
-#include "Field.hpp"
+#include "PawnColor.hpp"
 
 class Board;
 
@@ -13,7 +13,7 @@ class Player
 {
 public:
 
-    Player(const Board* gameBoard, PlayerType playerType, Field playerColor);
+    Player(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
     virtual ~Player() = default;
 
     // Player is notified after opponent's move. It is good moment
@@ -29,7 +29,7 @@ protected:
     const Board* const m_Board;
 
     const PlayerType m_PlayerType;
-    const Field m_PlayerColor;
+    const PawnColor m_PlayerColor;
 };
 
 #endif

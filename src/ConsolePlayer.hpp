@@ -7,7 +7,7 @@ class Board;
 
 class ConsolePlayer : public Player {
 public:
-    ConsolePlayer(const Board* gameBoard, PlayerType playerType, Field playerColor);
+    ConsolePlayer(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
     virtual ~ConsolePlayer();
 
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;

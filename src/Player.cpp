@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-Player::Player(const Board* const gameBoard, const PlayerType playerType, const Field playerColor) :
+Player::Player(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor) :
     m_Board(gameBoard),
     m_PlayerType(playerType),
     m_PlayerColor(playerColor)

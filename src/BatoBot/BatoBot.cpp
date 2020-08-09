@@ -5,7 +5,7 @@
 namespace batobot
 {
 
-BatoBot::BatoBot(const Board* const gameBoard, const PlayerType playerType, const Field playerColor) :
+BatoBot::BatoBot(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor) :
     Player(gameBoard, playerType, playerColor)
 {
 

@@ -9,7 +9,7 @@ namespace CM {
 
 class BotCM : public Player {
 public:
-	BotCM(const Board* gameBoard, PlayerType playerType, Field playerColor);
+	BotCM(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
 	virtual ~BotCM();
 
 	void NotifyAboutOpponentMove(Coordinates opponentMove) override;

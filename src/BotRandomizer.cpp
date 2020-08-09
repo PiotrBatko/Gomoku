@@ -4,7 +4,7 @@
 #include "BotRandomizer.hpp"
 #include "Random.hpp"
 
-BotRandomizer::BotRandomizer(const Board* const gameBoard, const PlayerType playerType, const Field playerColor)
+BotRandomizer::BotRandomizer(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor)
     : Player(gameBoard, playerType, playerColor) {
 }
 

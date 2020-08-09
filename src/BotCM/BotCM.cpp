@@ -9,7 +9,7 @@
 
 namespace CM {
 
-BotCM::BotCM(const Board* const gameBoard, const PlayerType playerType, const Field playerColor):
+BotCM::BotCM(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor):
      Player(gameBoard, playerType, playerColor) {
 }
 
