@@ -25,6 +25,7 @@ public:
 private:
 
     void GameStarted(std::size_t numberOfColumns, std::size_t numberOfRows) override;
+    void GameFinished() override;
     void Terminate() override;
 
     void CreateWindow();

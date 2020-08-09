@@ -30,6 +30,10 @@ void GomokuView::GameStarted(std::size_t numberOfColumns, std::size_t numberOfRo
     m_Thread = std::thread(&GomokuView::Run, this);
 }
 
+void GomokuView::GameFinished()
+{
+}
+
 void GomokuView::Terminate()
 {
     if (m_Thread.joinable())
