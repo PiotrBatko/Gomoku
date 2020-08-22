@@ -78,24 +78,61 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
     }
 
     unsigned int opponentSymbolsCount = 0u;
-    unsigned int gapCount = 0u;
     std::size_t lastOppopentSymbolFoundIndex = 0u;
     bool opponentSymbolAlreadyFound = false;
+    bool lastNotEmptySymbolWasCurrentPlayerSymbol = false;
 
+    // First dimension: the whole gaps between enemy symbols.
+    // Second dimension: indices of gap fields in the given gap.
+    std::vector<std::vector<std::size_t>> gaps;
+
+    // Pointer to the current gap, from 'gaps'. If recent analyzed field
+    // was not a gap field, 'currentGap' will equal nullptr.
+    std::vector<size_t>* currentGap = nullptr;
+
+    // This loop fills 'gaps' collection with real gaps.
     for (std::size_t i = minX; i <= maxX; ++i) {
         const Field currentField = board->at(opponentLastMove.x, i);
 
         if (currentField == opponentPlayerColor) {
             opponentSymbolAlreadyFound = true;
+            lastNotEmptySymbolWasCurrentPlayerSymbol = false;
             lastOppopentSymbolFoundIndex = i;
             opponentSymbolsCount++;
-        } else { // Current field is empty or contains current player color.
+            currentGap = nullptr;
+        } else if (currentField == playerColor) {
+            lastNotEmptySymbolWasCurrentPlayerSymbol = true;
+
+            // If there is currently built a gap and we have found current player symbol in the gap,
+            // it is no longer a gap.
+            if (currentGap) {
+                gaps.pop_back();
+                currentGap = nullptr;
+            }
+        } else { // Current field is empty.
             if (opponentSymbolAlreadyFound) {
-                gapCount++;
+                // If last not empty symbol was current player symbol, we mark current gap as not gap,
+                // because gap definition says, that is shall contain only empty fields and it shall be
+                // between enemy player symbols (none of these symbols shall be current player symbol).
+                if (!lastNotEmptySymbolWasCurrentPlayerSymbol) {
+                    if (!currentGap) {
+                        gaps.push_back(std::vector<std::size_t>());
+                        const std::size_t newGapId = gaps.size()-1u;
+                        currentGap = &(gaps[newGapId]);
+                    }
+                    currentGap->push_back(i);
+                }
             }
             if (i == maxX) { // If we are processing last index to process:
-                std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
-                gapCount -= lastGapLength;
+                // Here we know that we are processing last index to process, and the
+                // field on this index is not enemy symbol. So, we have to remove
+                // the last gap.
+                const std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
+                if (lastGapLength > 0u) {
+                    // Remove the last gap.
+                    gaps.erase(gaps.end()-1);
+                }
+
             }
         }
     }
