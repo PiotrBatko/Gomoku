@@ -57,9 +57,11 @@ bool GameController::Run() {
 
         //#if 0
         //FOR TESTING:
-        m_Board.SetField(5, 4, Field::Black); // console player - przeciwnik mojego bota
-        m_Board.SetField(5, 6, Field::White); // moj bot
-        //m_Board.SetField(5, 9, Field::Black); // console player - przeciwnik mojego bota
+        //White - BotCM
+        //Black - console player
+        m_Board.SetField(5, 4, Field::Black);
+        //m_Board.SetField(5, 6, Field::Black);
+        //m_Board.SetField(5, 9, Field::Black);
         //#endif
 
         // Initial drawing of the game board, for the first player to see the board.

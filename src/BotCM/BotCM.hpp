@@ -1,11 +1,16 @@
 #ifndef _BOT_CM_HPP
 #define _BOT_CM_HPP
 
+#include <vector>
+
 #include "../Player.hpp"
 
 class Board;
 
 namespace CM {
+
+using SingleGapT = std::vector<std::size_t>;
+using GapsCollectionT = std::vector<SingleGapT>;
 
 class BotCM : public Player {
 public:
@@ -29,6 +34,8 @@ private:
     bool MakeMoveMain(Coordinates& outputCoordinates);
     bool determineOpponentPlayerColor();
     bool verifyAllocationCounter();
+    void determineGaps(GapsCollectionT& gaps, const std::size_t minX, const std::size_t maxX);
+    void makeMoveDecision(Coordinates& outputCoordinates, const GapsCollectionT& gaps);
 };
 
 }

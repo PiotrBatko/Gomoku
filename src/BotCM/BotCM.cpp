@@ -77,18 +77,24 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         return false;
     }
 
+    // First dimension: the whole gaps between enemy symbols.
+    // Second dimension: indices of gap fields in the given gap.
+    GapsCollectionT gaps;
+
+    determineGaps(gaps, minX, maxX);
+    makeMoveDecision(outputCoordinates, gaps);
+    return true;
+}
+
+void BotCM::determineGaps(GapsCollectionT& gaps, const std::size_t minX, const std::size_t maxX) {
     unsigned int opponentSymbolsCount = 0u;
     std::size_t lastOppopentSymbolFoundIndex = 0u;
     bool opponentSymbolAlreadyFound = false;
     bool lastNotEmptySymbolWasCurrentPlayerSymbol = false;
 
-    // First dimension: the whole gaps between enemy symbols.
-    // Second dimension: indices of gap fields in the given gap.
-    std::vector<std::vector<std::size_t>> gaps;
-
     // Pointer to the current gap, from 'gaps'. If recent analyzed field
     // was not a gap field, 'currentGap' will equal nullptr.
-    std::vector<size_t>* currentGap = nullptr;
+    SingleGapT* currentGap = nullptr;
 
     // This loop fills 'gaps' collection with real gaps.
     for (std::size_t i = minX; i <= maxX; ++i) {
@@ -116,7 +122,7 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
                 // between enemy player symbols (none of these symbols shall be current player symbol).
                 if (!lastNotEmptySymbolWasCurrentPlayerSymbol) {
                     if (!currentGap) {
-                        gaps.push_back(std::vector<std::size_t>());
+                        gaps.push_back(SingleGapT());
                         const std::size_t newGapId = gaps.size()-1u;
                         currentGap = &(gaps[newGapId]);
                     }
@@ -136,12 +142,24 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
             }
         }
     }
+}
 
-    //TODO: continue.
+void BotCM::makeMoveDecision(Coordinates& outputCoordinates, const GapsCollectionT& gaps) {
+    const std::size_t gapsCount = gaps.size();
+    if (gapsCount == 1u) {
+        const SingleGapT& gap = gaps.at(0);
+        const std::size_t gapSize = gap.size();
+        const std::size_t randomizedIndexInGap = Random::RandomizeInt(gapSize);
+        const std::size_t finalMoveIndex = gap.at(randomizedIndexInGap);
 
-    outputCoordinates.x = 0u;
-    outputCoordinates.y = 0u;
-    return true;
+        outputCoordinates.x = opponentLastMove.x;
+        outputCoordinates.y = finalMoveIndex;
+    } else {
+        //TODO: continue.
+        // Default movement coordinates.
+        outputCoordinates.x = 0u;
+        outputCoordinates.y = 0u;
+    }
 }
 
 bool BotCM::determineOpponentPlayerColor() {
