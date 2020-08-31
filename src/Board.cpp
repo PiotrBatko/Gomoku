@@ -51,6 +51,19 @@ bool Board::IsFieldOnBoard(const std::size_t x, const std::size_t y) const
     return false;
 }
 
+bool Board::IsFieldEmpty(const Coordinates& field) const
+{
+    bool boardContainsField;
+    bool fieldIsEmpty = IsFieldEmpty(field.x, field.y, boardContainsField);
+
+    if (not boardContainsField)
+    {
+        throw std::runtime_error("Query for field out of board");
+    }
+
+    return fieldIsEmpty;
+}
+
 bool Board::IsFieldEmpty(const std::size_t x, const std::size_t y, bool& executionStatus, bool logErrorWhenOccured) const
 {
     if (!IsFieldOnBoard(x, y))

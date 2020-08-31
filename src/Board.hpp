@@ -29,6 +29,7 @@ public:
     bool IsEmpty() const;
 
     bool IsFieldOnBoard(std::size_t x, std::size_t y) const;
+    bool IsFieldEmpty(const Coordinates& field) const;
     bool IsFieldEmpty(std::size_t x, std::size_t y, bool& executionStatus, bool logErrorWhenOccured = true) const;
 
     bool SetField(std::size_t x, std::size_t y, Field fieldValueToSet);
