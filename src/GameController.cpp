@@ -25,6 +25,14 @@ GameController::GameController() :
 {
 }
 
+GameController::~GameController()
+{
+    for (auto view : m_Views)
+    {
+        view->Terminate();
+    }
+}
+
 void GameController::MakeMove(Coordinates coordinates)
 {
     m_CurrentPlayer->NotifyAboutRequestedMove(coordinates);
@@ -100,11 +108,6 @@ bool GameController::Run()
     {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(10ms);
-    }
-
-    for (auto view : m_Views)
-    {
-        view->Terminate();
     }
 
     return true;

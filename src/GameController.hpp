@@ -22,6 +22,7 @@ class GameController :
 public:
 
     GameController();
+    ~GameController();
 
     void MakeMove(Coordinates coordinates) override;
     void Terminate() override;
