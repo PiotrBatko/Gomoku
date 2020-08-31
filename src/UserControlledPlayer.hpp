@@ -1,6 +1,7 @@
 #ifndef USERCONTROLLEDPLAYER_HPP
 #define USERCONTROLLEDPLAYER_HPP
 
+#include <atomic>
 #include <optional>
 
 #include "Player.hpp"
@@ -10,7 +11,10 @@ class UserControlledPlayer :
 {
 public:
 
-    UserControlledPlayer(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
+    UserControlledPlayer(const Board* gameBoard,
+                         PlayerType playerType,
+                         PawnColor playerColor,
+                         const std::atomic<bool>& canRun);
 
     virtual void NotifyAboutOpponentMove(Coordinates opponentMove);
     virtual Coordinates MakeMove();
@@ -20,6 +24,7 @@ private:
 
     bool m_IsWaitingOnMoveRequest = false;
     std::optional<Coordinates> m_NextMove;
+    const std::atomic<bool>& m_CanRun;
 };
 
 #endif

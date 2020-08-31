@@ -68,6 +68,12 @@ bool GameController::Run()
     while (not gameResult.has_value())
     {
         gameResult = ProcessPlayerTurn();
+
+        if (not m_ShouldRun)
+        {
+            return true;
+        }
+
         SwitchNextPlayerTurn();
     }
 
@@ -125,6 +131,11 @@ std::optional<GameController::GameResult> GameController::ProcessPlayerTurn()
 
     PlayerMovementStatus playerMovementStatus;
     Coordinates currentPlayerMove = makePlayerMove(m_CurrentPlayer, playerMovementStatus);
+
+    if (not m_ShouldRun)
+    {
+        return std::nullopt;
+    }
 
     const auto endTime = std::chrono::high_resolution_clock::now();
     const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime-startTime).count();
@@ -190,7 +201,7 @@ std::unique_ptr<Player> GameController::createPlayer(const int playerTypeId, con
         case PlayerType::HUMAN_CONSOLE:
             return std::make_unique<ConsolePlayer>(&m_Board, playerType, playerColor);
         case PlayerType::HUMAN:
-            return std::make_unique<UserControlledPlayer>(&m_Board, playerType, playerColor);
+            return std::make_unique<UserControlledPlayer>(&m_Board, playerType, playerColor, m_ShouldRun);
         case PlayerType::BOT_RANDOMIZER:
             return std::make_unique<BotRandomizer>(&m_Board, playerType, playerColor);
         case PlayerType::BOT_CM:
@@ -215,6 +226,11 @@ Coordinates GameController::makePlayerMove(Player* const player,
                                            PlayerMovementStatus& playerMovementStatus) {
 
     const Coordinates movement = player->MakeMove();
+
+    if (not m_ShouldRun)
+    {
+        return movement;
+    }
 
     // Ensure that movement made by player is valid.
     bool result = false;

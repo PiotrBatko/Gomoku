@@ -1,7 +1,11 @@
 #include "UserControlledPlayer.hpp"
 
-UserControlledPlayer::UserControlledPlayer(const Board* gameBoard, PlayerType playerType, PawnColor playerColor) :
-    Player(gameBoard, playerType, playerColor)
+UserControlledPlayer::UserControlledPlayer(const Board* gameBoard,
+                                           PlayerType playerType,
+                                           PawnColor playerColor,
+                                           const std::atomic<bool>& canRun) :
+    Player(gameBoard, playerType, playerColor),
+    m_CanRun(canRun)
 {
 }
 
@@ -14,13 +18,17 @@ Coordinates UserControlledPlayer::MakeMove()
     m_NextMove = std::nullopt;
     m_IsWaitingOnMoveRequest = true;
 
-    while (not m_NextMove.has_value())
+    while (m_CanRun)
     {
+        if (m_NextMove.has_value())
+        {
+            m_IsWaitingOnMoveRequest = false;
+
+            return m_NextMove.value();
+        }
     }
 
-    m_IsWaitingOnMoveRequest = false;
-
-    return m_NextMove.value();
+    return Coordinates();
 }
 
 void UserControlledPlayer::NotifyAboutRequestedMove(Coordinates requestedMove)

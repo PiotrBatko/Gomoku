@@ -1,6 +1,7 @@
 #ifndef GAMECONTROLLER_HPP
 #define GAMECONTROLLER_HPP
 
+#include <atomic>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -74,7 +75,7 @@ private:
 
     GameFinishedChecker m_GameFinishedChecker;
 
-    bool m_ShouldRun = false;
+    std::atomic<bool> m_ShouldRun = false;
 
     std::vector<GameView*> m_Views;
 };
