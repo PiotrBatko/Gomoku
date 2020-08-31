@@ -1,5 +1,7 @@
 #include "UserControlledPlayer.hpp"
 
+#include "Board.hpp"
+
 UserControlledPlayer::UserControlledPlayer(const Board* gameBoard,
                                            PlayerType playerType,
                                            PawnColor playerColor,
@@ -22,6 +24,12 @@ Coordinates UserControlledPlayer::MakeMove()
     {
         if (m_NextMove.has_value())
         {
+            if (not m_Board->IsFieldEmpty(m_NextMove.value()))
+            {
+                m_NextMove = std::nullopt;
+                continue;
+            }
+
             m_IsWaitingOnMoveRequest = false;
 
             return m_NextMove.value();
