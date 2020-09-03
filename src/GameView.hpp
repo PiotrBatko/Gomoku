@@ -7,7 +7,7 @@
 #include "GameModel.hpp"
 #include "PawnColor.hpp"
 
-/// Game model interface for views
+/// Game model sends commands via this interface to view
 class GameView
 {
 public:

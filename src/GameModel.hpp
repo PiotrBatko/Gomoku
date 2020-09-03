@@ -3,7 +3,7 @@
 
 #include "Coordinates.hpp"
 
-/// Game model interface for views
+/// Game view sends commands via this interface to model
 class GameModel
 {
 public:
