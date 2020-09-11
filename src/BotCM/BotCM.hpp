@@ -9,7 +9,7 @@ class Board;
 
 namespace CM {
 
-using SingleGapT = std::vector<std::size_t>;
+using SingleGapT = std::vector<Coordinates>;
 using GapsCollectionT = std::vector<SingleGapT>;
 
 class MovementGrade;
@@ -48,9 +48,22 @@ private:
     bool MakeMoveMain(Coordinates& outputCoordinates);
     bool determineOpponentPlayerColor();
     bool verifyAllocationCounter();
-    void determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const std::size_t minX, const std::size_t maxX);
+    bool determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int maxX);
     void makeMoveDecision(const PawnSeriesOrientation pawnSeriesOrientation, Coordinates& outputCoordinates, const GapsCollectionT& gaps, MovementGrade& movementImportanceGrade);
     bool determineCoordinatesAndGradeInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation, Coordinates& outputCoordinates, MovementGrade& movementImportanceGrade);
+
+    bool determineFieldAsGap(
+            const Field currentField,
+            bool& opponentSymbolAlreadyFound,
+            bool& lastNotEmptySymbolWasCurrentPlayerSymbol,
+            std::size_t& lastOppopentSymbolFoundIndex,
+            unsigned int& opponentSymbolsCount,
+            SingleGapT*& currentGap,
+            GapsCollectionT& gaps,
+            const PawnSeriesOrientation pawnSeriesOrientation,
+            const int maxX,
+            const int i,
+            const Coordinates currentCoordinates);
 };
 
 }

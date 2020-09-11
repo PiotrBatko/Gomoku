@@ -77,7 +77,17 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
     if (!result) {
         return false;
     }
+    i++;
 
+    result = determineCoordinatesAndGradeInOneOrientation(
+            PawnSeriesOrientation::DECREASING,
+            coordinatesWithGrade[i].movementCoordinates,
+            coordinatesWithGrade[i].movementGrade);
+    if (!result) {
+        return false;
+    }
+    i++;
+    //TODO: wyekstrahowac te cztery podobne wywolania do osobnej funkcyji.
 
     CoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
     for (unsigned int i = 1u; i < PawnSeriesOrientationCount; ++i) {
@@ -99,29 +109,51 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     const int K = pawnsLineLenghtToWin - 1;
     const int boardSize = fileAppConfigContainer.BoardSize;
 
-    std::size_t opponentLastMoveValue = 0u;
-    if (pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL) {
-        // For vertical pawns series, column (x) is constant but row (y) is varying.
-        opponentLastMoveValue = opponentLastMove.y;
-    } else if (pawnSeriesOrientation == PawnSeriesOrientation::HORIZONTAL) {
-        // For horizontal pawns series, row (y) is constant but column (x) is varying.
-        opponentLastMoveValue = opponentLastMove.x;
-    } else {
-        LOG_ERROR("Not implemented yet.");
-        return false;
-    }
+    int minX = 0, maxX = 0;
 
-    std::size_t minX = 0u;
-    if (static_cast<int>(opponentLastMoveValue) - K >= 0) {
-        minX = static_cast<std::size_t>(opponentLastMoveValue - K);
+    std::size_t opponentLastMoveValue = 0u;
+
+    if (   pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL
+        || pawnSeriesOrientation == PawnSeriesOrientation::HORIZONTAL) {
+
+        if (pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL) {
+            // For vertical pawns series, column (x) is constant but row (y) is varying.
+            opponentLastMoveValue = opponentLastMove.y;
+        } else {
+            // For horizontal pawns series, row (y) is constant but column (x) is varying.
+            opponentLastMoveValue = opponentLastMove.x;
+        }
+
+        if (static_cast<int>(opponentLastMoveValue) - K >= 0) {
+            minX = static_cast<int>(opponentLastMoveValue) - K;
+        } else {
+            minX = 0;
+        }
+        if (static_cast<int>(opponentLastMoveValue) + K < boardSize) {
+            maxX = static_cast<int>(opponentLastMoveValue) + K;
+        } else {
+            maxX = boardSize - 1;
+        }
+
+    } else if (pawnSeriesOrientation == PawnSeriesOrientation::DECREASING) {
+        const int minCoordinate = static_cast<int>(std::min(opponentLastMove.x, opponentLastMove.y));
+        if (minCoordinate < K) {
+            minX = -minCoordinate;
+        } else {
+            minX = -K;
+        }
+
+        const int maxCoordinate = static_cast<int>(std::max(opponentLastMove.x, opponentLastMove.y));
+        if (maxCoordinate > boardSize - K) {
+            maxX = boardSize - maxCoordinate;
+        } else {
+            maxX = K;
+        }
+    } else if (pawnSeriesOrientation == PawnSeriesOrientation::INCREASING){
+        //TODO
     } else {
-        minX = 0u;
-    }
-    std::size_t maxX = 0u;
-    if (static_cast<int>(opponentLastMoveValue) + K < boardSize) {
-        maxX = static_cast<std::size_t>(opponentLastMoveValue + K);
-    } else {
-        maxX = static_cast<std::size_t>(boardSize - 1);
+        LOG_ERROR("Wrong value of 'pawnSeriesOrientation'.");
+        return false;
     }
 
     if (maxX < minX) {
@@ -133,13 +165,16 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     // Second dimension: indices of gap fields in the given gap.
     GapsCollectionT gaps;
 
-    determineGaps(pawnSeriesOrientation, gaps, minX, maxX);
+    bool result = determineGaps(pawnSeriesOrientation, gaps, minX, maxX);
+    if (!result) {
+        return false;
+    }
     makeMoveDecision(pawnSeriesOrientation, outputCoordinates, gaps, movementImportanceGrade);
 
     return true;
 }
 
-void BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const std::size_t minX, const std::size_t maxX) {
+bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int maxX) {
     unsigned int opponentSymbolsCount = 0u;
     std::size_t lastOppopentSymbolFoundIndex = 0u;
     bool opponentSymbolAlreadyFound = false;
@@ -150,60 +185,97 @@ void BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
     SingleGapT* currentGap = nullptr;
 
     // This loop fills 'gaps' collection with real gaps.
-    for (std::size_t i = minX; i <= maxX; ++i) {
-        Field currentField = Field::Empty;
+    for (int i = minX; i <= maxX; ++i) {
+        Coordinates currentCoordinates;
+        const std::size_t iStdSizeT = static_cast<std::size_t>(i);
 
         if (pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL) {
-            currentField = board->at(opponentLastMove.x, i);
+            currentCoordinates.x = opponentLastMove.x;
+            currentCoordinates.y = iStdSizeT;
         } else if (pawnSeriesOrientation == PawnSeriesOrientation::HORIZONTAL) {
-            currentField = board->at(i, opponentLastMove.y);
+            currentCoordinates.x = iStdSizeT;
+            currentCoordinates.y = opponentLastMove.y;
+        } else if (pawnSeriesOrientation == PawnSeriesOrientation::DECREASING) {
+            currentCoordinates.x = opponentLastMove.x + iStdSizeT;
+            currentCoordinates.y = opponentLastMove.y + iStdSizeT;
         } else {
+            //TODO: zaimplementowac dla increasing
+            //TODO: zrobic tutaj switch-case zamiast ifow
             LOG_ERROR("Not implemented yet!");
-            return;
+            return false;
         }
 
-        if (currentField == opponentPlayerColor) {
-            opponentSymbolAlreadyFound = true;
-            lastNotEmptySymbolWasCurrentPlayerSymbol = false;
-            lastOppopentSymbolFoundIndex = i;
-            opponentSymbolsCount++;
-            currentGap = nullptr;
-        } else if (currentField == playerColor) {
-            lastNotEmptySymbolWasCurrentPlayerSymbol = true;
+        bool result = board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
+        if (!result) {
+            LOG_ERROR("Field not on board!");
+            return false;
+        }
 
-            // If there is currently built a gap and we have found current player symbol in the gap,
-            // it is no longer a gap.
-            if (currentGap) {
-                gaps.pop_back();
-                currentGap = nullptr;
-            }
-        } else { // Current field is empty.
-            if (opponentSymbolAlreadyFound) {
-                // If last not empty symbol was current player symbol, we mark current gap as not gap,
-                // because gap definition says, that is shall contain only empty fields and it shall be
-                // between enemy player symbols (none of these symbols shall be current player symbol).
-                if (!lastNotEmptySymbolWasCurrentPlayerSymbol) {
-                    if (!currentGap) {
-                        gaps.push_back(SingleGapT());
-                        const std::size_t newGapId = gaps.size()-1u;
-                        currentGap = &(gaps[newGapId]);
-                    }
-                    currentGap->push_back(i);
-                }
-            }
-            if (i == maxX) { // If we are processing last index to process:
-                // Here we know that we are processing last index to process, and the
-                // field on this index is not enemy symbol. So, we have to remove
-                // the last gap.
-                const std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
-                if (lastGapLength > 0u) {
-                    // Remove the last gap.
-                    gaps.erase(gaps.end()-1);
-                }
+        Field currentField = board->at(currentCoordinates.x, currentCoordinates.y);
 
-            }
+        result = determineFieldAsGap(currentField, opponentSymbolAlreadyFound, lastNotEmptySymbolWasCurrentPlayerSymbol, lastOppopentSymbolFoundIndex, opponentSymbolsCount, currentGap, gaps, pawnSeriesOrientation, maxX, i, currentCoordinates);
+        if (!result) {
+            return false;
         }
     }
+    return true;
+}
+
+bool BotCM::determineFieldAsGap(
+        const Field currentField,
+        bool& opponentSymbolAlreadyFound,
+        bool& lastNotEmptySymbolWasCurrentPlayerSymbol,
+        std::size_t& lastOppopentSymbolFoundIndex,
+        unsigned int& opponentSymbolsCount,
+        SingleGapT*& currentGap,
+        GapsCollectionT& gaps,
+        const PawnSeriesOrientation pawnSeriesOrientation,
+        const int maxX,
+        const int i,
+        const Coordinates currentCoordinates) {
+
+    if (currentField == opponentPlayerColor) {
+        opponentSymbolAlreadyFound = true;
+        lastNotEmptySymbolWasCurrentPlayerSymbol = false;
+        lastOppopentSymbolFoundIndex = static_cast<std::size_t>(i);
+        opponentSymbolsCount++;
+        currentGap = nullptr;
+    } else if (currentField == playerColor) {
+        lastNotEmptySymbolWasCurrentPlayerSymbol = true;
+
+        // If there is currently built a gap and we have found current player symbol in the gap,
+        // it is no longer a gap.
+        if (currentGap) {
+            gaps.pop_back();
+            currentGap = nullptr;
+        }
+    } else { // Current field is empty.
+        if (opponentSymbolAlreadyFound) {
+            // If last not empty symbol was current player symbol, we mark current gap as not gap,
+            // because gap definition says, that is shall contain only empty fields and it shall be
+            // between enemy player symbols (none of these symbols shall be current player symbol).
+            if (!lastNotEmptySymbolWasCurrentPlayerSymbol) {
+                if (!currentGap) {
+                    gaps.emplace_back(SingleGapT());
+                    const std::size_t newGapId = gaps.size()-1u;
+                    currentGap = &(gaps[newGapId]);
+                }
+                currentGap->emplace_back(currentCoordinates);
+            }
+        }
+        if (i == maxX) { // If we are processing last index to process:
+            // Here we know that we are processing last index to process, and the
+            // field on this index is not enemy symbol. So, we have to remove
+            // the last gap.
+            const std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
+            if (lastGapLength > 0u) {
+                // Remove the last gap.
+                gaps.erase(gaps.end()-1);
+            }
+
+        }
+    }
+    return true;
 }
 
 void BotCM::makeMoveDecision(
@@ -217,18 +289,9 @@ void BotCM::makeMoveDecision(
         const SingleGapT& gap = gaps.at(0);
         const std::size_t gapSize = gap.size();
         const std::size_t randomizedIndexInGap = Random::RandomizeInt(gapSize);
-        const std::size_t finalMoveIndex = gap.at(randomizedIndexInGap);
+        const Coordinates& finalMoveCoordinates = gap.at(randomizedIndexInGap);
 
-        if (pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL) {
-            outputCoordinates.x = opponentLastMove.x;
-            outputCoordinates.y = finalMoveIndex;
-        } else if (pawnSeriesOrientation == PawnSeriesOrientation::HORIZONTAL) {
-            outputCoordinates.x = finalMoveIndex;
-            outputCoordinates.y = opponentLastMove.y;
-        } else {
-            LOG_ERROR("Not implemented yet!");
-            return;
-        }
+        outputCoordinates = finalMoveCoordinates;
         movementImportanceGrade.SetGrade(3u);
     } else {
         //TODO: continue.
