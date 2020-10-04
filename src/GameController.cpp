@@ -59,9 +59,11 @@ bool GameController::Run() {
         //FOR TESTING:
         //White - BotCM
         //Black - console player
-        m_Board.SetField(5, 4, Field::Black);
+        //m_Board.SetField(5, 4, Field::Black);
         //m_Board.SetField(5, 6, Field::Black);
-        //m_Board.SetField(5, 9, Field::Black);
+        m_Board.SetField(5, 9, Field::Black);
+        //m_Board.SetField(16, 16, Field::Black);
+        //m_Board.SetField(17, 0, Field::Black);
         //#endif
 
         // Initial drawing of the game board, for the first player to see the board.

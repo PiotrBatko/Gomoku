@@ -87,6 +87,15 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         return false;
     }
     i++;
+
+    result = determineCoordinatesAndGradeInOneOrientation(
+            PawnSeriesOrientation::INCREASING,
+            coordinatesWithGrade[i].movementCoordinates,
+            coordinatesWithGrade[i].movementGrade);
+    if (!result) {
+        return false;
+    }
+    i++;
     //TODO: wyekstrahowac te cztery podobne wywolania do osobnej funkcyji.
 
     CoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
@@ -144,13 +153,25 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
         }
 
         const int maxCoordinate = static_cast<int>(std::max(opponentLastMove.x, opponentLastMove.y));
-        if (maxCoordinate > boardSize - K) {
-            maxX = boardSize - maxCoordinate;
+        if (maxCoordinate > boardSize-1 - K) {
+            maxX = boardSize-1 - maxCoordinate;
         } else {
             maxX = K;
         }
     } else if (pawnSeriesOrientation == PawnSeriesOrientation::INCREASING){
-        //TODO
+        const int minValue = static_cast<int>(std::min(opponentLastMove.x, boardSize-1 - opponentLastMove.y));
+        if (minValue < K) {
+            minX = -minValue;
+        } else {
+            minX = -K;
+        }
+
+        const int maxValue = static_cast<int>(std::min(boardSize-1 - opponentLastMove.x, opponentLastMove.y));
+        if (maxValue < K) {
+            maxX = maxValue;
+        } else {
+            maxX = K;
+        }
     } else {
         LOG_ERROR("Wrong value of 'pawnSeriesOrientation'.");
         return false;
@@ -189,25 +210,31 @@ bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
         Coordinates currentCoordinates;
         const std::size_t iStdSizeT = static_cast<std::size_t>(i);
 
-        if (pawnSeriesOrientation == PawnSeriesOrientation::VERTICAL) {
-            currentCoordinates.x = opponentLastMove.x;
-            currentCoordinates.y = iStdSizeT;
-        } else if (pawnSeriesOrientation == PawnSeriesOrientation::HORIZONTAL) {
-            currentCoordinates.x = iStdSizeT;
-            currentCoordinates.y = opponentLastMove.y;
-        } else if (pawnSeriesOrientation == PawnSeriesOrientation::DECREASING) {
-            currentCoordinates.x = opponentLastMove.x + iStdSizeT;
-            currentCoordinates.y = opponentLastMove.y + iStdSizeT;
-        } else {
-            //TODO: zaimplementowac dla increasing
-            //TODO: zrobic tutaj switch-case zamiast ifow
-            LOG_ERROR("Not implemented yet!");
-            return false;
+        switch (pawnSeriesOrientation) {
+            case PawnSeriesOrientation::VERTICAL:
+                currentCoordinates.x = opponentLastMove.x;
+                currentCoordinates.y = iStdSizeT;
+                break;
+            case PawnSeriesOrientation::HORIZONTAL:
+                currentCoordinates.x = iStdSizeT;
+                currentCoordinates.y = opponentLastMove.y;
+                break;
+            case PawnSeriesOrientation::DECREASING:
+                currentCoordinates.x = opponentLastMove.x + iStdSizeT;
+                currentCoordinates.y = opponentLastMove.y + iStdSizeT;
+                break;
+            case PawnSeriesOrientation::INCREASING:
+                currentCoordinates.x = opponentLastMove.x + iStdSizeT;
+                currentCoordinates.y = opponentLastMove.y - iStdSizeT;
+                break;
+            default:
+                LOG_ERROR("Not implemented yet!");
+                return false;
         }
 
         bool result = board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
         if (!result) {
-            LOG_ERROR("Field not on board!");
+            LOG_ERROR("Field (", currentCoordinates.x, ", ", currentCoordinates.y, ") not on board!");
             return false;
         }
 
