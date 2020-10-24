@@ -61,7 +61,8 @@ bool GameController::Run() {
         //Black - console player
         //m_Board.SetField(5, 4, Field::Black);
         //m_Board.SetField(5, 6, Field::Black);
-        m_Board.SetField(5, 9, Field::Black);
+        m_Board.SetField(6, 9, Field::Black);
+        m_Board.SetField(9, 9, Field::White);
         //m_Board.SetField(16, 16, Field::Black);
         //m_Board.SetField(17, 0, Field::Black);
         //#endif

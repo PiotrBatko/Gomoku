@@ -42,9 +42,11 @@ Coordinates BotCM::MakeMove() {
 }
 
 bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
+    bool result = false;
+
     // If this is the first turn for current player, do some initialization stuff.
     if (currentTurnId == 0u) {
-        bool result = determineOpponentPlayerColor();
+        result = determineOpponentPlayerColor();
         if (!result) {
             return false;
         }
@@ -59,44 +61,19 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
 
     const unsigned int PawnSeriesOrientationCount = 4u;
     CoordinatesWithGrade coordinatesWithGrade[PawnSeriesOrientationCount];
-    unsigned int i = 0u;
+    std::size_t i = 0u;
 
-    bool result = determineCoordinatesAndGradeInOneOrientation(
-            PawnSeriesOrientation::VERTICAL,
-            coordinatesWithGrade[i].movementCoordinates,
-            coordinatesWithGrade[i].movementGrade);
-    if (!result) {
-        return false;
-    }
-    i++;
+    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::VERTICAL  , i);
+    if (!result) return false;
 
-    result = determineCoordinatesAndGradeInOneOrientation(
-            PawnSeriesOrientation::HORIZONTAL,
-            coordinatesWithGrade[i].movementCoordinates,
-            coordinatesWithGrade[i].movementGrade);
-    if (!result) {
-        return false;
-    }
-    i++;
+    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::HORIZONTAL, i);
+    if (!result) return false;
 
-    result = determineCoordinatesAndGradeInOneOrientation(
-            PawnSeriesOrientation::DECREASING,
-            coordinatesWithGrade[i].movementCoordinates,
-            coordinatesWithGrade[i].movementGrade);
-    if (!result) {
-        return false;
-    }
-    i++;
+    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::DECREASING, i);
+    if (!result) return false;
 
-    result = determineCoordinatesAndGradeInOneOrientation(
-            PawnSeriesOrientation::INCREASING,
-            coordinatesWithGrade[i].movementCoordinates,
-            coordinatesWithGrade[i].movementGrade);
-    if (!result) {
-        return false;
-    }
-    i++;
-    //TODO: wyekstrahowac te cztery podobne wywolania do osobnej funkcyji.
+    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::INCREASING, i);
+    if (!result) return false;
 
     CoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
     for (unsigned int i = 1u; i < PawnSeriesOrientationCount; ++i) {
@@ -109,6 +86,19 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
     return true;
 }
 
+bool BotCM::determineCoordinatesAndGradeInOneOrientationAndIncrementI(CoordinatesWithGrade coordinatesWithGrade[], PawnSeriesOrientation pawnSeriesOrientation, std::size_t& i) {
+    const bool result = determineCoordinatesAndGradeInOneOrientation(
+        pawnSeriesOrientation,
+        coordinatesWithGrade[i].movementCoordinates,
+        coordinatesWithGrade[i].movementGrade);
+
+    if (!result) {
+        return false;
+    }
+    i++;
+    return true;
+}
+
 bool BotCM::determineCoordinatesAndGradeInOneOrientation(
         const PawnSeriesOrientation pawnSeriesOrientation,
         Coordinates& outputCoordinates,
@@ -118,7 +108,7 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     const int K = pawnsLineLenghtToWin - 1;
     const int boardSize = fileAppConfigContainer.BoardSize;
 
-    int minX = 0, maxX = 0;
+    int minX = 0, centerX = 0, maxX = 0;
 
     std::size_t opponentLastMoveValue = 0u;
 
@@ -138,6 +128,7 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
         } else {
             minX = 0;
         }
+        centerX = opponentLastMoveValue;
         if (static_cast<int>(opponentLastMoveValue) + K < boardSize) {
             maxX = static_cast<int>(opponentLastMoveValue) + K;
         } else {
@@ -186,7 +177,7 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     // Second dimension: indices of gap fields in the given gap.
     GapsCollectionT gaps;
 
-    bool result = determineGaps(pawnSeriesOrientation, gaps, minX, maxX);
+    bool result = determineGaps(pawnSeriesOrientation, gaps, minX, centerX, maxX);
     if (!result) {
         return false;
     }
@@ -195,7 +186,7 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     return true;
 }
 
-bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int maxX) {
+bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int centerX, const int maxX) {
     unsigned int opponentSymbolsCount = 0u;
     std::size_t lastOppopentSymbolFoundIndex = 0u;
     bool opponentSymbolAlreadyFound = false;
@@ -205,45 +196,117 @@ bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
     // was not a gap field, 'currentGap' will equal nullptr.
     SingleGapT* currentGap = nullptr;
 
-    // This loop fills 'gaps' collection with real gaps.
+    // Vector with all fields which are processed during determining fields as gaps.
+    std::vector<Field> fieldsProcessed;
+    // Index of opponent last move field in 'fieldsProcessed'.
+    std::size_t fieldsProcessedOpponentLastMoveIndex = 0u;
+
+    // 1. Loop for filling 'gaps' collection with real gaps.
     for (int i = minX; i <= maxX; ++i) {
         Coordinates currentCoordinates;
-        const std::size_t iStdSizeT = static_cast<std::size_t>(i);
-
-        switch (pawnSeriesOrientation) {
-            case PawnSeriesOrientation::VERTICAL:
-                currentCoordinates.x = opponentLastMove.x;
-                currentCoordinates.y = iStdSizeT;
-                break;
-            case PawnSeriesOrientation::HORIZONTAL:
-                currentCoordinates.x = iStdSizeT;
-                currentCoordinates.y = opponentLastMove.y;
-                break;
-            case PawnSeriesOrientation::DECREASING:
-                currentCoordinates.x = opponentLastMove.x + iStdSizeT;
-                currentCoordinates.y = opponentLastMove.y + iStdSizeT;
-                break;
-            case PawnSeriesOrientation::INCREASING:
-                currentCoordinates.x = opponentLastMove.x + iStdSizeT;
-                currentCoordinates.y = opponentLastMove.y - iStdSizeT;
-                break;
-            default:
-                LOG_ERROR("Not implemented yet!");
-                return false;
+        bool result = determineCurrentCoordinatesForGapProcessing(pawnSeriesOrientation, i, currentCoordinates);
+        if (!result) {
+            return false;
         }
 
-        bool result = board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
+        result = board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
         if (!result) {
             LOG_ERROR("Field (", currentCoordinates.x, ", ", currentCoordinates.y, ") not on board!");
             return false;
         }
 
         Field currentField = board->at(currentCoordinates.x, currentCoordinates.y);
+        fieldsProcessed.push_back(currentField);
+        if (currentCoordinates == opponentLastMove) {
+            fieldsProcessedOpponentLastMoveIndex = fieldsProcessed.size() - 1u;
+        }
 
         result = determineFieldAsGap(currentField, opponentSymbolAlreadyFound, lastNotEmptySymbolWasCurrentPlayerSymbol, lastOppopentSymbolFoundIndex, opponentSymbolsCount, currentGap, gaps, pawnSeriesOrientation, maxX, i, currentCoordinates);
         if (!result) {
             return false;
         }
+    }
+
+    // 2. Loop for filling data when there is no gap in current orientation.
+    const int pawnsLineLenghtToWin = fileAppConfigContainer.PawnsLineLenghtToWin;
+
+    NotGapOneSideData notGapLeftSideData, notGapRightSideData;
+
+    for (std::size_t i = 1u; i <= static_cast<std::size_t>(pawnsLineLenghtToWin)-2u; ++i) {
+        // Process right side.
+        const size_t leftSideCurrentIndex = fieldsProcessedOpponentLastMoveIndex + i;
+        if (leftSideCurrentIndex < fieldsProcessed.size()) {
+            const Field currentField = fieldsProcessed[leftSideCurrentIndex];
+            bool result = processNotGapOrientationOneSide(currentField, notGapRightSideData);
+            if (!result) { return false; }
+        }
+
+        // Process left side.
+        int rightSideCurrentIndex = static_cast<int>(fieldsProcessedOpponentLastMoveIndex) - static_cast<int>(i);
+        if (rightSideCurrentIndex >= 0) {
+            const Field currentField = fieldsProcessed[rightSideCurrentIndex];
+            bool result = processNotGapOrientationOneSide(currentField, notGapLeftSideData);
+            if (!result) { return false; }
+        }
+    }
+
+    int opponentPawnSeriesWithHisLastMoveLength
+        = notGapLeftSideData.opponentPawnSeriesLength
+        + notGapRightSideData.opponentPawnSeriesLength
+        + 1;
+
+    return true;
+}
+
+bool BotCM::processNotGapOrientationOneSide(
+        const Field currentField,
+        NotGapOneSideData& notGapOneSideData) {
+
+    if (currentField == opponentPlayerColor) {
+        if (!notGapOneSideData.notOpponentPawnMet) {
+            notGapOneSideData.opponentPawnSeriesLength++;
+        }
+
+    } else if (currentField == playerColor) {
+        notGapOneSideData.notOpponentPawnMet = true;
+        notGapOneSideData.currentPlayerSymbolFound = true;
+
+    } else if (currentField == Field::Empty) {
+        notGapOneSideData.notOpponentPawnMet = true;
+        if (!notGapOneSideData.currentPlayerSymbolFound) {
+            notGapOneSideData.emptyFieldsCountAfterOpponentPawnSeries++;
+        }
+
+    } else {
+        LOG_ERROR("Wrong field type.");
+        return false;
+    }
+    return true;
+}
+
+bool BotCM::determineCurrentCoordinatesForGapProcessing(const PawnSeriesOrientation pawnSeriesOrientation, int i, Coordinates& currentCoordinates) {
+    const std::size_t iStdSizeT = static_cast<std::size_t>(i);
+
+    switch (pawnSeriesOrientation) {
+        case PawnSeriesOrientation::VERTICAL:
+            currentCoordinates.x = opponentLastMove.x;
+            currentCoordinates.y = iStdSizeT;
+            break;
+        case PawnSeriesOrientation::HORIZONTAL:
+            currentCoordinates.x = iStdSizeT;
+            currentCoordinates.y = opponentLastMove.y;
+            break;
+        case PawnSeriesOrientation::DECREASING:
+            currentCoordinates.x = opponentLastMove.x + iStdSizeT;
+            currentCoordinates.y = opponentLastMove.y + iStdSizeT;
+            break;
+        case PawnSeriesOrientation::INCREASING:
+            currentCoordinates.x = opponentLastMove.x + iStdSizeT;
+            currentCoordinates.y = opponentLastMove.y - iStdSizeT;
+            break;
+        default:
+            LOG_ERROR("Not implemented yet!");
+            return false;
     }
     return true;
 }
@@ -292,41 +355,75 @@ bool BotCM::determineFieldAsGap(
         }
         if (i == maxX) { // If we are processing last index to process:
             // Here we know that we are processing last index to process, and the
-            // field on this index is not enemy symbol. So, we have to remove
-            // the last gap.
-            const std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
-            if (lastGapLength > 0u) {
-                // Remove the last gap.
-                gaps.erase(gaps.end()-1);
+            // field on this index is not enemy symbol. So, if there is currently gap built,
+            // we have to remove the (this) last gap.
+            if (currentGap) {
+                const std::size_t lastGapLength = maxX - lastOppopentSymbolFoundIndex;
+                if (lastGapLength > 0u) {
+                    // Remove the last gap.
+                    gaps.erase(gaps.end()-1);
+                }
             }
-
         }
     }
     return true;
 }
 
-void BotCM::makeMoveDecision(
+bool BotCM::makeMoveDecision(
         const PawnSeriesOrientation pawnSeriesOrientation,
         Coordinates& outputCoordinates,
         const GapsCollectionT& gaps,
         MovementGrade& movementImportanceGrade) {
 
     const std::size_t gapsCount = gaps.size();
-    if (gapsCount == 1u) {
-        const SingleGapT& gap = gaps.at(0);
-        const std::size_t gapSize = gap.size();
-        const std::size_t randomizedIndexInGap = Random::RandomizeInt(gapSize);
-        const Coordinates& finalMoveCoordinates = gap.at(randomizedIndexInGap);
+    if (gapsCount == 0u) {
+        //TODO: to be implemented.
 
-        outputCoordinates = finalMoveCoordinates;
-        movementImportanceGrade.SetGrade(3u);
-    } else {
-        //TODO: continue.
         // Default movement coordinates.
         outputCoordinates.x = 0u;
         outputCoordinates.y = 0u;
         movementImportanceGrade.SetGrade(0u);
+
+    } else if (gapsCount == 1u) {
+        const SingleGapT& gap = gaps.at(0);
+
+        const bool result = randomizeFieldInGap(gap, outputCoordinates);
+        if (!result) {
+            return false;
+        }
+        movementImportanceGrade.SetGrade(3u);
+
+    } else if (gapsCount > 1u) {
+        std::size_t shortestGapSize = SIZE_MAX;
+        const SingleGapT* shortestGap = nullptr;
+
+        // Search for the shortest gap.
+        for (const SingleGapT& gap : gaps) {
+            const std::size_t currentGapSize = gap.size();
+            if (currentGapSize < shortestGapSize) {
+                shortestGapSize = currentGapSize;
+                shortestGap = &gap;
+            }
+        }
+        const bool result = randomizeFieldInGap(*shortestGap, outputCoordinates);
+        if (!result) {
+            return false;
+        }
+
+        movementImportanceGrade.SetGrade(4u);
     }
+    return true;
+}
+
+bool BotCM::randomizeFieldInGap(const SingleGapT& gap, Coordinates& outputCoordinates) {
+    const std::size_t gapSize = gap.size();
+    if (gapSize == 0) {
+        LOG_ERROR("gapSize == 0");
+        return false;
+    }
+    const std::size_t randomizedIndexInGap = Random::RandomizeInt(gapSize);
+    outputCoordinates = gap.at(randomizedIndexInGap);
+    return true;
 }
 
 bool BotCM::determineOpponentPlayerColor() {
