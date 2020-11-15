@@ -54,6 +54,11 @@ private:
 
         bool currentPlayerSymbolFound = false;
         std::size_t emptyFieldsCountAfterOpponentPawnSeries = 0;
+
+        bool firstFreeFieldFound = false;
+
+        // First found free field.
+        Coordinates firstFreeFieldCoordinates;
     };
 
     bool MakeMoveMain(Coordinates& outputCoordinates);
@@ -63,12 +68,35 @@ private:
 
     bool determineOpponentPlayerColor();
     bool verifyAllocationCounter();
-    bool determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int centerX, const int maxX);
+    bool determineGaps(
+            const PawnSeriesOrientation pawnSeriesOrientation,
+            GapsCollectionT& gaps,
+            const int minX,
+            const int centerX,
+            const int maxX,
+            std::vector<Field>& fieldsProcessed,
+            std::vector<Coordinates>& coordinatesProcessed,
+            std::size_t& fieldsProcessedOpponentLastMoveIndex);
+    bool determineNoGapData(
+            std::vector<Field>& fieldsProcessed,
+            std::size_t fieldsProcessedOpponentLastMoveIndex,
+            NotGapOneSideData& notGapLeftSideData,
+            NotGapOneSideData& notGapRightSideData,
+            std::vector<Coordinates>& coordinatesProcessed);
     bool determineCoordinatesAndGradeInOneOrientationAndIncrementI(CoordinatesWithGrade coordinatesWithGrade[], PawnSeriesOrientation pawnSeriesOrientation, std::size_t& i);
-    bool makeMoveDecision(const PawnSeriesOrientation pawnSeriesOrientation, Coordinates& outputCoordinates, const GapsCollectionT& gaps, MovementGrade& movementImportanceGrade);
+    bool makeMoveDecision(
+            const PawnSeriesOrientation pawnSeriesOrientation,
+            Coordinates& outputCoordinates,
+            const GapsCollectionT& gaps,
+            NotGapOneSideData& notGapLeftSideData,
+            NotGapOneSideData& notGapRightSideData,
+            MovementGrade& movementImportanceGrade);
     bool determineCoordinatesAndGradeInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation, Coordinates& outputCoordinates, MovementGrade& movementImportanceGrade);
     bool determineCurrentCoordinatesForGapProcessing(const PawnSeriesOrientation pawnSeriesOrientation, int i, Coordinates& currentCoordinates);
-    bool processNotGapOrientationOneSide(const Field currentField, NotGapOneSideData& notGapLeftSideData);
+    bool processNotGapOrientationOneSide(
+            const Field currentField,
+            NotGapOneSideData& notGapLeftSideData,
+            const Coordinates& currentCoordinates);
     bool determineFieldAsGap(
             const Field currentField,
             bool& opponentSymbolAlreadyFound,

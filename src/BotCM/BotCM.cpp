@@ -177,16 +177,41 @@ bool BotCM::determineCoordinatesAndGradeInOneOrientation(
     // Second dimension: indices of gap fields in the given gap.
     GapsCollectionT gaps;
 
-    bool result = determineGaps(pawnSeriesOrientation, gaps, minX, centerX, maxX);
+    // Vector with all fields which are processed during determining fields as gaps.
+    std::vector<Field> fieldsProcessed;
+    // Vector with coordinates corresponding to fields in 'fieldsProcessed'.
+    std::vector<Coordinates> coordinatesProcessed;
+    // Index of opponent last move field in 'fieldsProcessed'.
+    std::size_t fieldsProcessedOpponentLastMoveIndex = 0u;
+
+    bool result = determineGaps(pawnSeriesOrientation, gaps, minX, centerX, maxX, fieldsProcessed, coordinatesProcessed, fieldsProcessedOpponentLastMoveIndex);
     if (!result) {
         return false;
     }
-    makeMoveDecision(pawnSeriesOrientation, outputCoordinates, gaps, movementImportanceGrade);
+
+    NotGapOneSideData notGapLeftSideData, notGapRightSideData;
+
+    // 2. Filling data for no gap case, for current orientation.
+    result = determineNoGapData(fieldsProcessed, fieldsProcessedOpponentLastMoveIndex, notGapLeftSideData, notGapRightSideData, coordinatesProcessed);
+    if (!result) {
+        return false;
+    }
+
+    makeMoveDecision(pawnSeriesOrientation, outputCoordinates, gaps, notGapLeftSideData, notGapRightSideData, movementImportanceGrade);
 
     return true;
 }
 
-bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, GapsCollectionT& gaps, const int minX, const int centerX, const int maxX) {
+bool BotCM::determineGaps(
+        const PawnSeriesOrientation pawnSeriesOrientation,
+        GapsCollectionT& gaps,
+        const int minX,
+        const int centerX,
+        const int maxX,
+        std::vector<Field>& fieldsProcessed,
+        std::vector<Coordinates>& coordinatesProcessed,
+        std::size_t& fieldsProcessedOpponentLastMoveIndex) {
+
     unsigned int opponentSymbolsCount = 0u;
     std::size_t lastOppopentSymbolFoundIndex = 0u;
     bool opponentSymbolAlreadyFound = false;
@@ -196,12 +221,7 @@ bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
     // was not a gap field, 'currentGap' will equal nullptr.
     SingleGapT* currentGap = nullptr;
 
-    // Vector with all fields which are processed during determining fields as gaps.
-    std::vector<Field> fieldsProcessed;
-    // Index of opponent last move field in 'fieldsProcessed'.
-    std::size_t fieldsProcessedOpponentLastMoveIndex = 0u;
-
-    // 1. Loop for filling 'gaps' collection with real gaps.
+    // Loop for filling 'gaps' collection with real gaps.
     for (int i = minX; i <= maxX; ++i) {
         Coordinates currentCoordinates;
         bool result = determineCurrentCoordinatesForGapProcessing(pawnSeriesOrientation, i, currentCoordinates);
@@ -217,6 +237,7 @@ bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
 
         Field currentField = board->at(currentCoordinates.x, currentCoordinates.y);
         fieldsProcessed.push_back(currentField);
+        coordinatesProcessed.push_back(currentCoordinates);
         if (currentCoordinates == opponentLastMove) {
             fieldsProcessedOpponentLastMoveIndex = fieldsProcessed.size() - 1u;
         }
@@ -226,41 +247,44 @@ bool BotCM::determineGaps(const PawnSeriesOrientation pawnSeriesOrientation, Gap
             return false;
         }
     }
+    return true;
+}
 
-    // 2. Loop for filling data when there is no gap in current orientation.
+bool BotCM::determineNoGapData(
+        std::vector<Field>& fieldsProcessed,
+        std::size_t fieldsProcessedOpponentLastMoveIndex,
+        NotGapOneSideData& notGapLeftSideData,
+        NotGapOneSideData& notGapRightSideData,
+        std::vector<Coordinates>& coordinatesProcessed) {
+
     const int pawnsLineLenghtToWin = fileAppConfigContainer.PawnsLineLenghtToWin;
 
-    NotGapOneSideData notGapLeftSideData, notGapRightSideData;
-
-    for (std::size_t i = 1u; i <= static_cast<std::size_t>(pawnsLineLenghtToWin)-2u; ++i) {
-        // Process right side.
-        const size_t leftSideCurrentIndex = fieldsProcessedOpponentLastMoveIndex + i;
-        if (leftSideCurrentIndex < fieldsProcessed.size()) {
+    for (std::size_t i = 1u; i <= static_cast<std::size_t>(pawnsLineLenghtToWin)-1u; ++i) {
+        // Process left side.
+        int leftSideCurrentIndex = static_cast<int>(fieldsProcessedOpponentLastMoveIndex) - static_cast<int>(i);
+        if (leftSideCurrentIndex >= 0) {
             const Field currentField = fieldsProcessed[leftSideCurrentIndex];
-            bool result = processNotGapOrientationOneSide(currentField, notGapRightSideData);
+            const Coordinates& currentCoordinates = coordinatesProcessed[leftSideCurrentIndex];
+            bool result = processNotGapOrientationOneSide(currentField, notGapLeftSideData, currentCoordinates);
             if (!result) { return false; }
         }
 
-        // Process left side.
-        int rightSideCurrentIndex = static_cast<int>(fieldsProcessedOpponentLastMoveIndex) - static_cast<int>(i);
-        if (rightSideCurrentIndex >= 0) {
-            const Field currentField = fieldsProcessed[rightSideCurrentIndex];
-            bool result = processNotGapOrientationOneSide(currentField, notGapLeftSideData);
+        // Process right side.
+        const size_t rightSideCurrentIndexX = fieldsProcessedOpponentLastMoveIndex + i;
+        if (rightSideCurrentIndexX < fieldsProcessed.size()) {
+            const Field currentField = fieldsProcessed[rightSideCurrentIndexX];
+            const Coordinates& currentCoordinates = coordinatesProcessed[rightSideCurrentIndexX];
+            bool result = processNotGapOrientationOneSide(currentField, notGapRightSideData, currentCoordinates);
             if (!result) { return false; }
         }
     }
-
-    int opponentPawnSeriesWithHisLastMoveLength
-        = notGapLeftSideData.opponentPawnSeriesLength
-        + notGapRightSideData.opponentPawnSeriesLength
-        + 1;
-
     return true;
 }
 
 bool BotCM::processNotGapOrientationOneSide(
         const Field currentField,
-        NotGapOneSideData& notGapOneSideData) {
+        NotGapOneSideData& notGapOneSideData,
+        const Coordinates& currentCoordinates) {
 
     if (currentField == opponentPlayerColor) {
         if (!notGapOneSideData.notOpponentPawnMet) {
@@ -273,6 +297,12 @@ bool BotCM::processNotGapOrientationOneSide(
 
     } else if (currentField == Field::Empty) {
         notGapOneSideData.notOpponentPawnMet = true;
+
+        if (!notGapOneSideData.firstFreeFieldFound) {
+            notGapOneSideData.firstFreeFieldCoordinates = currentCoordinates;
+            notGapOneSideData.firstFreeFieldFound = true;
+        }
+
         if (!notGapOneSideData.currentPlayerSymbolFound) {
             notGapOneSideData.emptyFieldsCountAfterOpponentPawnSeries++;
         }
@@ -373,16 +403,73 @@ bool BotCM::makeMoveDecision(
         const PawnSeriesOrientation pawnSeriesOrientation,
         Coordinates& outputCoordinates,
         const GapsCollectionT& gaps,
+        NotGapOneSideData& notGapLeftSideData,
+        NotGapOneSideData& notGapRightSideData,
         MovementGrade& movementImportanceGrade) {
 
     const std::size_t gapsCount = gaps.size();
     if (gapsCount == 0u) {
-        //TODO: to be implemented.
+        int opponentPawnSeriesWithHisLastMoveLength
+            = notGapLeftSideData.opponentPawnSeriesLength
+            + notGapRightSideData.opponentPawnSeriesLength
+            + 1;
 
-        // Default movement coordinates.
-        outputCoordinates.x = 0u;
-        outputCoordinates.y = 0u;
-        movementImportanceGrade.SetGrade(0u);
+        if (    notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries != 0u
+            && notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries == 0u) {
+            // A zatem stawiamy nasz symbol na polu jeden na lewo.
+
+            if (!notGapLeftSideData.firstFreeFieldFound) {
+                LOG_ERROR("!notGapLeftSideData.firstFreeFieldFound");
+            }
+            outputCoordinates = notGapLeftSideData.firstFreeFieldCoordinates;
+            movementImportanceGrade.SetGrade(2u);
+
+        } else if (  notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries != 0u
+                   && notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries == 0u) {
+            // A zatem stawiamy nasz symbol na polu jeden na prawo.
+
+            if (!notGapRightSideData.firstFreeFieldFound) {
+                LOG_ERROR("!notGapLeftSideData.firstFreeFieldFound");
+            }
+            outputCoordinates = notGapRightSideData.firstFreeFieldCoordinates;
+            movementImportanceGrade.SetGrade(2u);
+
+        // If opponent pawn series is blocked by current player pawns, from both left and right sides.
+        } else if (    notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries == 0u
+                   && notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries == 0u) {
+
+            if (   !notGapLeftSideData.firstFreeFieldFound
+                && !notGapRightSideData.firstFreeFieldFound) {
+                // In that case, no movement has sense for current orientation.
+                // And there are no coordinates in the nearby to pick.
+                movementImportanceGrade.SetGrade(0u);
+            } else {
+                const unsigned int randomizedValue = Random::RandomizeInt(2u);
+                if (randomizedValue == 0u) {
+                    if (notGapLeftSideData.firstFreeFieldFound) {
+                        outputCoordinates = notGapLeftSideData.firstFreeFieldCoordinates;
+                    } else {
+                        outputCoordinates = notGapRightSideData.firstFreeFieldCoordinates;
+                    }
+                } else {
+                    if (notGapRightSideData.firstFreeFieldFound) {
+                        outputCoordinates = notGapRightSideData.firstFreeFieldCoordinates;
+                    } else {
+                        outputCoordinates = notGapLeftSideData.firstFreeFieldCoordinates;
+                    }
+                }
+                movementImportanceGrade.SetGrade(1u);
+            }
+
+        } else {
+            //TODO: to be implemented.
+
+            // Default movement coordinates.
+            outputCoordinates.x = 0u;
+            outputCoordinates.y = 0u;
+
+            movementImportanceGrade.SetGrade(0u);
+        }
 
     } else if (gapsCount == 1u) {
         const SingleGapT& gap = gaps.at(0);
