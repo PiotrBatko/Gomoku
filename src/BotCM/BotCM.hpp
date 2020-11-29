@@ -14,6 +14,7 @@ using GapsCollectionT = std::vector<SingleGapT>;
 
 class MovementGrade;
 class CoordinatesWithGrade;
+class MovementCoordinatesWithGrade;
 
 // Orientation of possible pawn series to win.
 enum class PawnSeriesOrientation {
@@ -83,15 +84,14 @@ private:
             NotGapOneSideData& notGapLeftSideData,
             NotGapOneSideData& notGapRightSideData,
             std::vector<Coordinates>& coordinatesProcessed);
-    bool determineCoordinatesAndGradeInOneOrientationAndIncrementI(CoordinatesWithGrade coordinatesWithGrade[], PawnSeriesOrientation pawnSeriesOrientation, std::size_t& i);
+    bool determineCoordinatesAndGradeInOneOrientationAndIncrementI(MovementCoordinatesWithGrade coordinatesWithGrade[], PawnSeriesOrientation pawnSeriesOrientation, std::size_t& i);
     bool makeMoveDecision(
             const PawnSeriesOrientation pawnSeriesOrientation,
-            Coordinates& outputCoordinates,
             const GapsCollectionT& gaps,
             NotGapOneSideData& notGapLeftSideData,
             NotGapOneSideData& notGapRightSideData,
-            MovementGrade& movementImportanceGrade);
-    bool determineCoordinatesAndGradeInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation, Coordinates& outputCoordinates, MovementGrade& movementImportanceGrade);
+            MovementCoordinatesWithGrade& outputCoordinatesAndGrade);
+    bool determineCoordinatesAndGradeInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation, MovementCoordinatesWithGrade& outputCoordinatesAndGrade);
     bool determineCurrentCoordinatesForGapProcessing(const PawnSeriesOrientation pawnSeriesOrientation, int i, Coordinates& currentCoordinates);
     bool processNotGapOrientationOneSide(
             const Field currentField,
