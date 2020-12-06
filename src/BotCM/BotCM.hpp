@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../Player.hpp"
+#include "MovementGrade.h"
 
 class Board;
 
@@ -12,7 +13,6 @@ namespace CM {
 using SingleGapT = std::vector<Coordinates>;
 using GapsCollectionT = std::vector<SingleGapT>;
 
-class MovementGrade;
 class CoordinatesWithGrade;
 class MovementCoordinatesWithGrade;
 
@@ -109,6 +109,7 @@ private:
             const int maxX,
             const int i,
             const Coordinates currentCoordinates);
+    void adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade);
 };
 
 }

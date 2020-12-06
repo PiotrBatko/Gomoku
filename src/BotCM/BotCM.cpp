@@ -421,7 +421,11 @@ bool BotCM::makeMoveDecision(
                 LOG_ERROR("!notGapLeftSideData.firstFreeFieldFound");
             }
 
-            outputCoordinatesAndGrade.Set(notGapLeftSideData.firstFreeFieldCoordinates, 2u);
+            // Adjust movement grade to the length of opponent pawns series.
+            MovementGrade::GradeNumberType movementGrade = static_cast<MovementGrade::GradeNumberType>(opponentPawnSeriesWithHisLastMoveLength);
+            adjustMovementGradeToOpponentPawnSeriesLenght(movementGrade);
+
+            outputCoordinatesAndGrade.Set(notGapLeftSideData.firstFreeFieldCoordinates, movementGrade);
 
         // If there is free place only at right side of opponent pawn series, put pawn there.
         } else if (  notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries != 0u
@@ -431,7 +435,12 @@ bool BotCM::makeMoveDecision(
             if (!notGapRightSideData.firstFreeFieldFound) {
                 LOG_ERROR("!notGapLeftSideData.firstFreeFieldFound");
             }
-            outputCoordinatesAndGrade.Set(notGapRightSideData.firstFreeFieldCoordinates, 2u);
+
+            // Adjust movement grade to the length of opponent pawns series.
+            MovementGrade::GradeNumberType movementGrade = static_cast<MovementGrade::GradeNumberType>(opponentPawnSeriesWithHisLastMoveLength);
+            adjustMovementGradeToOpponentPawnSeriesLenght(movementGrade);
+
+            outputCoordinatesAndGrade.Set(notGapRightSideData.firstFreeFieldCoordinates, movementGrade);
 
         // If opponent pawn series is blocked by current player pawns, from both left and right sides,
         // place pawn at any free field in the nearby, if there is any.
@@ -465,13 +474,15 @@ bool BotCM::makeMoveDecision(
 
         // If there is free place at both left and right side of opponent pawn:
         } else {
+            Coordinates outputCoordinates;
+
             if (   notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries
                 < notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries) {
-                outputCoordinatesAndGrade.Set(notGapRightSideData.firstFreeFieldCoordinates, 3u);
+                outputCoordinates = notGapRightSideData.firstFreeFieldCoordinates;
 
             } else if (  notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries
                        <  notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries) {
-                outputCoordinatesAndGrade.Set(notGapLeftSideData.firstFreeFieldCoordinates, 3u);
+                outputCoordinates = notGapLeftSideData.firstFreeFieldCoordinates;
 
             // If both variables are the same:
             // (This case includes situation when there are no symbols other than opponent
@@ -479,11 +490,16 @@ bool BotCM::makeMoveDecision(
             } else {
                 unsigned int randomizedValue = Random::RandomizeInt(2u);
                 if (randomizedValue == 0u) {
-                    outputCoordinatesAndGrade.Set(notGapLeftSideData.firstFreeFieldCoordinates, 2u);
+                    outputCoordinates = notGapLeftSideData.firstFreeFieldCoordinates;
                 } else {
-                    outputCoordinatesAndGrade.Set(notGapRightSideData.firstFreeFieldCoordinates, 2u);
+                    outputCoordinates = notGapRightSideData.firstFreeFieldCoordinates;
                 }
             }
+
+            // Adjust movement grade to the length of opponent pawns series.
+            MovementGrade::GradeNumberType movementGrade = static_cast<MovementGrade::GradeNumberType>(opponentPawnSeriesWithHisLastMoveLength);
+            adjustMovementGradeToOpponentPawnSeriesLenght(movementGrade);
+            outputCoordinatesAndGrade.Set(outputCoordinates, movementGrade);
         }
 
     } else if (gapsCount == 1u) {
@@ -518,6 +534,26 @@ bool BotCM::makeMoveDecision(
     }
     return true;
 }
+
+void BotCM::adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade) {
+    switch (movementGrade) {
+        case 1u:
+            movementGrade = 1u;
+            break;
+        case 2u:
+            movementGrade = 3u;
+            break;
+        case 3u:
+            movementGrade = 4u;
+            break;
+        case 4u:
+            movementGrade = 5u;
+            break;
+        default:
+            movementGrade = MovementGrade::MovementGradeMaxValue;
+    }
+}
+
 
 bool BotCM::randomizeFieldInGap(const SingleGapT& gap, Coordinates& outputCoordinates) {
     const std::size_t gapSize = gap.size();

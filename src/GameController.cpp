@@ -65,8 +65,13 @@ bool GameController::Run() {
         //m_Board.SetField(4 , 9, Field::White);
         //m_Board.SetField(5 , 9, Field::White);
         //m_Board.SetField(6 , 9, Field::White);
-        m_Board.SetField(7 , 9, Field::White);
-        m_Board.SetField(3 , 9, Field::White);
+        m_Board.SetField(7 , 6, Field::White);
+        m_Board.SetField(8 , 6, Field::Black);
+        m_Board.SetField(9 , 6, Field::Black);
+        m_Board.SetField(10, 6, Field::Black);
+        //m_Board.SetField(11, 6, Field::Black);
+        m_Board.SetField(10, 7, Field::Black);
+        //m_Board.SetField(12, 5, Field::White);
 
         //m_Board.SetField(8 , 9, Field::Black);
 
