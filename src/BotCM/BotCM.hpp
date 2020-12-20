@@ -5,6 +5,8 @@
 
 #include "../Player.hpp"
 #include "MovementGrade.h"
+#include "EmptyFieldsManager.hpp"
+#include "../Coordinates.hpp"
 
 class Board;
 
@@ -46,6 +48,8 @@ private:
 
     // Color of the opponent player.
     Field opponentPlayerColor;
+
+    EmptyFieldsManager emptyFieldsManager;
 
     // Struct having data of not gap processing in one orientation, for one (left or right) side.
     struct NotGapOneSideData {

@@ -65,12 +65,12 @@ bool GameController::Run() {
         //m_Board.SetField(4 , 9, Field::White);
         //m_Board.SetField(5 , 9, Field::White);
         //m_Board.SetField(6 , 9, Field::White);
-        m_Board.SetField(7 , 6, Field::White);
-        m_Board.SetField(8 , 6, Field::Black);
-        m_Board.SetField(9 , 6, Field::Black);
-        m_Board.SetField(10, 6, Field::Black);
+        //m_Board.SetField(7 , 6, Field::White);
+        //m_Board.SetField(8 , 6, Field::Black);
+        //m_Board.SetField(9 , 6, Field::Black);
+        //m_Board.SetField(10, 6, Field::Black);
         //m_Board.SetField(11, 6, Field::Black);
-        m_Board.SetField(10, 7, Field::Black);
+        //m_Board.SetField(10, 7, Field::Black);
         //m_Board.SetField(12, 5, Field::White);
 
         //m_Board.SetField(8 , 9, Field::Black);
@@ -82,6 +82,19 @@ bool GameController::Run() {
 
         //m_Board.SetField(16, 16, Field::Black);
         //m_Board.SetField(17, 0, Field::Black);
+
+        for (std::size_t i = 3u; i < 13u; ++i) {
+            for (std::size_t j = 3u; j < 13u; ++j) {
+                if (i == 8u && j == 8u) {
+                    continue;
+                }
+                if (Random::RandomizeInt(2) == 0) {
+                    m_Board.SetField(i, j, Field::White);
+                } else {
+                    m_Board.SetField(i, j, Field::Black);
+                }
+            }
+        }
         //#endif
 
         // Initial drawing of the game board, for the first player to see the board.

@@ -24,10 +24,15 @@ BotCM::~BotCM() {
 }
 
 void BotCM::NotifyAboutOpponentMove(const Coordinates opponentMove) {
+    if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
+        emptyFieldsManager.InitializeCollection(board->getWidth(), board->getHeight());
+    }
+
     if (!opponentDidAtLeastOneMovement) {
         opponentDidAtLeastOneMovement = true;
     }
     opponentLastMove = opponentMove;
+    emptyFieldsManager.SetFieldNotEmpty(opponentLastMove);
 }
 
 Coordinates BotCM::MakeMove() {
@@ -49,6 +54,10 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         result = determineOpponentPlayerColor();
         if (!result) {
             return false;
+        }
+
+        if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
+            emptyFieldsManager.InitializeCollection(board->getWidth(), board->getHeight());
         }
     }
 
@@ -84,7 +93,17 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         }
     }
 
-    outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+    const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
+    if (bestGrade != 0u) {
+        outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+    } else {
+        // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
+        // In that case, we have to select another free field to place pawn there.
+        //TODO
+        //outputCoordinates = TODO
+    }
+
+    emptyFieldsManager.SetFieldNotEmpty(outputCoordinates);
     return true;
 }
 
