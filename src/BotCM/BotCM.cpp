@@ -99,8 +99,10 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
     } else {
         // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
         // In that case, we have to select another free field to place pawn there.
-        //TODO
-        //outputCoordinates = TODO
+        const bool result = emptyFieldsManager.RandomizeEmptyField(outputCoordinates);
+        if (!result) {
+            return false;
+        }
     }
 
     emptyFieldsManager.SetFieldNotEmpty(outputCoordinates);
@@ -607,6 +609,10 @@ bool BotCM::verifyAllocationCounter() {
         return false;
     }
     return true;
+}
+
+EmptyFieldsManager& BotCM::GetEmptyFieldsManager() {
+    return emptyFieldsManager;
 }
 
 }

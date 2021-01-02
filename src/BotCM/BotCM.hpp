@@ -38,6 +38,9 @@ public:
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;
     Coordinates MakeMove() override;
 
+    // For testing:
+    EmptyFieldsManager& GetEmptyFieldsManager();
+
 private:
     bool opponentDidAtLeastOneMovement;
 

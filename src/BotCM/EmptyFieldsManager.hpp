@@ -18,7 +18,9 @@ public:
 
     bool IsFieldsCollectionInitialized();
 
-    bool SetFieldNotEmpty(Coordinates& coordinates);
+    bool SetFieldNotEmpty(const Coordinates& coordinates);
+
+    bool RandomizeEmptyField(Coordinates& randomizedEmptyField);
 
 private:
     // First dimension (vector): index of row in the game board.
@@ -26,6 +28,8 @@ private:
     std::vector<std::list<std::size_t>> emptyFieldsCollection;
 
     bool fieldsCollectionInitialized;
+
+    std::size_t emptyFieldsCount;
 };
 
 }
