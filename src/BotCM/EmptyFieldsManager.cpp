@@ -1,4 +1,4 @@
-#include <BotCM/EmptyFieldsManager.hpp>
+#include "EmptyFieldsManager.hpp"
 
 #include "../DebugInfo.hpp"
 #include "../Coordinates.hpp"
@@ -102,8 +102,21 @@ bool EmptyFieldsManager::RandomizeEmptyField(Coordinates& randomizedEmptyField) 
         return false;
     }
 
-    const bool result = SetFieldNotEmpty(randomizedEmptyField);
-    return result;
+    return true;
+}
+
+void EmptyFieldsManager::DisplayEmptyFieldsCollection() {
+	LOG_LN("");
+	LOG_LN("EmptyFieldsManager::Display():");
+	std::size_t rowId = 0u;
+	for (std::list<std::size_t>& row : emptyFieldsCollection) {
+		LOG(rowId, ": ");
+		for (std::size_t& column : row) {
+			LOG(column, " ");
+		}
+		LOG_LN("");
+		rowId++;
+	}
 }
 
 }

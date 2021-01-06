@@ -30,6 +30,9 @@ private:
     bool fieldsCollectionInitialized;
 
     std::size_t emptyFieldsCount;
+
+    // Function for debugging.
+    void DisplayEmptyFieldsCollection();
 };
 
 }
