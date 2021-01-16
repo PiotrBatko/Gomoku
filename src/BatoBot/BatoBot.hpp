@@ -12,7 +12,7 @@ class BatoBot : public Player
 {
 public:
 
-    BatoBot(const Board* gameBoard, PlayerType playerType, Field playerColor);
+    BatoBot(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
 
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;
     Coordinates MakeMove() override;

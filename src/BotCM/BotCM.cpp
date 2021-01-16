@@ -12,7 +12,7 @@
 
 namespace CM {
 
-BotCM::BotCM(const Board* const gameBoard, const PlayerType playerType, const Field playerColor):
+BotCM::BotCM(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor):
      Player(gameBoard, playerType, playerColor),
      opponentDidAtLeastOneMovement(false),
      opponentPlayerColor(Field::Empty),
@@ -25,7 +25,7 @@ BotCM::~BotCM() {
 
 void BotCM::NotifyAboutOpponentMove(const Coordinates opponentMove) {
     if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
-        emptyFieldsManager.InitializeCollection(board->getWidth(), board->getHeight());
+        emptyFieldsManager.InitializeCollection(m_Board->getWidth(), m_Board->getHeight());
     }
 
     if (!opponentDidAtLeastOneMovement) {
@@ -57,14 +57,14 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         }
 
         if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
-            emptyFieldsManager.InitializeCollection(board->getWidth(), board->getHeight());
+            emptyFieldsManager.InitializeCollection(m_Board->getWidth(), m_Board->getHeight());
         }
     }
 
     if (!opponentDidAtLeastOneMovement) {
         // BotCM begins the battle, so random coordinates will be returned.
-        outputCoordinates.x = static_cast<std::size_t>(Random::RandomizeInt(board->getWidth ()));
-        outputCoordinates.y = static_cast<std::size_t>(Random::RandomizeInt(board->getHeight()));
+        outputCoordinates.x = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getWidth ()));
+        outputCoordinates.y = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getHeight()));
         return true;
     }
 
@@ -249,13 +249,13 @@ bool BotCM::determineGaps(
             return false;
         }
 
-        result = board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
+        result = m_Board->IsFieldOnBoard(currentCoordinates.x, currentCoordinates.y);
         if (!result) {
             LOG_ERROR("Field (", currentCoordinates.x, ", ", currentCoordinates.y, ") not on board!");
             return false;
         }
 
-        Field currentField = board->at(currentCoordinates.x, currentCoordinates.y);
+        Field currentField = m_Board->at(currentCoordinates.x, currentCoordinates.y);
         fieldsProcessed.push_back(currentField);
         coordinatesProcessed.push_back(currentCoordinates);
         if (currentCoordinates == opponentLastMove) {
@@ -311,7 +311,7 @@ bool BotCM::processNotGapOrientationOneSide(
             notGapOneSideData.opponentPawnSeriesLength++;
         }
 
-    } else if (currentField == playerColor) {
+    } else if (currentField == m_PlayerColor) {
         notGapOneSideData.notOpponentPawnMet = true;
         notGapOneSideData.currentPlayerSymbolFound = true;
 
@@ -380,7 +380,7 @@ bool BotCM::determineFieldAsGap(
         lastOppopentSymbolFoundIndex = static_cast<std::size_t>(i);
         opponentSymbolsCount++;
         currentGap = nullptr;
-    } else if (currentField == playerColor) {
+    } else if (currentField == m_PlayerColor) {
         lastNotEmptySymbolWasCurrentPlayerSymbol = true;
 
         // If there is currently built a gap and we have found current player symbol in the gap,
@@ -588,11 +588,11 @@ bool BotCM::randomizeFieldInGap(const SingleGapT& gap, Coordinates& outputCoordi
 }
 
 bool BotCM::determineOpponentPlayerColor() {
-    switch (playerColor) {
-        case Field::White:
+    switch (m_PlayerColor) {
+        case PawnColor::White:
             opponentPlayerColor = Field::Black;
             break;
-        case Field::Black:
+        case PawnColor::Black:
             opponentPlayerColor = Field::White;
             break;
         default:

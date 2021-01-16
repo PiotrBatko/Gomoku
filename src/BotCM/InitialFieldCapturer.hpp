@@ -1,8 +1,13 @@
 #ifndef _CM_INITIAL_FIELD_CAPTURER_HPP_
 #define _CM_INITIAL_FIELD_CAPTURER_HPP_
 
+#include <vector>
+
+#include "BotCM.hpp"
+
 class Board;
 class Player;
+class GameView;
 
 namespace CM {
 
@@ -13,7 +18,14 @@ public:
     InitialFieldCapturer();
     virtual ~InitialFieldCapturer();
 
-    void Run(Board& board, Player* blackPlayer);
+    bool Run(Board& board, Player* blackPlayer, std::vector<GameView*>& views);
+
+private:
+    bool SetFieldOnBardAndNotifyView(const std::size_t x, const std::size_t y, Field field);
+
+    std::vector<GameView*> views;
+    Board* board;
+    CM::EmptyFieldsManager* emptyFieldsManager;
 };
 
 }

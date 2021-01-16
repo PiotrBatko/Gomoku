@@ -7,16 +7,16 @@ class Board;
 
 class ConsolePlayer : public Player {
 public:
-	ConsolePlayer(const Board* gameBoard, PlayerType playerType, Field playerColor);
-	virtual ~ConsolePlayer();
+    ConsolePlayer(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
+    virtual ~ConsolePlayer();
 
-	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
-	Coordinates MakeMove() override;
+    void NotifyAboutOpponentMove(Coordinates opponentMove) override;
+    Coordinates MakeMove() override;
 
 private:
-	bool checkForNotNumberValue();
+    bool checkForNotNumberValue();
 
-	unsigned int turnCount;
+    unsigned int turnCount;
 };
 
 #endif

@@ -1,26 +1,36 @@
-#ifndef _GAME_CONTROLLER_HPP_
-#define _GAME_CONTROLLER_HPP_
+#ifndef GAMECONTROLLER_HPP
+#define GAMECONTROLLER_HPP
 
+#include <atomic>
 #include <memory>
+#include <optional>
 #include <utility>
-
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <vector>
 
 #include "Board.hpp"
 #include "Coordinates.hpp"
 #include "Field.hpp"
 #include "GameFinishedChecker.hpp"
+#include "GameModel.hpp"
+#include "GameView.hpp"
+#include "Player.hpp"
 
 class Player;
 
-class GameController {
+class GameController :
+    public GameModel
+{
 public:
 
     GameController();
-    virtual ~GameController();
+    ~GameController();
+
+    void MakeMove(Coordinates coordinates) override;
+    void Terminate() override;
 
     bool Run();
+
+    void RegisterView(GameView& gameView);
 
 private:
 
@@ -38,39 +48,36 @@ private:
         Error
     };
 
-    Coordinates makePlayerMove(Player* const player, const Field field, PlayerMovementStatus& playerMovementStatus);
+    struct GameResult
+    {
+        FinishCause m_FinishCause;
+        PawnColor m_WinnerColor;
+    };
 
-    void drawGameBoard();
+    Coordinates makePlayerMove(Player* const player, PlayerMovementStatus& playerMovementStatus);
 
     bool Initialize();
 
-    std::unique_ptr<Player> createPlayer(const int playerTypeId, Field playerColor);
+    std::unique_ptr<Player> createPlayer(const int playerTypeId, PawnColor playerColor);
 
-    bool processPlayerTurn(
-            const Field currentPlayerColor,
-            const Field notCurrentPlayerColor,
-            const std::unique_ptr<Player>& currentPlayer,
-            const std::unique_ptr<Player>& notCurrentPlayer,
-            bool& battleFinished,
-            Field& winner,
-            FinishCause& battleFinishCause);
+    std::optional<GameResult> ProcessPlayerTurn();
 
     void waitForEnterKeyIfNeeded();
-    bool verifyAllocationCounter();
+
+    void SwitchNextPlayerTurn();
 
     Board m_Board;
 
     std::unique_ptr<Player> m_WhitePlayer;
     std::unique_ptr<Player> m_BlackPlayer;
+    Player* m_CurrentPlayer = nullptr;
+    Player* m_OppositePlayer = nullptr;
 
     GameFinishedChecker m_GameFinishedChecker;
 
-    // View related members
-    static constexpr std::size_t FieldWidthInPixels = 25u;
-    static constexpr std::size_t FieldHeightInPixels = FieldWidthInPixels;
+    std::atomic<bool> m_ShouldRun = false;
 
-    sf::RenderWindow m_Window;
-    sf::Font m_Font;
+    std::vector<GameView*> m_Views;
 };
 
 #endif

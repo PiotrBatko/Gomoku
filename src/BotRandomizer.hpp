@@ -7,11 +7,11 @@ class Board;
 
 class BotRandomizer : public Player {
 public:
-	BotRandomizer(const Board* gameBoard, PlayerType playerType, Field playerColor);
-	virtual ~BotRandomizer();
+    BotRandomizer(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
+    virtual ~BotRandomizer();
 
-	void NotifyAboutOpponentMove(Coordinates opponentMove) override;
-	Coordinates MakeMove() override;
+    void NotifyAboutOpponentMove(Coordinates opponentMove) override;
+    Coordinates MakeMove() override;
 };
 
 #endif

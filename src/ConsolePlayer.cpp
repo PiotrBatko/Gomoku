@@ -5,7 +5,7 @@
 #include "Board.hpp"
 #include "DebugInfo.hpp"
 
-ConsolePlayer::ConsolePlayer(const Board* const gameBoard, const PlayerType playerType, const Field playerColor)
+ConsolePlayer::ConsolePlayer(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor)
 	: Player(gameBoard, playerType, playerColor), turnCount(1u) {
 }
 
@@ -32,12 +32,12 @@ Coordinates ConsolePlayer::MakeMove() {
             continue;
         }
 
-		if (!board->IsFieldOnBoard(nextMove.x, nextMove.y)) {
+		if (!m_Board->IsFieldOnBoard(nextMove.x, nextMove.y)) {
 			LOG_LN("Coordinates are out of the game board. Please enter not occupied coordinates.");
 			continue;
 		}
 		bool result = false;
-		bool isFieldEmpty = board->IsFieldEmpty(nextMove.x, nextMove.y, result, false);
+		bool isFieldEmpty = m_Board->IsFieldEmpty(nextMove.x, nextMove.y, result, false);
 		if (!result) {
 			throw std::runtime_error("Unnamed error");
 		}

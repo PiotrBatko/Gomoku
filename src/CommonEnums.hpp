@@ -1,13 +1,15 @@
-#ifndef _COMMON_ENUMS_HPP_
-#define _COMMON_ENUMS_HPP_
+#ifndef COMMONENUMS_HPP
+#define COMMONENUMS_HPP
 
-enum class PlayerType : int {
-	HUMAN_CONSOLE = 1,
-	BOT_RANDOMIZER,
-	BOT_CM,
-	BOT_BATOBOT,
+enum class PlayerType
+{
+    HUMAN_CONSOLE = 1,
+    HUMAN,
+    BOT_RANDOMIZER,
+    BOT_CM,
+    BOT_BATOBOT,
 
-	ELEMENT_COUNT
+    ELEMENT_COUNT
 };
 
 #endif

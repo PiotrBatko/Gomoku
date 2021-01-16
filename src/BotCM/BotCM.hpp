@@ -7,6 +7,7 @@
 #include "MovementGrade.h"
 #include "EmptyFieldsManager.hpp"
 #include "../Coordinates.hpp"
+#include "../Field.hpp"
 
 class Board;
 
@@ -32,7 +33,7 @@ enum class PawnSeriesOrientation {
 
 class BotCM : public Player {
 public:
-    BotCM(const Board* gameBoard, PlayerType playerType, Field playerColor);
+	BotCM(const Board* gameBoard, PlayerType playerType, PawnColor playerColor);
     virtual ~BotCM();
 
     void NotifyAboutOpponentMove(Coordinates opponentMove) override;
