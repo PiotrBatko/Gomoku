@@ -8,6 +8,7 @@
 #include "EmptyFieldsManager.hpp"
 #include "../Coordinates.hpp"
 #include "../Field.hpp"
+#include "offensive/OffensiveManager.hpp"
 
 class Board;
 
@@ -54,6 +55,8 @@ private:
     Field opponentPlayerColor;
 
     EmptyFieldsManager emptyFieldsManager;
+
+    OffensiveManager offensiveManager;
 
     // Struct having data of not gap processing in one orientation, for one (left or right) side.
     struct NotGapOneSideData {

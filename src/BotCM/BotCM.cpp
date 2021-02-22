@@ -15,8 +15,8 @@ namespace CM {
 BotCM::BotCM(const Board* const gameBoard, const PlayerType playerType, const PawnColor playerColor):
      Player(gameBoard, playerType, playerColor),
      opponentDidAtLeastOneMovement(false),
-     opponentPlayerColor(Field::Empty),
-     currentTurnId(0u) {
+     currentTurnId(0u),
+     opponentPlayerColor(Field::Empty) {
 }
 
 BotCM::~BotCM() {
@@ -55,6 +55,8 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         if (!result) {
             return false;
         }
+
+        offensiveManager.Initialize(m_Board, m_PlayerColor, opponentPlayerColor);
 
         if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
             emptyFieldsManager.InitializeCollection(m_Board->getWidth(), m_Board->getHeight());
@@ -106,8 +108,11 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
     }
 
     emptyFieldsManager.SetFieldNotEmpty(outputCoordinates);
-    return true;
+
+    result = offensiveManager.UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(outputCoordinates);
+    return result;
 }
+
 
 bool BotCM::determineCoordinatesAndGradeInOneOrientationAndIncrementI(MovementCoordinatesWithGrade coordinatesWithGrade[], PawnSeriesOrientation pawnSeriesOrientation, std::size_t& i) {
     const bool result = determineCoordinatesAndGradeInOneOrientation(

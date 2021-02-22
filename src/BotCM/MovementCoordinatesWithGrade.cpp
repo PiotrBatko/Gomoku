@@ -5,7 +5,7 @@
 namespace CM {
 
 MovementCoordinatesWithGrade::MovementCoordinatesWithGrade()
-    : valuesSet(false), movementCoordinates(), movementImportanceGrade() {
+    : movementCoordinates(), movementImportanceGrade(), valuesSet(false) {
 }
 
 bool MovementCoordinatesWithGrade::Set(Coordinates& movementCoordinates, const MovementGrade::GradeNumberType movementImportanceGrade) {

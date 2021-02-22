@@ -18,7 +18,6 @@ InitialFieldCapturer::~InitialFieldCapturer() {
 bool InitialFieldCapturer::Run(Board& board, Player* blackPlayer, std::vector<GameView*>& views) {
     this->views = views;
     this->board = &board;
-    bool result = false;
 
     CM::BotCM* botCM = dynamic_cast<CM::BotCM*>(blackPlayer);
     if (!botCM) {
