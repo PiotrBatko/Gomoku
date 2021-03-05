@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "CMEnums.hpp"
 #include "../Player.hpp"
 #include "MovementGrade.h"
 #include "EmptyFieldsManager.hpp"
@@ -19,18 +20,6 @@ using GapsCollectionT = std::vector<SingleGapT>;
 
 class CoordinatesWithGrade;
 class MovementCoordinatesWithGrade;
-
-// Orientation of possible pawn series to win.
-enum class PawnSeriesOrientation {
-    // Column is not changing, rows are incrementing.
-    VERTICAL,
-    // Row is not changing, columns are incrementing.
-    HORIZONTAL,
-    // Columns are incrementing, rows are decrementing.
-    INCREASING,
-    // Columns are incrementing and rows are incrementing too.
-    DECREASING
-};
 
 class BotCM : public Player {
 public:

@@ -14,6 +14,8 @@ public:
 
     void AddPawn(const Coordinates& coordinates);
 
+    std::size_t GetStartingPawnColumn();
+
 private:
     std::vector<Coordinates> pawnSeries;
 };
