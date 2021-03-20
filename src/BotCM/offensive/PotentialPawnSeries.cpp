@@ -24,4 +24,8 @@ std::size_t PotentialPawnSeries::GetStartingPawnColumn() {
     return firstPawnCoordinates.x;
 }
 
+std::vector<Coordinates>& PotentialPawnSeries::GetPawnSeries() {
+    return pawnSeries;
+}
+
 }

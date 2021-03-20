@@ -63,47 +63,64 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         }
     }
 
-    if (!opponentDidAtLeastOneMovement) {
-        // BotCM begins the battle, so random coordinates will be returned.
-        outputCoordinates.x = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getWidth ()));
-        outputCoordinates.y = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getHeight()));
-        return true;
-    }
-
-    const unsigned int PawnSeriesOrientationCount = 4u;
-    MovementCoordinatesWithGrade coordinatesWithGrade[PawnSeriesOrientationCount];
-    std::size_t i = 0u;
-
-    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::VERTICAL  , i);
-    if (!result) return false;
-
-    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::HORIZONTAL, i);
-    if (!result) return false;
-
-    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::DECREASING, i);
-    if (!result) return false;
-
-    result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::INCREASING, i);
-    if (!result) return false;
-
-    MovementCoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
-    for (unsigned int i = 1u; i < PawnSeriesOrientationCount; ++i) {
-        MovementCoordinatesWithGrade& currentCoordinatesWithGrade = coordinatesWithGrade[i];
-
-        if (currentCoordinatesWithGrade.GetMovementImportanceGrade() > coordinatesWithBestGrade.GetMovementImportanceGrade()) {
-            coordinatesWithBestGrade = currentCoordinatesWithGrade;
+    if (MakeDummyMovementsForTesting) {
+        static std::size_t i = 0u;
+        switch (i) {
+        case 0u:
+            outputCoordinates = Coordinates(5,6); break;
+        case 1u:
+            outputCoordinates = Coordinates(6,6); break;
+        case 2u:
+            outputCoordinates = Coordinates(7,6); break;
+        default:
+            outputCoordinates = Coordinates(0,0); break;
+            break;
         }
-    }
+        i++;
 
-    const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
-    if (bestGrade != 0u) {
-        outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
     } else {
-        // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
-        // In that case, we have to select another free field to place pawn there.
-        const bool result = emptyFieldsManager.RandomizeEmptyField(outputCoordinates);
-        if (!result) {
-            return false;
+        if (!opponentDidAtLeastOneMovement) {
+            // BotCM begins the battle, so random coordinates will be returned.
+            outputCoordinates.x = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getWidth ()));
+            outputCoordinates.y = static_cast<std::size_t>(Random::RandomizeInt(m_Board->getHeight()));
+            return true;
+        }
+
+        const unsigned int PawnSeriesOrientationCount = 4u;
+        MovementCoordinatesWithGrade coordinatesWithGrade[PawnSeriesOrientationCount];
+        std::size_t i = 0u;
+
+        result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::VERTICAL  , i);
+        if (!result) return false;
+
+        result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::HORIZONTAL, i);
+        if (!result) return false;
+
+        result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::DECREASING, i);
+        if (!result) return false;
+
+        result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::INCREASING, i);
+        if (!result) return false;
+
+        MovementCoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
+        for (unsigned int i = 1u; i < PawnSeriesOrientationCount; ++i) {
+            MovementCoordinatesWithGrade& currentCoordinatesWithGrade = coordinatesWithGrade[i];
+
+            if (currentCoordinatesWithGrade.GetMovementImportanceGrade() > coordinatesWithBestGrade.GetMovementImportanceGrade()) {
+                coordinatesWithBestGrade = currentCoordinatesWithGrade;
+            }
+        }
+
+        const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
+        if (bestGrade != 0u) {
+            outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+        } else {
+            // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
+            // In that case, we have to select another free field to place pawn there.
+            const bool result = emptyFieldsManager.RandomizeEmptyField(outputCoordinates);
+            if (!result) {
+                return false;
+            }
         }
     }
 

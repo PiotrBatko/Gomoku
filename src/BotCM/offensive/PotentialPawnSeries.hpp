@@ -13,6 +13,7 @@ public:
     virtual ~PotentialPawnSeries();
 
     void AddPawn(const Coordinates& coordinates);
+    std::vector<Coordinates>& GetPawnSeries();
 
     std::size_t GetStartingPawnColumn();
 

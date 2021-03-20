@@ -110,6 +110,8 @@ private:
             const int i,
             const Coordinates currentCoordinates);
     void adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade);
+
+    const bool MakeDummyMovementsForTesting = true;
 };
 
 }
