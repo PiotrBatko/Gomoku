@@ -126,6 +126,8 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
 
     emptyFieldsManager.SetFieldNotEmpty(outputCoordinates);
 
+    // After the movement coordinates are chosen by the current bot player, it should be updated
+    // potential pawn series data for offensive purposes for the current bot player.
     result = offensiveManager.UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(outputCoordinates);
     return result;
 }

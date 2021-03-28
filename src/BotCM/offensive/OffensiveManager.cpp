@@ -31,6 +31,7 @@ bool OffensiveManager::UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(Coord
     this->currentPlayerMovement = currentPlayerMovement;
     bool result = false;
 
+    // Update potential pawn series for all of four line orientations.
     result = updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation::VERTICAL);   if (!result) return false;
     result = updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation::HORIZONTAL); if (!result) return false;
     result = updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation::INCREASING); if (!result) return false;
@@ -39,81 +40,39 @@ bool OffensiveManager::UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(Coord
 }
 
 bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation) {
+	// 1. Collect data about both sides of current orientation.
     PotentialPawnSeriesData potentialPawnSeriesData;
+    // First (lower) side.
     updatePotentialPawnSeriesOneSideData(pawnSeriesOrientation, Monotonicity::DECREASING, potentialPawnSeriesData);
+
+    // We are here between both sides, so current player movement is added to the potential pawn series data.
     potentialPawnSeriesData.currentPlayerPawnSeries.push_back(currentPlayerMovement);
+
+    // Second (higher) side.
     updatePotentialPawnSeriesOneSideData(pawnSeriesOrientation, Monotonicity::INCREASING, potentialPawnSeriesData);
 
-    bool isPotentialPawnSeries = false;
-
+    // 2. Do the update of potential pawn series.
+    // The value in the switch argument means the full length of current player pawn series in given orientation
+    // after applying pawn in current player movement.
+    // We are adding/updating a potential pawn series only if there is enough room in at least one side to make
+    // it a potential series for the current player to win.
     switch (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount) {
         case 2u:
-            if (   potentialPawnSeriesData.emptyFieldOnLeftSide  >= 2u
-                && potentialPawnSeriesData.emptyFieldOnRightSide >= 2u) {
+        // Length 2 means that there is a newly created pawn series, so we need to add it to the potential pawn
+        // series list, if there are additional circumstances met.
+            if (   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 2u
+                && potentialPawnSeriesData.emptyFieldsOnRightSide >= 2u) {
                 AddPotentialPawnSeriesToList(potentialPawn2LongSeriesList, potentialPawnSeriesData);
             }
             break;
         case 3u: {
-            //---
-            if (potentialPawnSeriesData.emptyFieldOnLeftSide + potentialPawnSeriesData.emptyFieldOnRightSide >= 2u) {
-
-                Coordinates& c = potentialPawnSeriesData.currentPlayerPawnSeries.front();
-                Coordinates& b = potentialPawnSeriesData.currentPlayerPawnSeries.back();
-
-                if (c == currentPlayerMovement) {
-                    // Here we know that newly placed pawn is the first in pawn series.
-                    // For example: _NXX_ where N is the new pawn while X means old pawn.
-                    // So, it should be updated old pawn series entry that it is longer now,
-                    // at the beginning of the series.
-                    DebugInfo::LogLn("AAA");
-
-                    //TODO: to be implemented.
-
-                } else if (b == currentPlayerMovement) {
-                    // Here we know that newly placed pawn is the last in the pawn series.
-                    // For example: _XXN_ where N is the new pawn while X means old pawn.
-                    // So, it should be updated old pawn series entry that it is longer now,
-                    // at the back of the series.
-                    std::size_t currentPlayerMovementX = currentPlayerMovement.x;
-                    std::list<PotentialPawnSeries>& l = potentialPawn3LongSeriesList.at(currentPlayerMovementX);
-
-                    PotentialPawnSeries* f = nullptr;
-
-                    // Seek for pawn series to enlarge.
-                    for (PotentialPawnSeries& p : l) {
-                        bool isT = true;
-
-                        std::vector<Coordinates>& ps = p.GetPawnSeries();
-                        std::size_t i = 0u;
-                        for (Coordinates& c : potentialPawnSeriesData.currentPlayerPawnSeries) {
-                            Coordinates& j = ps.at(i);
-                            if (c != j) {
-                                isT = false;
-                            }
-                        }
-                        if (isT) {
-                            f = &p;
-                        }
-                    }
-                    if (!f) {
-                        LOG_ERROR("!found");
-                        return false;
-                    }
-
-                    // So, finally enlarge the pawn series by the current player new pawn.
-                    f->AddPawn(currentPlayerMovement);
-
-                    //
-
-                } else {
-                    AddPotentialPawnSeriesToList(potentialPawn3LongSeriesList, potentialPawnSeriesData);
-                }
-            }
+			const bool result = updatePotentialLength3PawnSeries(potentialPawnSeriesData);
+			if (!result) return false;
             break;
         }
         case 4u:
-            if (   potentialPawnSeriesData.emptyFieldOnLeftSide  >= 1u
-                || potentialPawnSeriesData.emptyFieldOnRightSide >= 1u) {
+            if (   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 1u
+                || potentialPawnSeriesData.emptyFieldsOnRightSide >= 1u) {
                 AddPotentialPawnSeriesToList(potentialPawn4LongSeriesList, potentialPawnSeriesData);
             }
             break;
@@ -140,6 +99,7 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
 
     bool firstEmptyFieldAlreadyFound = false;
 
+    // For each field in one side of the orientation:
     for (int i = 1; i < K; ++i) {
 
         int iOriented = i;
@@ -172,11 +132,13 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
         }
 
         if (currentFieldX < 0 || currentFIeldY < 0) {
+        	// If current field is not on the board, we should not process it.
             continue;
         }
         const std::size_t currentFieldXSizeT = static_cast<std::size_t>(currentFieldX);
         const std::size_t currentFieldYSizeT = static_cast<std::size_t>(currentFIeldY);
         if (board->IsFieldOnBoard(currentFieldXSizeT, currentFieldYSizeT) == false) {
+        	// If current field is not on the board, we should not process it.
             continue;
         }
 
@@ -201,12 +163,98 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
         } else { // Empty field.
             firstEmptyFieldAlreadyFound = true;
             if (direction == Monotonicity::DECREASING) {
-                potentialPawnSeriesData.emptyFieldOnLeftSide++;
+                potentialPawnSeriesData.emptyFieldsOnLeftSide++;
             } else {
-                potentialPawnSeriesData.emptyFieldOnRightSide++;
+                potentialPawnSeriesData.emptyFieldsOnRightSide++;
             }
         }
     }
+}
+
+bool OffensiveManager::updatePotentialLength3PawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData) {
+	// First, check if there is enough room in at least one side, to make it a potential
+	// series for the current player to win.
+	if (potentialPawnSeriesData.emptyFieldsOnLeftSide + potentialPawnSeriesData.emptyFieldsOnRightSide < 2u) {
+		return true;
+	}
+
+	std::list<Coordinates>& pawnSeries = potentialPawnSeriesData.currentPlayerPawnSeries;
+	Coordinates& firstPawn = pawnSeries.front();
+	Coordinates& lastPawn = pawnSeries.back();
+
+	if (firstPawn == currentPlayerMovement) {
+		// Here we know that newly placed pawn is the first (most left) in pawn series.
+		// For example: _NXX_ where N is the new pawn while X means old pawn.
+		// So, it should be updated old (shorter) pawn series entry, that it is longer now,
+		// at the beginning of the series.
+		DebugInfo::LogLn("AAA");
+
+		//TODO: to be implemented.
+
+	} else if (lastPawn == currentPlayerMovement) {
+		// Here we know that newly placed pawn is the last in the pawn series.
+		// For example: _XXN_ where N is the new pawn while X means old pawn.
+		// So, it should be updated old (shorter) pawn series entry that it is longer now,
+		// at the back of the series.
+		std::size_t currentPlayerMovementX = currentPlayerMovement.x;
+		std::size_t potentialPawnSeriesBeginningX = currentPlayerMovementX - 2u; // 2u because length of the new pawn series equals 3.
+		std::list<PotentialPawnSeries>& potential2LongSeriesAtCurrentPlayerMovementX = potentialPawn2LongSeriesList.at(potentialPawnSeriesBeginningX);
+
+		PotentialPawnSeries* pawnSeriesToEnlarge = nullptr;
+
+		// Seek for pawn series to enlarge.
+		// For each potential pawn series in list of potential pawn series starting at the same column as the current one.
+		for (PotentialPawnSeries& currentPawnSeriesEntry : potential2LongSeriesAtCurrentPlayerMovementX) {
+			bool pawnSeriesToEnlargeFound = true;
+
+			std::vector<Coordinates>& currentPawnSeries = currentPawnSeriesEntry.GetPawnSeries();
+
+			#if 0 // FOR TESTING
+			std::cout << potentialPawnSeriesData.currentPlayerPawnSeries.size() << std::endl;
+			std::cout << currentPawnSeriesVector.size() << std::endl;
+			#endif
+
+			std::size_t currentPlayerPawnSeriesSize = pawnSeries.size();
+			std::size_t currentPawnSeriesSize = currentPawnSeries.size();
+
+			// Perform sanity check.
+			if (currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u) {
+				LOG_ERROR("currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u");
+				return false;
+			}
+
+			std::size_t i = 0u;
+			for (Coordinates& currentCoordinatesA : pawnSeries) {
+				if (i == 2u) {
+					break;
+				}
+				Coordinates& currentCoordinatesB = currentPawnSeries.at(i++);
+
+				#if 0 // FOR TESTING
+				//std::cout << "c.x: " << c.x << "c.y: " << c.y << std::endl;
+				//std::cout << "j.x: " << j.x << "j.y: " << j.y << std::endl;
+				#endif
+
+				if (currentCoordinatesA != currentCoordinatesB) {
+					pawnSeriesToEnlargeFound = false;
+				}
+			}
+			if (pawnSeriesToEnlargeFound) {
+				pawnSeriesToEnlarge = &currentPawnSeriesEntry;
+			}
+		}
+		if (!pawnSeriesToEnlarge) {
+			LOG_ERROR("!found");
+			return false;
+		}
+
+		// So, finally enlarge the pawn series by the current player new pawn.
+		pawnSeriesToEnlarge->AddPawn(currentPlayerMovement);
+
+	} else {
+		AddPotentialPawnSeriesToList(potentialPawn3LongSeriesList, potentialPawnSeriesData);
+	}
+	return true;
 }
 
 }

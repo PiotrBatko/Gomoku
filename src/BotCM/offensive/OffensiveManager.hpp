@@ -26,18 +26,21 @@ public:
 
 private:
     struct PotentialPawnSeriesData {
+    	// Value 1 is the default, because the series count in each orientation equals always
+    	// at least one because of the current pawn of the player.
         std::size_t currentPlayerPawnsInSeriesCount = 1u;
 
         std::list<Coordinates> currentPlayerPawnSeries;
 
         // Count of empty fields on left (lower)/right (higher) fields from current player pawn series.
-        std::size_t emptyFieldOnLeftSide = 0u;
-        std::size_t emptyFieldOnRightSide = 0u;
+        std::size_t emptyFieldsOnLeftSide  = 0u;
+        std::size_t emptyFieldsOnRightSide = 0u;
     };
 
     bool updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation);
     void updatePotentialPawnSeriesOneSideData(PawnSeriesOrientation pawnSeriesOrientation, Monotonicity direction, PotentialPawnSeriesData& potentialPawnSeriesData);
     void AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData);
+    bool updatePotentialLength3PawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData);
 
     Coordinates currentPlayerMovement;
 
