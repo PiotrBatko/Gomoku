@@ -86,7 +86,7 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
 void OffensiveManager::AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData) {
     PotentialPawnSeries potentialPawnSeries;
     for (Coordinates& coordinates : potentialPawnSeriesData.currentPlayerPawnSeries) {
-        potentialPawnSeries.AddPawn(coordinates);
+        potentialPawnSeries.AddPawnOnBack(coordinates);
     }
     std::size_t startingPawnColumn = potentialPawnSeries.GetStartingPawnColumn();
 
@@ -172,6 +172,10 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
 }
 
 bool OffensiveManager::updatePotentialLength3PawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData) {
+    // When the function is called, we know that there is currently new 3-pawns long
+    // pawn series which is build on current player pawns. But we don't know yet if
+    // we want to mark it as a POTENTIAL-offensive pawn series.
+
 	// First, check if there is enough room in at least one side, to make it a potential
 	// series for the current player to win.
 	if (potentialPawnSeriesData.emptyFieldsOnLeftSide + potentialPawnSeriesData.emptyFieldsOnRightSide < 2u) {
@@ -179,10 +183,10 @@ bool OffensiveManager::updatePotentialLength3PawnSeries(PotentialPawnSeriesData&
 	}
 
 	std::list<Coordinates>& pawnSeries = potentialPawnSeriesData.currentPlayerPawnSeries;
-	Coordinates& firstPawn = pawnSeries.front();
-	Coordinates& lastPawn = pawnSeries.back();
+	Coordinates& firstPawnCoordinates = pawnSeries.front();
+	Coordinates& lastPawnCoordinates = pawnSeries.back();
 
-	if (firstPawn == currentPlayerMovement) {
+	if (firstPawnCoordinates == currentPlayerMovement) {
 		// Here we know that newly placed pawn is the first (most left) in pawn series.
 		// For example: _NXX_ where N is the new pawn while X means old pawn.
 		// So, it should be updated old (shorter) pawn series entry, that it is longer now,
@@ -191,70 +195,83 @@ bool OffensiveManager::updatePotentialLength3PawnSeries(PotentialPawnSeriesData&
 
 		//TODO: to be implemented.
 
-	} else if (lastPawn == currentPlayerMovement) {
+	} else if (lastPawnCoordinates == currentPlayerMovement) {
 		// Here we know that newly placed pawn is the last in the pawn series.
 		// For example: _XXN_ where N is the new pawn while X means old pawn.
 		// So, it should be updated old (shorter) pawn series entry that it is longer now,
 		// at the back of the series.
-		std::size_t currentPlayerMovementX = currentPlayerMovement.x;
-		std::size_t potentialPawnSeriesBeginningX = currentPlayerMovementX - 2u; // 2u because length of the new pawn series equals 3.
-		std::list<PotentialPawnSeries>& potential2LongSeriesAtCurrentPlayerMovementX = potentialPawn2LongSeriesList.at(potentialPawnSeriesBeginningX);
-
-		PotentialPawnSeries* pawnSeriesToEnlarge = nullptr;
-
-		// Seek for pawn series to enlarge.
-		// For each potential pawn series in list of potential pawn series starting at the same column as the current one.
-		for (PotentialPawnSeries& currentPawnSeriesEntry : potential2LongSeriesAtCurrentPlayerMovementX) {
-			bool pawnSeriesToEnlargeFound = true;
-
-			std::vector<Coordinates>& currentPawnSeries = currentPawnSeriesEntry.GetPawnSeries();
-
-			#if 0 // FOR TESTING
-			std::cout << potentialPawnSeriesData.currentPlayerPawnSeries.size() << std::endl;
-			std::cout << currentPawnSeriesVector.size() << std::endl;
-			#endif
-
-			std::size_t currentPlayerPawnSeriesSize = pawnSeries.size();
-			std::size_t currentPawnSeriesSize = currentPawnSeries.size();
-
-			// Perform sanity check.
-			if (currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u) {
-				LOG_ERROR("currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u");
-				return false;
-			}
-
-			std::size_t i = 0u;
-			for (Coordinates& currentCoordinatesA : pawnSeries) {
-				if (i == 2u) {
-					break;
-				}
-				Coordinates& currentCoordinatesB = currentPawnSeries.at(i++);
-
-				#if 0 // FOR TESTING
-				//std::cout << "c.x: " << c.x << "c.y: " << c.y << std::endl;
-				//std::cout << "j.x: " << j.x << "j.y: " << j.y << std::endl;
-				#endif
-
-				if (currentCoordinatesA != currentCoordinatesB) {
-					pawnSeriesToEnlargeFound = false;
-				}
-			}
-			if (pawnSeriesToEnlargeFound) {
-				pawnSeriesToEnlarge = &currentPawnSeriesEntry;
-			}
-		}
-		if (!pawnSeriesToEnlarge) {
-			LOG_ERROR("!found");
-			return false;
-		}
+	    PotentialPawnSeries* pawnSeriesToEnlarge = nullptr;
+	    const bool status = ffg(pawnSeries, pawnSeriesToEnlarge);
+	    if (!status) return false;
 
 		// So, finally enlarge the pawn series by the current player new pawn.
-		pawnSeriesToEnlarge->AddPawn(currentPlayerMovement);
+		pawnSeriesToEnlarge->AddPawnOnBack(currentPlayerMovement);
 
 	} else {
+	    // TODO: can it even happen?!?!?!
 		AddPotentialPawnSeriesToList(potentialPawn3LongSeriesList, potentialPawnSeriesData);
 	}
 	return true;
+}
+
+bool OffensiveManager::ffg(std::list<Coordinates>& pawnSeries, PotentialPawnSeries*& pawnSeriesToEnlarge) {
+    std::size_t currentPlayerMovementX = currentPlayerMovement.x;
+    std::size_t potentialPawnSeriesBeginningX = currentPlayerMovementX - 2u; // 2u because length of the new pawn series equals 3.
+    std::list<PotentialPawnSeries>& potential2LongSeriesAtCurrentPlayerMovementX = potentialPawn2LongSeriesList.at(potentialPawnSeriesBeginningX);
+
+    // Seek for pawn series to enlarge.
+    // For each potential pawn series in list of potential pawn series starting at the same column as the current one.
+    for (PotentialPawnSeries& currentPawnSeriesEntry : potential2LongSeriesAtCurrentPlayerMovementX) {
+        bool pawnSeriesToEnlargeFound = true;
+
+        std::list<Coordinates>& currentPawnSeries = currentPawnSeriesEntry.GetPawnSeries();
+
+        #if 0 // FOR TESTING
+        std::cout << potentialPawnSeriesData.currentPlayerPawnSeries.size() << std::endl;
+        std::cout << currentPawnSeriesVector.size() << std::endl;
+        #endif
+
+        std::size_t currentPlayerPawnSeriesSize = pawnSeries.size();
+        std::size_t currentPawnSeriesSize = currentPawnSeries.size();
+
+        // Perform sanity check.
+        if (currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u) {
+            LOG_ERROR("currentPlayerPawnSeriesSize != currentPawnSeriesSize + 1u");
+            return false;
+        }
+
+        std::size_t i = 0u;
+
+        std::list<Coordinates>::iterator it1 = pawnSeries.begin();
+        std::list<Coordinates>::iterator it2 = currentPawnSeries.begin();
+        for(; it1 != pawnSeries.end() && it2 != currentPawnSeries.end(); ++it1, ++it2) {
+            if (i == 2u) {
+                break;
+            }
+            Coordinates& currentCoordinatesA = *it1;
+            Coordinates& currentCoordinatesB = *it2;
+
+            #if 0 // FOR TESTING
+            //std::cout << "c.x: " << c.x << "c.y: " << c.y << std::endl;
+            //std::cout << "j.x: " << j.x << "j.y: " << j.y << std::endl;
+            #endif
+
+            if (currentCoordinatesA != currentCoordinatesB) {
+                pawnSeriesToEnlargeFound = false;
+            }
+
+            i++;
+        }
+
+        if (pawnSeriesToEnlargeFound) {
+            pawnSeriesToEnlarge = &currentPawnSeriesEntry;
+        }
+    }
+    if (!pawnSeriesToEnlarge) {
+        LOG_ERROR("!found");
+        return false;
+    }
+    return true;
 }
 
 }

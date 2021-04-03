@@ -1,7 +1,7 @@
 #ifndef _BOTCM_POTENTIAL_PAWNSERIES_HPP_
 #define _BOTCM_POTENTIAL_PAWNSERIES_HPP_
 
-#include <vector>
+#include <list>
 
 #include "../../Coordinates.hpp"
 
@@ -12,13 +12,14 @@ public:
     PotentialPawnSeries();
     virtual ~PotentialPawnSeries();
 
-    void AddPawn(const Coordinates& coordinates);
-    std::vector<Coordinates>& GetPawnSeries();
+    void AddPawnOnFront(const Coordinates& coordinates);
+    void AddPawnOnBack(const Coordinates& coordinates);
+    std::list<Coordinates>& GetPawnSeries();
 
     std::size_t GetStartingPawnColumn();
 
 private:
-    std::vector<Coordinates> pawnSeries;
+    std::list<Coordinates> pawnSeries;
 };
 
 }

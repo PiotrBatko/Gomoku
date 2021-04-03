@@ -10,7 +10,11 @@ PotentialPawnSeries::PotentialPawnSeries() {
 PotentialPawnSeries::~PotentialPawnSeries() {
 }
 
-void PotentialPawnSeries::AddPawn(const Coordinates& coordinates) {
+void PotentialPawnSeries::AddPawnOnFront(const Coordinates& coordinates) {
+    pawnSeries.push_front(coordinates);
+}
+
+void PotentialPawnSeries::AddPawnOnBack(const Coordinates& coordinates) {
     pawnSeries.push_back(coordinates);
 }
 
@@ -20,11 +24,11 @@ std::size_t PotentialPawnSeries::GetStartingPawnColumn() {
         return 0u;
     }
 
-    Coordinates& firstPawnCoordinates = pawnSeries[0];
+    Coordinates& firstPawnCoordinates = pawnSeries.front();
     return firstPawnCoordinates.x;
 }
 
-std::vector<Coordinates>& PotentialPawnSeries::GetPawnSeries() {
+std::list<Coordinates>& PotentialPawnSeries::GetPawnSeries() {
     return pawnSeries;
 }
 

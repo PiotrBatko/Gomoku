@@ -41,6 +41,7 @@ private:
     void updatePotentialPawnSeriesOneSideData(PawnSeriesOrientation pawnSeriesOrientation, Monotonicity direction, PotentialPawnSeriesData& potentialPawnSeriesData);
     void AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData);
     bool updatePotentialLength3PawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData);
+    bool ffg(std::list<Coordinates>& pawnSeries, PotentialPawnSeries*& pawnSeriesToEnlarge);
 
     Coordinates currentPlayerMovement;
 
