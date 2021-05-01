@@ -81,16 +81,32 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
             break;
         }
         */
+        /*
         case 0u:
-			outputCoordinates = Coordinates(6,X); break;
+			outputCoordinates = Coordinates(5,X); break;
 		case 1u:
-			outputCoordinates = Coordinates(7,X); break;
+			outputCoordinates = Coordinates(6,X); break;
 		case 2u:
-			outputCoordinates = Coordinates(8,X); break;
+			outputCoordinates = Coordinates(7,X); break;
 		case 3u:
-			outputCoordinates = Coordinates(9,X); break;
+			outputCoordinates = Coordinates(8,X); break;
 		case 4u:
-			outputCoordinates = Coordinates(10,X); break;
+			outputCoordinates = Coordinates(9,X); break;
+		default:
+			outputCoordinates = Coordinates(0,0); break;
+			break;
+		}
+		*/
+        case 0u:
+			outputCoordinates = Coordinates(X,5); break;
+		case 1u:
+			outputCoordinates = Coordinates(X,6); break;
+		case 2u:
+			outputCoordinates = Coordinates(X,7); break;
+		case 3u:
+			outputCoordinates = Coordinates(X,8); break;
+		case 4u:
+			outputCoordinates = Coordinates(X,9); break;
 		default:
 			outputCoordinates = Coordinates(0,0); break;
 			break;

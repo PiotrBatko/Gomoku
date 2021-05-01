@@ -221,12 +221,9 @@ bool OffensiveManager::updatePotentialPawnSeries(PotentialPawnSeriesData& potent
 		// existing potential pawn series.
 		std::size_t potentialPawnSeriesBeginningX = 0u;
 
-		if (lenghtOfPawnSeriesToUpdate == 2u) {
-			potentialPawnSeriesBeginningX = currentPlayerMovementX + 1u;
-		} else {
-			//TODO: to na pewno tak ma byc?!?!? Nie rozumiem tego!
-			potentialPawnSeriesBeginningX = currentPlayerMovementX + 1u;
-		}
+		// Plus one, because we are enlarging an existing potential pawn series from front, so
+		// origin of old series is starting at one column right.
+		potentialPawnSeriesBeginningX = currentPlayerMovementX + 1u;
 
 		const bool status = enlargeExistingPotentialPawnSeries(lenghtOfPawnSeriesToUpdate, pawnSeries, potentialPawnSeriesBeginningX, potentialPawnSeriesData, End::FRONT);
 		if (!status) return false;
@@ -377,11 +374,18 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
         }
 
         if (pawnSeriesToEnlargeFound) {
+        	std::size_t newColumnOfPotentialPawnSeries = potentialPawnSeriesBeginningX;
+            if (endOfEnlargingPotentialSeries == End::FRONT) {
+            	// When we are enlarging potential pawn series from the front, we have to move origin of
+            	// potential pawn series one column left.
+            	newColumnOfPotentialPawnSeries -= 1u;
+            }
+
             std::list<PotentialPawnSeries>* potentialPawnLongerSeriesList = nullptr;
             if (lenghtOfPawnSeriesToUpdate == 2) {
-            	potentialPawnLongerSeriesList = &potentialPawn3LongSeriesList.at(potentialPawnSeriesBeginningX);
+            	potentialPawnLongerSeriesList = &potentialPawn3LongSeriesList.at(newColumnOfPotentialPawnSeries);
             } else {
-            	potentialPawnLongerSeriesList = &potentialPawn4LongSeriesList.at(potentialPawnSeriesBeginningX);
+            	potentialPawnLongerSeriesList = &potentialPawn4LongSeriesList.at(newColumnOfPotentialPawnSeries);
             }
 
             potentialPawnLongerSeriesList->emplace_front(*currentPawnSeriesEntryIt);
