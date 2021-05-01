@@ -63,9 +63,13 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         }
     }
 
+    // CODE FOR TESTING:
     if (MakeDummyMovementsForTesting) {
         static std::size_t i = 0u;
+        const std::size_t X = 6u;
+
         switch (i) {
+        /*
         case 0u:
             outputCoordinates = Coordinates(5,6); break;
         case 1u:
@@ -76,6 +80,21 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
             outputCoordinates = Coordinates(0,0); break;
             break;
         }
+        */
+        case 0u:
+			outputCoordinates = Coordinates(6,X); break;
+		case 1u:
+			outputCoordinates = Coordinates(7,X); break;
+		case 2u:
+			outputCoordinates = Coordinates(8,X); break;
+		case 3u:
+			outputCoordinates = Coordinates(9,X); break;
+		case 4u:
+			outputCoordinates = Coordinates(10,X); break;
+		default:
+			outputCoordinates = Coordinates(0,0); break;
+			break;
+		}
         i++;
 
     } else {

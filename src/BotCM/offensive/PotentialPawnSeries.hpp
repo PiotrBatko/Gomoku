@@ -17,6 +17,7 @@ public:
     std::list<Coordinates>& GetPawnSeries();
 
     std::size_t GetStartingPawnColumn();
+    void LogPawnSeries();
 
 private:
     std::list<Coordinates> pawnSeries;

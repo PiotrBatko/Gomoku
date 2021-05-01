@@ -64,11 +64,13 @@ bool GameController::Run()
     m_BlackPlayer = createPlayer(fileAppConfigContainer.PlayerBlack, PawnColor::Black);
 
     //FOR TESTING:
+	#if 0
     CM::InitialFieldCapturer initialFieldCapturer;
     result = initialFieldCapturer.Run(m_Board, m_BlackPlayer.get(), m_Views);
     if (!result) {
         return false;
     }
+	#endif
     //End of testing code.
 
     m_CurrentPlayer = m_WhitePlayer.get();
@@ -197,7 +199,7 @@ std::optional<GameController::GameResult> GameController::ProcessPlayerTurn()
     if (battleFinished) {
         return GameResult{
             FinishCause::EnoughPlayerPawnsInLine,
-            m_OppositePlayer->GetColor()
+            m_CurrentPlayer->GetColor()
         };
     }
     waitForEnterKeyIfNeeded();

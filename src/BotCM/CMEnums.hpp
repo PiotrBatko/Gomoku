@@ -21,6 +21,11 @@ enum class Monotonicity {
     INCREASING
 };
 
+enum class End {
+    FRONT,
+    BACK
+};
+
 }
 
 #endif

@@ -32,4 +32,10 @@ std::list<Coordinates>& PotentialPawnSeries::GetPawnSeries() {
     return pawnSeries;
 }
 
+void PotentialPawnSeries::LogPawnSeries() {
+	for (Coordinates& coordinates : pawnSeries) {
+		LOG_LN(coordinates.x, ", ", coordinates.y);
+	}
+}
+
 }

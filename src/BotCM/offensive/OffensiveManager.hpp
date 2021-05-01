@@ -40,8 +40,20 @@ private:
     bool updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation);
     void updatePotentialPawnSeriesOneSideData(PawnSeriesOrientation pawnSeriesOrientation, Monotonicity direction, PotentialPawnSeriesData& potentialPawnSeriesData);
     void AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData);
-    bool updatePotentialLength3PawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData);
-    bool ffg(std::list<Coordinates>& pawnSeries, PotentialPawnSeries*& pawnSeriesToEnlarge);
+    void AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData);
+    void AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData);
+
+    // This function could be called only for enlarging 2- or 3-long pawn series, by one pawn.
+    // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
+    bool updatePotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, std::size_t lenghtOfPawnSeriesToUpdate);
+
+    // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
+    bool enlargeExistingPotentialPawnSeries(
+    		std::size_t lenghtOfPawnSeriesToUpdate,
+    		std::list<Coordinates>& pawnSeries,
+			std::size_t potentialPawnSeriesBeginningX,
+			PotentialPawnSeriesData& potentialPawnSeriesData,
+			End endOfEnlargingPotentialSeries);
 
     Coordinates currentPlayerMovement;
 
@@ -55,6 +67,11 @@ private:
     std::vector<std::list<PotentialPawnSeries>> potentialPawn4LongSeriesList;
     std::vector<std::list<PotentialPawnSeries>> potentialPawn3LongSeriesList;
     std::vector<std::list<PotentialPawnSeries>> potentialPawn2LongSeriesList;
+
+    // Finally this constant should be set to false.
+    const bool TreatNotFoundPotentialPawnSeriesToEnlargeAsError = false;
+
+    const bool LogOffensiveData = true;
 };
 
 }
