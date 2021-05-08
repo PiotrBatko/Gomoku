@@ -186,7 +186,7 @@ std::optional<GameController::GameResult> GameController::ProcessPlayerTurn()
     if (battleFinished) {
         return GameResult{
             FinishCause::EnoughPlayerPawnsInLine,
-            m_OppositePlayer->GetColor()
+            m_CurrentPlayer->GetColor()
         };
     }
     waitForEnterKeyIfNeeded();
