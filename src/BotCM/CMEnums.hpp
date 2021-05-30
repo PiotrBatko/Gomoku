@@ -6,6 +6,7 @@ namespace CM {
 
 // Orientation of possible pawn series to win.
 enum class PawnSeriesOrientation {
+    NONE,
     // Column is not changing, rows are incrementing.
     VERTICAL,
     // Row is not changing, columns are incrementing.

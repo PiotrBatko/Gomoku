@@ -1,4 +1,4 @@
-#include <BotCM/offensive/OffensiveManager.hpp>
+#include "OffensiveManager.hpp"
 
 #include "../../AppConfig/FileAppConfigContainer.hpp"
 #include "../../Board.hpp"
@@ -68,12 +68,12 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
             }
             break;
         case 3u: {
-        	const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, 2u);
+        	const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 2u);
 			if (!result) return false;
 			break;
         }
         case 4u: {
-			const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, 3u);
+			const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 3u);
 			if (!result) return false;
             break;
         }
@@ -183,7 +183,11 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
     }
 }
 
-bool OffensiveManager::updatePotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, std::size_t lenghtOfPawnSeriesToUpdate) {
+bool OffensiveManager::updatePotentialPawnSeries(
+		PotentialPawnSeriesData& potentialPawnSeriesData,
+		PawnSeriesOrientation pawnSeriesOrientation,
+		std::size_t lenghtOfPawnSeriesToUpdate) {
+
     // When the function is called, we know that there is currently new 3- or 4-pawns long
     // pawn series which is build on current player pawns. But we don't know yet if
     // we want to mark it as a POTENTIAL-offensive pawn series.
@@ -219,13 +223,19 @@ bool OffensiveManager::updatePotentialPawnSeries(PotentialPawnSeriesData& potent
 
 		// Plus 1 because there is placed new pawn at the front of currently
 		// existing potential pawn series.
-		std::size_t potentialPawnSeriesBeginningX = 0u;
+		std::size_t potentialPawnSeriesBeginningX = currentPlayerMovementX;
 
-		// Plus one, because we are enlarging an existing potential pawn series from front, so
-		// origin of old series is starting at one column right.
-		potentialPawnSeriesBeginningX = currentPlayerMovementX + 1u;
+		// We are doing the addition only if the pawn series orientation is not vertical,
+		// because when it is vertical, there is no need to move the column coordinate of the
+		// origin pawn of the potential pawn series, because all of the pawns in that series
+		// have the same column.
+		if (pawnSeriesOrientation != PawnSeriesOrientation::VERTICAL) {
+			// Plus one, because we are enlarging an existing potential pawn series from front, so
+			// origin of old series is starting at one column right.
+			potentialPawnSeriesBeginningX += 1u;
+		}
 
-		const bool status = enlargeExistingPotentialPawnSeries(lenghtOfPawnSeriesToUpdate, pawnSeries, potentialPawnSeriesBeginningX, potentialPawnSeriesData, End::FRONT);
+		const bool status = enlargeExistingPotentialPawnSeries(lenghtOfPawnSeriesToUpdate, pawnSeries, potentialPawnSeriesBeginningX, potentialPawnSeriesData, End::FRONT, pawnSeriesOrientation);
 		if (!status) return false;
 
 	} else if (lastPawnCoordinates == currentPlayerMovement) {
@@ -235,17 +245,23 @@ bool OffensiveManager::updatePotentialPawnSeries(PotentialPawnSeriesData& potent
 		// at the back of the series.
 		std::size_t currentPlayerMovementX = currentPlayerMovement.x;
 
-	    std::size_t potentialPawnSeriesBeginningX = 0u;
+	    std::size_t potentialPawnSeriesBeginningX = currentPlayerMovementX;
 
-	    if (lenghtOfPawnSeriesToUpdate == 2u) {
-			// 2u because length of the new pawn series equals 3.
-			potentialPawnSeriesBeginningX = currentPlayerMovementX - 2u;
-	    } else {
-	    	// 3u because length of the new pawn series equals 4.
-	    	potentialPawnSeriesBeginningX = currentPlayerMovementX - 3u;
+	    // We are doing the subtraction only if the pawn series orientation is not vertical,
+		// because when it is vertical, there is no need to move the column coordinate of the
+		// origin pawn of the potential pawn series, because all of the pawns in that series
+		// have the same column.
+	    if (pawnSeriesOrientation != PawnSeriesOrientation::VERTICAL) {
+			if (lenghtOfPawnSeriesToUpdate == 2u) {
+				// 2u because length of the new pawn series equals 3.
+				potentialPawnSeriesBeginningX -= 2u;
+			} else {
+				// 3u because length of the new pawn series equals 4.
+				potentialPawnSeriesBeginningX -= 3u;
+			}
 	    }
 
-	    const bool status = enlargeExistingPotentialPawnSeries(lenghtOfPawnSeriesToUpdate, pawnSeries, potentialPawnSeriesBeginningX, potentialPawnSeriesData, End::BACK);
+	    const bool status = enlargeExistingPotentialPawnSeries(lenghtOfPawnSeriesToUpdate, pawnSeries, potentialPawnSeriesBeginningX, potentialPawnSeriesData, End::BACK, pawnSeriesOrientation);
 	    if (!status) return false;
 
 	} else {
@@ -295,7 +311,8 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
 		std::list<Coordinates>& pawnSeries,
 		std::size_t potentialPawnSeriesBeginningX,
 		PotentialPawnSeriesData& potentialPawnSeriesData,
-		End endOfEnlargingPotentialSeries) {
+		End endOfEnlargingPotentialSeries,
+		PawnSeriesOrientation pawnSeriesOrientation) {
 
 	PotentialPawnSeries* pawnSeriesToEnlarge = nullptr;
 
@@ -412,6 +429,7 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
 			}
 		}
 		// So, finally enlarge the pawn series by the current player new pawn.
+		pawnSeriesToEnlarge->SetSeriesOrientation(pawnSeriesOrientation);
 		if (endOfEnlargingPotentialSeries == End::FRONT) {
 			pawnSeriesToEnlarge->AddPawnOnFront(currentPlayerMovement);
 		} else {
@@ -438,6 +456,51 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
 		}
 	}
     return true;
+}
+
+OffensiveManager::DetermineBestOffensiveMovementResult OffensiveManager::DetermineBestOffensiveMovement(Coordinates& outputCoordinates) {
+	DetermineBestOffensiveMovementResult status = DetermineBestOffensiveMovementResult::Error;
+
+	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn4LongSeriesList, outputCoordinates);
+	if (status != DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen) return status;
+
+	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn3LongSeriesList, outputCoordinates);
+	if (status != DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen) return status;
+
+	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn2LongSeriesList, outputCoordinates);
+	return DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen;
+}
+
+OffensiveManager::DetermineBestOffensiveMovementResult OffensiveManager::DetermineOffensiveMovementInPawnSeriesList(
+		std::vector<std::list<PotentialPawnSeries>>& potentialPawnXLongSeriesList,
+		Coordinates& outputCoordinates) {
+
+	for (std::list<PotentialPawnSeries>& pawnSeriesList : potentialPawnXLongSeriesList) {
+		if (!pawnSeriesList.empty()) {
+			for (PotentialPawnSeries& potentialPawnSeries : pawnSeriesList) {
+				Coordinates a, b;
+				const bool result = potentialPawnSeries.DetermineEnlargementPawnCoordinates(a, b);
+				if (!result) return DetermineBestOffensiveMovementResult::Error;
+
+				const bool isFieldAOnBoard = board->IsFieldOnBoard(a.x, a.y);
+				const bool isFieldBOnBoard = board->IsFieldOnBoard(b.x, b.y);
+				const bool isFieldAEmpty = board->IsFieldEmpty(a);
+				const bool isFieldBEmpty = board->IsFieldEmpty(b);
+
+				if (isFieldAOnBoard && isFieldAEmpty) {
+					outputCoordinates = a;
+					return DetermineBestOffensiveMovementResult::OffensiveMovementChosen;
+				} else if (isFieldBOnBoard && isFieldBEmpty) {
+					outputCoordinates = b;
+					return DetermineBestOffensiveMovementResult::OffensiveMovementChosen;
+				} else {
+					LOG_LN("AAAAA");
+					//TODO: Musimy uznac taki series jako no longer potential pawn series! A wiec wyrzucic z kolekcji.
+				}
+			}
+		}
+	}
+	return DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen;
 }
 
 }

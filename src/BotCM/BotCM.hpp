@@ -111,7 +111,10 @@ private:
             const Coordinates currentCoordinates);
     void adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade);
 
-    const bool MakeDummyMovementsForTesting = true;
+    const bool MakeDummyMovementsForTesting = false;
+
+    // False means that only defensive strategy is processed.
+    const bool EnableOffensiveStrategy = true;
 };
 
 }

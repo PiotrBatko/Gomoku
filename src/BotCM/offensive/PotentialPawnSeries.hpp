@@ -3,6 +3,7 @@
 
 #include <list>
 
+#include "../CMEnums.hpp"
 #include "../../Coordinates.hpp"
 
 namespace CM {
@@ -19,8 +20,16 @@ public:
     std::size_t GetStartingPawnColumn();
     void LogPawnSeries();
 
+    void SetSeriesOrientation(PawnSeriesOrientation pawnSeriesOrientation);
+
+    // Determine coordinates of a pawn which could be placed as an enlargement of
+    // the potential pawn series.
+    bool DetermineEnlargementPawnCoordinates(Coordinates& a, Coordinates& b);
+
 private:
     std::list<Coordinates> pawnSeries;
+
+    PawnSeriesOrientation pawnSeriesOrientation;
 };
 
 }

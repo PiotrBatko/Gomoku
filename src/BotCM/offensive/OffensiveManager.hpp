@@ -23,6 +23,13 @@ public:
 
     bool UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(Coordinates& currentPlayerMovement);
 
+    enum class DetermineBestOffensiveMovementResult {
+		OffensiveMovementChosen,
+		DefensiveMovementShallBeChosen,
+		Error
+	};
+
+    DetermineBestOffensiveMovementResult DetermineBestOffensiveMovement(Coordinates& outputCoordinates);
 
 private:
     struct PotentialPawnSeriesData {
@@ -45,7 +52,7 @@ private:
 
     // This function could be called only for enlarging 2- or 3-long pawn series, by one pawn.
     // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
-    bool updatePotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, std::size_t lenghtOfPawnSeriesToUpdate);
+    bool updatePotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation, std::size_t lenghtOfPawnSeriesToUpdate);
 
     // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
     bool enlargeExistingPotentialPawnSeries(
@@ -53,7 +60,10 @@ private:
     		std::list<Coordinates>& pawnSeries,
 			std::size_t potentialPawnSeriesBeginningX,
 			PotentialPawnSeriesData& potentialPawnSeriesData,
-			End endOfEnlargingPotentialSeries);
+			End endOfEnlargingPotentialSeries,
+			PawnSeriesOrientation pawnSeriesOrientation);
+
+    DetermineBestOffensiveMovementResult DetermineOffensiveMovementInPawnSeriesList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnXLongSeriesList, Coordinates& outputCoordinates);
 
     Coordinates currentPlayerMovement;
 

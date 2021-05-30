@@ -98,15 +98,15 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
 		}
 		*/
         case 0u:
-			outputCoordinates = Coordinates(X,5); break;
+        	outputCoordinates = Coordinates(X,6); break;
 		case 1u:
-			outputCoordinates = Coordinates(X,6); break;
+			outputCoordinates = Coordinates(X,5); break;
 		case 2u:
-			outputCoordinates = Coordinates(X,7); break;
+			outputCoordinates = Coordinates(X,4); break;
 		case 3u:
-			outputCoordinates = Coordinates(X,8); break;
+			outputCoordinates = Coordinates(X,3); break;
 		case 4u:
-			outputCoordinates = Coordinates(X,9); break;
+			outputCoordinates = Coordinates(X,2); break;
 		default:
 			outputCoordinates = Coordinates(0,0); break;
 			break;
@@ -147,8 +147,28 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         }
 
         const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
-        if (bestGrade != 0u) {
+        LOG_LN("bestGrade: ", bestGrade);
+
+        if (bestGrade >= 2u) {
+        	// As we have the need to make important defensive movement, do it (take defensive strategy).
             outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+        } else if (bestGrade != 0u) {
+        	// As we don't have the need to make important defensive movement, take offensive strategy
+        	// (if appropriate flag is turned on).
+        	if (EnableOffensiveStrategy) {
+        		OffensiveManager::DetermineBestOffensiveMovementResult result = offensiveManager.DetermineBestOffensiveMovement(outputCoordinates);
+        		switch (result) {
+        		case OffensiveManager::DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen:
+        			outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+        			break;
+        		case OffensiveManager::DetermineBestOffensiveMovementResult::Error:
+        			return false;
+        		case OffensiveManager::DetermineBestOffensiveMovementResult::OffensiveMovementChosen:
+        			break; // Don't do anything, because the offensive movement is already chosen.
+        		}
+        	} else {
+        		outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+        	}
         } else {
             // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
             // In that case, we have to select another free field to place pawn there.

@@ -5,6 +5,7 @@
 namespace CM {
 
 PotentialPawnSeries::PotentialPawnSeries() {
+	pawnSeriesOrientation = PawnSeriesOrientation::NONE;
 }
 
 PotentialPawnSeries::~PotentialPawnSeries() {
@@ -36,6 +37,38 @@ void PotentialPawnSeries::LogPawnSeries() {
 	for (Coordinates& coordinates : pawnSeries) {
 		LOG_LN(coordinates.x, ", ", coordinates.y);
 	}
+}
+
+void PotentialPawnSeries::SetSeriesOrientation(PawnSeriesOrientation pawnSeriesOrientation) {
+	this->pawnSeriesOrientation = pawnSeriesOrientation;
+}
+
+bool PotentialPawnSeries::DetermineEnlargementPawnCoordinates(Coordinates& a, Coordinates& b) {
+	Coordinates& firstPawn = pawnSeries.front();
+	Coordinates& lastPawn = pawnSeries.back();
+
+	switch (pawnSeriesOrientation) {
+		case PawnSeriesOrientation::VERTICAL:
+			a = Coordinates(firstPawn.x - 1u, firstPawn.y);
+			b = Coordinates( lastPawn.x + 1u,  lastPawn.y);
+			break;
+		case PawnSeriesOrientation::HORIZONTAL:
+			a = Coordinates(firstPawn.x, firstPawn.y - 1u);
+			b = Coordinates( lastPawn.x,  lastPawn.y + 1u);
+			break;
+		case PawnSeriesOrientation::INCREASING:
+			a = Coordinates(firstPawn.x - 1, firstPawn.y + 1);
+			b = Coordinates( lastPawn.x + 1,  lastPawn.y - 1);
+			break;
+		case PawnSeriesOrientation::DECREASING:
+			a = Coordinates(firstPawn.x - 1, firstPawn.y - 1);
+			b = Coordinates( lastPawn.x + 1,  lastPawn.y + 1);
+			break;
+		case PawnSeriesOrientation::NONE:
+			LOG_ERROR("pawnSeriesOrientation == PawnSeriesOrientation::NONE");
+			return false;
+	}
+	return true;
 }
 
 }
