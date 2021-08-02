@@ -9,6 +9,7 @@
 #include "PawnColor.hpp"
 #include "../../Field.hpp"
 #include "PotentialPawnSeries.hpp"
+#include "../MovementCoordinatesWithGrade.h"
 
 class Board;
 
@@ -29,7 +30,7 @@ public:
 		Error
 	};
 
-    DetermineBestOffensiveMovementResult DetermineBestOffensiveMovement(Coordinates& outputCoordinates);
+    bool DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade);
 
 private:
     struct PotentialPawnSeriesData {
@@ -39,16 +40,18 @@ private:
 
         std::list<Coordinates> currentPlayerPawnSeries;
 
-        // Count of empty fields on left (lower)/right (higher) fields from current player pawn series.
-        std::size_t emptyFieldsOnLeftSide  = 0u;
-        std::size_t emptyFieldsOnRightSide = 0u;
+        struct OneSideData {
+        	std::size_t emptyFieldsCountBesidePawnSeries = 0u;
+			std::size_t currentPlayerPawnsAfterEmptyFields = 0u;
+			bool emptyFieldsAfterPawnSeriesAfterEmptyFields = false;
+        } leftSideData, rightSideData;
     };
 
     bool updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrientation pawnSeriesOrientation);
     void updatePotentialPawnSeriesOneSideData(PawnSeriesOrientation pawnSeriesOrientation, Monotonicity direction, PotentialPawnSeriesData& potentialPawnSeriesData);
-    void AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData);
-    void AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData);
-    void AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData);
+    void AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation);
+    void AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation);
+    void AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation);
 
     // This function could be called only for enlarging 2- or 3-long pawn series, by one pawn.
     // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
@@ -63,7 +66,10 @@ private:
 			End endOfEnlargingPotentialSeries,
 			PawnSeriesOrientation pawnSeriesOrientation);
 
-    DetermineBestOffensiveMovementResult DetermineOffensiveMovementInPawnSeriesList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnXLongSeriesList, Coordinates& outputCoordinates);
+    bool determineOffensiveMovementInPawnSeriesList(
+    		std::vector<std::list<PotentialPawnSeries>>& potentialPawnXLongSeriesList,
+			MovementCoordinatesWithGrade& outputCoordinatesWithGrade,
+			unsigned int potentialPawnSeriesListLength);
 
     Coordinates currentPlayerMovement;
 

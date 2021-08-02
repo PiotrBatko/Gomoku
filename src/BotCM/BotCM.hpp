@@ -50,7 +50,7 @@ private:
     // Struct having data of not gap processing in one orientation, for one (left or right) side.
     struct NotGapOneSideData {
         bool notOpponentPawnMet = false;
-        // Lenght of opponent pawn series, for pawns adjacent from left side to the last opponent player movement's placed pawn.
+        // Length of opponent pawn series, for pawns adjacent from left side to the last opponent player movement's placed pawn.
         std::size_t opponentPawnSeriesLength = 0;
 
         bool currentPlayerSymbolFound = false;
@@ -111,7 +111,7 @@ private:
             const Coordinates currentCoordinates);
     void adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade);
 
-    const bool MakeDummyMovementsForTesting = false;
+    const bool MakeDummyMovementsForTesting = true;
 
     // False means that only defensive strategy is processed.
     const bool EnableOffensiveStrategy = true;

@@ -62,9 +62,9 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
         case 2u:
         // Length 2 means that there is a newly created pawn series, so we need to add it to the potential pawn
         // series list, if there are additional circumstances met.
-            if (   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 2u
-                && potentialPawnSeriesData.emptyFieldsOnRightSide >= 2u) {
-                AddPotentialPawnSeriesToList(potentialPawn2LongSeriesList, potentialPawnSeriesData);
+            if (   potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries  >= 2u
+                && potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 2u) {
+                AddPotentialPawnSeriesToList(potentialPawn2LongSeriesList, potentialPawnSeriesData, pawnSeriesOrientation);
             }
             break;
         case 3u: {
@@ -85,10 +85,79 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
             break;
     }
 
+    //KKK
+    std::size_t points = 0u;
+    const std::size_t g = potentialPawnSeriesData.leftSideData.currentPlayerPawnsAfterEmptyFields;
+
+    //TU KONTYNUOWAC
+    switch (potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries) {
+		case 1u:
+			switch (g) {
+				case 1u:
+					if (potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+						if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 1u) {
+							if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+								points = 1u;
+							}
+						} else if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 2u) {
+							if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+								points = 5u;
+							} else {
+								points = 2u;
+							}
+						} else {
+							points = 6u; // This movement will win the game.
+						}
+					} else {
+						if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 2u) {
+							if (potentialPawnSeriesData.rightSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+								points = 2u;
+							}
+						} else if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 3u) {
+							points = 6u; // This movement will win the game.
+						}
+					}
+					break;
+
+				case 2u:
+					if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 2u) {
+						points = 6u; // This movement will win the game.
+					} else {
+						if (   potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields
+							&& potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+							points = 5u;
+						} else if (potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+							points = 2u;
+						} else if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+							points = 2u;
+						}
+					}
+					break;
+				default:
+					points = 6u; // This movement will win the game.
+					break;
+			}
+			break;
+
+    	case 2u:
+    		if (g == 1u) {
+    			if (   potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 2u
+					&& potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+					points = 1u;
+				}
+    		} else if (g >= 2u) {
+    			points = 1u;
+    		}
+    		break;
+    	default:
+    		break; // Too long distance between pawns - not worth to put any points.
+    }
+    //KKK
+
     return true;
 }
 
-void OffensiveManager::AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData) {
+void OffensiveManager::AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation) {
     PotentialPawnSeries potentialPawnSeries;
     if (LogOffensiveData) {
 		LOG_LN("BotCM-offense: Added new PPS to list (potentiality check passed):");
@@ -101,6 +170,8 @@ void OffensiveManager::AddPotentialPawnSeriesToList(std::vector<std::list<Potent
 		}
     }
     std::size_t startingPawnColumn = potentialPawnSeries.GetStartingPawnColumn();
+
+    potentialPawnSeries.SetSeriesOrientation(pawnSeriesOrientation);
 
     std::list<PotentialPawnSeries>& potentialPawnSeriesListAtGivenStartingX = potentialPawnSeriesList.at(startingPawnColumn);
     potentialPawnSeriesListAtGivenStartingX.push_back(potentialPawnSeries);
@@ -158,27 +229,52 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
 
         if (field == playerColor) {
             if (firstEmptyFieldAlreadyFound) {
-                break;
-            }
-
-            potentialPawnSeriesData.currentPlayerPawnsInSeriesCount++;
-            std::list<Coordinates>& currentPalyerPawnSeries = potentialPawnSeriesData.currentPlayerPawnSeries;
-
-            if (direction == Monotonicity::DECREASING) {
-                currentPalyerPawnSeries.push_front(Coordinates(currentFieldXSizeT, currentFieldYSizeT));
+            	if (direction == Monotonicity::DECREASING) {
+					potentialPawnSeriesData.leftSideData.currentPlayerPawnsAfterEmptyFields++;
+				} else {
+					potentialPawnSeriesData.rightSideData.currentPlayerPawnsAfterEmptyFields++;
+				};
             } else {
-                currentPalyerPawnSeries.push_back(Coordinates(currentFieldXSizeT, currentFieldYSizeT));
-            }
+				potentialPawnSeriesData.currentPlayerPawnsInSeriesCount++;
+				std::list<Coordinates>& currentPalyerPawnSeries = potentialPawnSeriesData.currentPlayerPawnSeries;
 
+				if (direction == Monotonicity::DECREASING) {
+					currentPalyerPawnSeries.push_front(Coordinates(currentFieldXSizeT, currentFieldYSizeT));
+				} else {
+					currentPalyerPawnSeries.push_back(Coordinates(currentFieldXSizeT, currentFieldYSizeT));
+				}
+            }
         } else if (field == opponentPlayerColor) {
             break;
         } else { // Empty field.
-            firstEmptyFieldAlreadyFound = true;
-            if (direction == Monotonicity::DECREASING) {
-                potentialPawnSeriesData.emptyFieldsOnLeftSide++;
-            } else {
-                potentialPawnSeriesData.emptyFieldsOnRightSide++;
-            }
+        	if (!firstEmptyFieldAlreadyFound) {
+				firstEmptyFieldAlreadyFound = true;
+				if (direction == Monotonicity::DECREASING) {
+					potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries++;
+				} else {
+					potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries++;
+				}
+        	} else { // Empty Field was already found
+        		if (direction == Monotonicity::DECREASING) {
+        			// If there was no other field after last empty field:
+        			if (potentialPawnSeriesData.leftSideData.currentPlayerPawnsAfterEmptyFields == 0u) {
+        				potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries++;
+        			// If current empty field is after current player field series after empty field:
+        			} else {
+        				potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields = true;
+        				break;
+        			}
+				} else {
+					// If there was no other field after last empty field:
+					if (potentialPawnSeriesData.rightSideData.currentPlayerPawnsAfterEmptyFields == 0u) {
+						potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries++;
+					// If current empty field is after current player field series after empty field:
+					} else {
+						potentialPawnSeriesData.rightSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields = true;
+						break;
+					}
+				}
+        	}
         }
     }
 }
@@ -200,12 +296,13 @@ bool OffensiveManager::updatePotentialPawnSeries(
 	// First, check if there is enough room in at least one side, to make it a potential
 	// series for the current player to win.
 	if (lenghtOfPawnSeriesToUpdate == 2u) {
-		if (potentialPawnSeriesData.emptyFieldsOnLeftSide + potentialPawnSeriesData.emptyFieldsOnRightSide < 2u) {
+		if (  potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries
+		    + potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries < 2u) {
 			return true;
 		}
 	} else {
-		if (!(   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 1u
-			  || potentialPawnSeriesData.emptyFieldsOnRightSide >= 1u)) {
+		if (!(   potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries  >= 1u
+			  || potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u)) {
 			return true;
 		}
 	}
@@ -273,20 +370,20 @@ bool OffensiveManager::updatePotentialPawnSeries(
 		// potentiality check.
 		if (lenghtOfPawnSeriesToUpdate == 2u) {
 			if (LogOffensiveData) LOG_LN("BotCM-offense: Trying to add a new 3-long PPS.");
-			AddPotentialPawn3LongSeriesToListIfPotential(potentialPawnSeriesData);
+			AddPotentialPawn3LongSeriesToListIfPotential(potentialPawnSeriesData, pawnSeriesOrientation);
 		} else {
 			if (LogOffensiveData) LOG_LN("BotCM-offense: Trying to add a new 4-long PPS.");
-			AddPotentialPawn4LongSeriesToListIfPotential(potentialPawnSeriesData);
+			AddPotentialPawn4LongSeriesToListIfPotential(potentialPawnSeriesData, pawnSeriesOrientation);
 		}
 	}
 	return true;
 }
 
-void OffensiveManager::AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData) {
+void OffensiveManager::AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation) {
 	// Here is the check for "potentiality" of the pawn series.
-	if (   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 1u
-		&& potentialPawnSeriesData.emptyFieldsOnRightSide >= 1u) {
-		AddPotentialPawnSeriesToList(potentialPawn3LongSeriesList, potentialPawnSeriesData);
+	if (   potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries  >= 1u
+		&& potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+		AddPotentialPawnSeriesToList(potentialPawn3LongSeriesList, potentialPawnSeriesData, pawnSeriesOrientation);
 	} else {
 		if (LogOffensiveData) {
 			LOG_LN("But potentiality check not passed.");
@@ -294,11 +391,11 @@ void OffensiveManager::AddPotentialPawn3LongSeriesToListIfPotential(PotentialPaw
 	}
 }
 
-void OffensiveManager::AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData) {
+void OffensiveManager::AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation) {
 	// Here is the check for "potentiality" of the pawn series.
-	if (   potentialPawnSeriesData.emptyFieldsOnLeftSide  >= 1u
-		|| potentialPawnSeriesData.emptyFieldsOnRightSide >= 1u) {
-		AddPotentialPawnSeriesToList(potentialPawn4LongSeriesList, potentialPawnSeriesData);
+	if (   potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries  >= 1u
+		|| potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+		AddPotentialPawnSeriesToList(potentialPawn4LongSeriesList, potentialPawnSeriesData, pawnSeriesOrientation);
 	} else {
 		if (LogOffensiveData) {
 			LOG_LN("But potentiality check not passed.");
@@ -450,37 +547,54 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
 		// There is already not existing 2-pawn/3-pawn long potential pawn series to enlarge,
 		// so we are adding a new 3-pawn/4-pawn long potential pawn series.
 		if (lenghtOfPawnSeriesToUpdate == 2u) {
-			AddPotentialPawn3LongSeriesToListIfPotential(potentialPawnSeriesData);
+			AddPotentialPawn3LongSeriesToListIfPotential(potentialPawnSeriesData, pawnSeriesOrientation);
 		} else {
-			AddPotentialPawn4LongSeriesToListIfPotential(potentialPawnSeriesData);
+			AddPotentialPawn4LongSeriesToListIfPotential(potentialPawnSeriesData, pawnSeriesOrientation);
 		}
 	}
     return true;
 }
 
-OffensiveManager::DetermineBestOffensiveMovementResult OffensiveManager::DetermineBestOffensiveMovement(Coordinates& outputCoordinates) {
-	DetermineBestOffensiveMovementResult status = DetermineBestOffensiveMovementResult::Error;
+bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade) {
+	MovementCoordinatesWithGrade coordinatesWithGrades[3];
 
-	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn4LongSeriesList, outputCoordinates);
-	if (status != DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen) return status;
+	bool result = false;
+	result = determineOffensiveMovementInPawnSeriesList(potentialPawn4LongSeriesList, coordinatesWithGrades[0], 5u);
+	if (!result) return false;
+	result = determineOffensiveMovementInPawnSeriesList(potentialPawn3LongSeriesList, coordinatesWithGrades[1], 3u);
+	if (!result) return false;
+	result = determineOffensiveMovementInPawnSeriesList(potentialPawn2LongSeriesList, coordinatesWithGrades[2], 2u);
+	if (!result) return false;
 
-	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn3LongSeriesList, outputCoordinates);
-	if (status != DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen) return status;
+	MovementCoordinatesWithGrade coordinatesWithBestGrade;
+	for (MovementCoordinatesWithGrade& currentCoordinatesWithGrade : coordinatesWithGrades) {
+		const MovementGrade::GradeNumberType bestGrade               = coordinatesWithBestGrade   .GetMovementImportanceGrade();
+		const MovementGrade::GradeNumberType currentCoordinatesGrade = currentCoordinatesWithGrade.GetMovementImportanceGrade();
+		if (currentCoordinatesGrade > bestGrade) {
+			coordinatesWithBestGrade = currentCoordinatesWithGrade;
+		}
+	}
 
-	status = DetermineOffensiveMovementInPawnSeriesList(potentialPawn2LongSeriesList, outputCoordinates);
-	return DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen;
+	movementCoordinatesWithGrade.Set(coordinatesWithBestGrade.GetMovementCoordinates(), coordinatesWithBestGrade.GetMovementImportanceGrade());
+	return true;
 }
 
-OffensiveManager::DetermineBestOffensiveMovementResult OffensiveManager::DetermineOffensiveMovementInPawnSeriesList(
+bool OffensiveManager::determineOffensiveMovementInPawnSeriesList(
 		std::vector<std::list<PotentialPawnSeries>>& potentialPawnXLongSeriesList,
-		Coordinates& outputCoordinates) {
+		MovementCoordinatesWithGrade& outputCoordinatesWithGrade,
+		unsigned int potentialPawnSeriesListLength) {
 
 	for (std::list<PotentialPawnSeries>& pawnSeriesList : potentialPawnXLongSeriesList) {
 		if (!pawnSeriesList.empty()) {
-			for (PotentialPawnSeries& potentialPawnSeries : pawnSeriesList) {
+			for (std::list<PotentialPawnSeries>::iterator it = pawnSeriesList.begin();
+				 it != pawnSeriesList.end(); ) {
+
+				PotentialPawnSeries& potentialPawnSeries = *it;
+					//PotentialPawnSeries& potentialPawnSeries : pawnSeriesList) {
+
 				Coordinates a, b;
 				const bool result = potentialPawnSeries.DetermineEnlargementPawnCoordinates(a, b);
-				if (!result) return DetermineBestOffensiveMovementResult::Error;
+				if (!result) return false;
 
 				const bool isFieldAOnBoard = board->IsFieldOnBoard(a.x, a.y);
 				const bool isFieldBOnBoard = board->IsFieldOnBoard(b.x, b.y);
@@ -488,19 +602,20 @@ OffensiveManager::DetermineBestOffensiveMovementResult OffensiveManager::Determi
 				const bool isFieldBEmpty = board->IsFieldEmpty(b);
 
 				if (isFieldAOnBoard && isFieldAEmpty) {
-					outputCoordinates = a;
-					return DetermineBestOffensiveMovementResult::OffensiveMovementChosen;
+					outputCoordinatesWithGrade.Set(a, potentialPawnSeriesListLength);
+					return true;
 				} else if (isFieldBOnBoard && isFieldBEmpty) {
-					outputCoordinates = b;
-					return DetermineBestOffensiveMovementResult::OffensiveMovementChosen;
+					outputCoordinatesWithGrade.Set(b, potentialPawnSeriesListLength);
+					return true;
 				} else {
+					it = pawnSeriesList.erase(it);
 					LOG_LN("AAAAA");
 					//TODO: Musimy uznac taki series jako no longer potential pawn series! A wiec wyrzucic z kolekcji.
 				}
 			}
 		}
 	}
-	return DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen;
+	return true;
 }
 
 }

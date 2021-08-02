@@ -15,7 +15,7 @@ public:
 
     bool operator >(const MovementGrade& other);
 
-    static const GradeNumberType MovementGradeMaxValue = 5u;
+    static const GradeNumberType MovementGradeMaxValue = 6u;
 
 private:
     GradeNumberType movementGrade;

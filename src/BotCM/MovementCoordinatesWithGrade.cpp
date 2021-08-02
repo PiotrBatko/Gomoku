@@ -39,11 +39,15 @@ bool MovementCoordinatesWithGrade::SetZeroGrade() {
     return true;
 }
 
-Coordinates MovementCoordinatesWithGrade::GetMovementCoordinates() {
+Coordinates& MovementCoordinatesWithGrade::GetMovementCoordinates() {
     return movementCoordinates;
 }
 MovementGrade::GradeNumberType MovementCoordinatesWithGrade::GetMovementImportanceGrade() {
     return movementImportanceGrade.GetGrade();
+}
+
+bool MovementCoordinatesWithGrade::IsSet() {
+	return valuesSet;
 }
 
 }

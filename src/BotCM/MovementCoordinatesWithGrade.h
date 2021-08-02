@@ -13,8 +13,9 @@ public:
     bool Set(Coordinates& movementCoordinates, MovementGrade::GradeNumberType movementImportanceGrade);
     bool SetZeroGrade();
 
-    Coordinates GetMovementCoordinates();
+    Coordinates& GetMovementCoordinates();
     MovementGrade::GradeNumberType GetMovementImportanceGrade();
+    bool IsSet();
 
 private:
     Coordinates movementCoordinates;

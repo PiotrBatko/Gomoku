@@ -31,7 +31,17 @@ bool InitialFieldCapturer::Run(Board& board, Player* blackPlayer, std::vector<Ga
 
     //White - BotCM
     //Black - console player
-    //result = SetFieldOnBardAndNotifyView(5, 4, Field::Black); if (!result) return false;
+    bool result = false;
+    result = SetFieldOnBoardAndNotifyView(6, 5, Field::Black); if (!result) return false;
+    result = SetFieldOnBoardAndNotifyView(9, 5, Field::Black); if (!result) return false;
+    //result = SetFieldOnBoardAndNotifyView(6, 5, Field::Black); if (!result) return false;
+    //result = SetFieldOnBoardAndNotifyView(10, 5, Field::Black); if (!result) return false;
+    //result = SetFieldOnBoardAndNotifyView(11, 8, Field::Black); if (!result) return false;
+    //result = SetFieldOnBoardAndNotifyView(10, 9, Field::Black); if (!result) return false;
+
+    //result = SetFieldOnBardAndNotifyView(3, 13, Field::Black); if (!result) return false;
+    //result = SetFieldOnBardAndNotifyView(8,  8, Field::Black); if (!result) return false;
+
     //result = SetFieldOnBardAndNotifyView(5, 6, Field::Black); if (!result) return false;
 
     //result = SetFieldOnBardAndNotifyView(4 , 9, Field::White); if (!result) return false;
@@ -80,7 +90,7 @@ bool InitialFieldCapturer::Run(Board& board, Player* blackPlayer, std::vector<Ga
     return true;
 }
 
-bool InitialFieldCapturer::SetFieldOnBardAndNotifyView(const std::size_t x, const std::size_t y, Field field) {
+bool InitialFieldCapturer::SetFieldOnBoardAndNotifyView(const std::size_t x, const std::size_t y, Field field) {
     bool result = board->SetField(x, y, field);
     if (!result) return false;
 

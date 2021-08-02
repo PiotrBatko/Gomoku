@@ -97,6 +97,7 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
 			break;
 		}
 		*/
+        /*
         case 0u:
         	outputCoordinates = Coordinates(X,6); break;
 		case 1u:
@@ -111,6 +112,14 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
 			outputCoordinates = Coordinates(0,0); break;
 			break;
 		}
+		*/
+        case 0u:
+			outputCoordinates = Coordinates(8,5); break;
+		default:
+			outputCoordinates = Coordinates(0,0); break;
+			break;
+		}
+
         i++;
 
     } else {
@@ -137,45 +146,55 @@ bool BotCM::MakeMoveMain(Coordinates& outputCoordinates) {
         result = determineCoordinatesAndGradeInOneOrientationAndIncrementI(coordinatesWithGrade, PawnSeriesOrientation::INCREASING, i);
         if (!result) return false;
 
-        MovementCoordinatesWithGrade& coordinatesWithBestGrade = coordinatesWithGrade[0];
+        MovementCoordinatesWithGrade& defensiveCoordinatesWithBestGrade = coordinatesWithGrade[0];
+        bool areAllGradesSame = true;
+
         for (unsigned int i = 1u; i < PawnSeriesOrientationCount; ++i) {
             MovementCoordinatesWithGrade& currentCoordinatesWithGrade = coordinatesWithGrade[i];
 
-            if (currentCoordinatesWithGrade.GetMovementImportanceGrade() > coordinatesWithBestGrade.GetMovementImportanceGrade()) {
-                coordinatesWithBestGrade = currentCoordinatesWithGrade;
+            if (currentCoordinatesWithGrade.GetMovementImportanceGrade() != defensiveCoordinatesWithBestGrade.GetMovementImportanceGrade()) {
+            	areAllGradesSame = false;
+            }
+            if (currentCoordinatesWithGrade.GetMovementImportanceGrade() > defensiveCoordinatesWithBestGrade.GetMovementImportanceGrade()) {
+                defensiveCoordinatesWithBestGrade = currentCoordinatesWithGrade;
             }
         }
-
-        const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
-        LOG_LN("bestGrade: ", bestGrade);
-
-        if (bestGrade >= 2u) {
-        	// As we have the need to make important defensive movement, do it (take defensive strategy).
-            outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
-        } else if (bestGrade != 0u) {
-        	// As we don't have the need to make important defensive movement, take offensive strategy
-        	// (if appropriate flag is turned on).
-        	if (EnableOffensiveStrategy) {
-        		OffensiveManager::DetermineBestOffensiveMovementResult result = offensiveManager.DetermineBestOffensiveMovement(outputCoordinates);
-        		switch (result) {
-        		case OffensiveManager::DetermineBestOffensiveMovementResult::DefensiveMovementShallBeChosen:
-        			outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
-        			break;
-        		case OffensiveManager::DetermineBestOffensiveMovementResult::Error:
-        			return false;
-        		case OffensiveManager::DetermineBestOffensiveMovementResult::OffensiveMovementChosen:
-        			break; // Don't do anything, because the offensive movement is already chosen.
-        		}
+        // If grades for movements for all orientations are the same (it occurs usually
+        // by game start, after opponent made his first movement), randomize increasing
+        // or decreasing movement.
+        if (areAllGradesSame) {
+        	unsigned int randomized = Random::RandomizeInt(1);
+        	if (randomized == 0u) {
+        		defensiveCoordinatesWithBestGrade = coordinatesWithGrade[2];
         	} else {
-        		outputCoordinates = coordinatesWithBestGrade.GetMovementCoordinates();
+        		defensiveCoordinatesWithBestGrade = coordinatesWithGrade[3];
         	}
+        }
+
+        const MovementGrade::GradeNumberType bestDefensiveGrade = defensiveCoordinatesWithBestGrade.GetMovementImportanceGrade();
+        LOG_LN("bestDefensiveGrade: ", bestDefensiveGrade);
+
+        MovementCoordinatesWithGrade offensiveMovementCoordinatesWithGrade;
+        result = offensiveManager.DetermineBestOffensiveMovement(offensiveMovementCoordinatesWithGrade);
+        if (!result) return result;
+
+        const MovementGrade::GradeNumberType bestOffensiveGrade = offensiveMovementCoordinatesWithGrade.GetMovementImportanceGrade();
+        LOG_LN("bestOffensiveGrade: ", bestOffensiveGrade);
+
+        if (   bestDefensiveGrade == 0u
+        	&& bestDefensiveGrade == bestOffensiveGrade) {
+        	// Best defensive grade 0u means that there is no room to place pawn in the nearby of opponent last move.
+			// In that case, we have to select another free field to place pawn there.
+			const bool result = emptyFieldsManager.RandomizeEmptyField(outputCoordinates);
+			if (!result) {
+				return false;
+			}
+        }
+
+        if (bestDefensiveGrade > bestOffensiveGrade) {
+        	outputCoordinates = defensiveCoordinatesWithBestGrade.GetMovementCoordinates();
         } else {
-            // Best grade 0u means that there is no room to place pawn in the nearby of opponent last move.
-            // In that case, we have to select another free field to place pawn there.
-            const bool result = emptyFieldsManager.RandomizeEmptyField(outputCoordinates);
-            if (!result) {
-                return false;
-            }
+        	outputCoordinates = offensiveMovementCoordinatesWithGrade.GetMovementCoordinates();
         }
     }
 
@@ -572,7 +591,7 @@ bool BotCM::makeMoveDecision(
                 outputCoordinatesAndGrade.Set(outputCoordinates, 1u);
             }
 
-        // If there is free place at both left and right side of opponent pawn:
+        // If there is free place at both left and right side of opponent pawn series:
         } else {
             Coordinates outputCoordinates;
 
@@ -599,6 +618,13 @@ bool BotCM::makeMoveDecision(
             // Adjust movement grade to the length of opponent pawns series.
             MovementGrade::GradeNumberType movementGrade = static_cast<MovementGrade::GradeNumberType>(opponentPawnSeriesWithHisLastMoveLength);
             adjustMovementGradeToOpponentPawnSeriesLenght(movementGrade);
+
+            // Because there is a free place at both left and right sides of opponent
+            // pawn series, the danger of opponent win is very large, so we are making
+            // larger the grade, if possible.
+            if (movementGrade < MovementGrade::MovementGradeMaxValue) {
+            	movementGrade++;
+            }
             outputCoordinatesAndGrade.Set(outputCoordinates, movementGrade);
         }
 
@@ -610,7 +636,19 @@ bool BotCM::makeMoveDecision(
         if (!result) {
             return false;
         }
-        outputCoordinatesAndGrade.Set(outputCoordinates, 3u);
+
+        // If we have situation like this: _oXOo_ where O is the most recent placed
+        // opponent pawn, and X is our currently decided movement, we would like to make
+        // this movement the most important.
+        MovementGrade::GradeNumberType movementImportanceGrade = 3u;
+        if (    notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries > 0u
+        	&& notGapRightSideData.emptyFieldsCountAfterOpponentPawnSeries > 0u
+			&& (    notGapLeftSideData.opponentPawnSeriesLength > 0u
+			    || notGapRightSideData.opponentPawnSeriesLength > 0u)
+			   ) {
+        	movementImportanceGrade = 5u;
+        }
+        outputCoordinatesAndGrade.Set(outputCoordinates, movementImportanceGrade);
 
     } else if (gapsCount > 1u) {
         std::size_t shortestGapSize = SIZE_MAX;
@@ -647,7 +685,7 @@ void BotCM::adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNu
             movementGrade = 4u;
             break;
         case 4u:
-            movementGrade = 5u;
+            movementGrade = 6u; // Yes, because it makes the priority the highest.
             break;
         default:
             movementGrade = MovementGrade::MovementGradeMaxValue;

@@ -21,7 +21,7 @@ public:
     bool Run(Board& board, Player* blackPlayer, std::vector<GameView*>& views);
 
 private:
-    bool SetFieldOnBardAndNotifyView(const std::size_t x, const std::size_t y, Field field);
+    bool SetFieldOnBoardAndNotifyView(const std::size_t x, const std::size_t y, Field field);
 
     std::vector<GameView*> views;
     Board* board;
