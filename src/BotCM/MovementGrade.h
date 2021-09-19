@@ -8,14 +8,15 @@ public:
     using GradeNumberType = unsigned int;
 
     MovementGrade();
+    MovementGrade(GradeNumberType movementGrade);
     virtual ~MovementGrade();
 
     bool SetGrade(GradeNumberType grade);
-    GradeNumberType GetGrade();
+    GradeNumberType GetGrade() const;
 
     bool operator >(const MovementGrade& other);
 
-    static const GradeNumberType MovementGradeMaxValue = 6u;
+    static const GradeNumberType MovementGradeMaxValue = 12u;
 
 private:
     GradeNumberType movementGrade;

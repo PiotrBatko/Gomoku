@@ -49,12 +49,12 @@ bool PotentialPawnSeries::DetermineEnlargementPawnCoordinates(Coordinates& a, Co
 
 	switch (pawnSeriesOrientation) {
 		case PawnSeriesOrientation::VERTICAL:
-			a = Coordinates(firstPawn.x - 1u, firstPawn.y);
-			b = Coordinates( lastPawn.x + 1u,  lastPawn.y);
-			break;
-		case PawnSeriesOrientation::HORIZONTAL:
 			a = Coordinates(firstPawn.x, firstPawn.y - 1u);
 			b = Coordinates( lastPawn.x,  lastPawn.y + 1u);
+			break;
+		case PawnSeriesOrientation::HORIZONTAL:
+			a = Coordinates(firstPawn.x - 1u, firstPawn.y);
+			b = Coordinates( lastPawn.x + 1u,  lastPawn.y);
 			break;
 		case PawnSeriesOrientation::INCREASING:
 			a = Coordinates(firstPawn.x - 1, firstPawn.y + 1);

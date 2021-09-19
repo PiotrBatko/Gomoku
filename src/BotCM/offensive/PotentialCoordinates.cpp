@@ -2,7 +2,9 @@
 
 namespace CM {
 
-PotentialCoordinates::PotentialCoordinates() {
+PotentialCoordinates::PotentialCoordinates(const Coordinates& coordinates, PawnSeriesOrientation pawnSeriesOrientation, const MovementGrade& grade)
+		: pawnSeriesOrientation(pawnSeriesOrientation) {
+	movementCoordinatesWithGrade.Set(coordinates, grade.GetGrade());
 }
 
 PotentialCoordinates::~PotentialCoordinates() {

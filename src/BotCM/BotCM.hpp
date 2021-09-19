@@ -62,7 +62,12 @@ private:
         Coordinates firstFreeFieldCoordinates;
     };
 
-    bool MakeMoveMain(Coordinates& outputCoordinates);
+    bool makeMoveMain(Coordinates& outputCoordinates);
+
+    bool doFirstTurnInitializations();
+    void makeTestingMovements(Coordinates& outputCoordinates);
+    bool determineMovementCoordinates(Coordinates& outputCoordinates);
+    bool doActionsAfterMovementChoosen(Coordinates& outputCoordinates);
 
     // The output randomized field is given in 'outputCoordinates'.
     bool randomizeFieldInGap(const SingleGapT& gap, Coordinates& outputCoordinates);
@@ -111,10 +116,15 @@ private:
             const Coordinates currentCoordinates);
     void adjustMovementGradeToOpponentPawnSeriesLenght(MovementGrade::GradeNumberType& movementGrade);
 
-    const bool MakeDummyMovementsForTesting = true;
+    //---------------------------------------------------
+    // Configuration flags
+    //---------------------------------------------------
+    const bool MakeDummyMovementsForTesting = false;
 
     // False means that only defensive strategy is processed.
     const bool EnableOffensiveStrategy = true;
+
+    const bool LogMovementDeterminingData = true;
 };
 
 }

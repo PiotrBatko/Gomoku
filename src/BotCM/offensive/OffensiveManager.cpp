@@ -68,12 +68,12 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
             }
             break;
         case 3u: {
-        	const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 2u);
+        	const bool result = updateOrCreateNewPotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 2u);
 			if (!result) return false;
 			break;
         }
         case 4u: {
-			const bool result = updatePotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 3u);
+			const bool result = updateOrCreateNewPotentialPawnSeries(potentialPawnSeriesData, pawnSeriesOrientation, 3u);
 			if (!result) return false;
             break;
         }
@@ -85,76 +85,104 @@ bool OffensiveManager::updatePotentialPawnSeriesInOneOrientation(PawnSeriesOrien
             break;
     }
 
-    //KKK
-    std::size_t points = 0u;
-    const std::size_t g = potentialPawnSeriesData.leftSideData.currentPlayerPawnsAfterEmptyFields;
+    // 3. Determine potential coordinates for given orientation. Potential coordinates are empty
+    // fields which filling by our pawn could be very beneficial. Seeking them is processed for
+    // current orientation, starting from current player movement ('currentPlayerMovement') coordinates.
+    PotentialCoordinates leftSidePotentialCoordinates = determinePotentialCoordinatesForOneSide(potentialPawnSeriesData, pawnSeriesOrientation, potentialPawnSeriesData.leftSideData, potentialPawnSeriesData.rightSideData);
+    PotentialCoordinates rightSidePotentialCoordinates = determinePotentialCoordinatesForOneSide(potentialPawnSeriesData, pawnSeriesOrientation, potentialPawnSeriesData.rightSideData, potentialPawnSeriesData.leftSideData);
+    PotentialCoordinates* betterPotentialCoordinates = nullptr;
 
-    //TU KONTYNUOWAC
-    switch (potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries) {
+    if (  leftSidePotentialCoordinates.movementCoordinatesWithGrade.GetMovementImportanceGrade()
+    	> rightSidePotentialCoordinates.movementCoordinatesWithGrade.GetMovementImportanceGrade()) {
+    	betterPotentialCoordinates = &leftSidePotentialCoordinates;
+    } else {
+    	betterPotentialCoordinates = &rightSidePotentialCoordinates;
+    }
+
+    const MovementGrade::GradeNumberType minimumGrade = 2u;
+    if (betterPotentialCoordinates->movementCoordinatesWithGrade.GetMovementImportanceGrade() >= minimumGrade) {
+    	potentialCoordinatesList.push_back(*betterPotentialCoordinates);
+    }
+
+    return true;
+}
+
+PotentialCoordinates OffensiveManager::determinePotentialCoordinatesForOneSide(
+		PotentialPawnSeriesData& potentialPawnSeriesData,
+		PawnSeriesOrientation pawnSeriesOrientation,
+		PotentialPawnSeriesData::OneSideData& currentSideData,
+		PotentialPawnSeriesData::OneSideData& oppositeSideData) {
+
+	std::size_t points = 0u;
+	const std::size_t currentPlayerPawnsAfterEmptyFields = currentSideData.currentPlayerPawnsAfterEmptyFields;
+
+	switch (currentSideData.emptyFieldsCountBesidePawnSeries) {
 		case 1u:
-			switch (g) {
+			switch (currentPlayerPawnsAfterEmptyFields) {
+				case 0u:
+					points = 0u;
+					break;
 				case 1u:
-					if (potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+					if (currentSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
 						if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 1u) {
-							if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
-								points = 1u;
-							}
-						} else if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 2u) {
-							if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
-								points = 5u;
-							} else {
+							if (oppositeSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
 								points = 2u;
 							}
+						} else if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 2u) {
+							if (oppositeSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+								points = 10u;
+							} else {
+								points = 4u;
+							}
 						} else {
-							points = 6u; // This movement will win the game.
+							points = 12u; // This movement will win the game.
 						}
 					} else {
 						if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount == 2u) {
-							if (potentialPawnSeriesData.rightSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
-								points = 2u;
+							if (oppositeSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+								points = 4u;
 							}
 						} else if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 3u) {
-							points = 6u; // This movement will win the game.
+							points = 12u; // This movement will win the game.
 						}
 					}
 					break;
 
 				case 2u:
 					if (potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 2u) {
-						points = 6u; // This movement will win the game.
+						points = 12u; // This movement will win the game.
 					} else {
-						if (   potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields
-							&& potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
-							points = 5u;
-						} else if (potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
-							points = 2u;
-						} else if (potentialPawnSeriesData.rightSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
-							points = 2u;
+						if (   currentSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields
+							&& oppositeSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+							points = 10u;
+						} else if (currentSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+							points = 4u;
+						} else if (oppositeSideData.emptyFieldsCountBesidePawnSeries >= 1u) {
+							points = 4u;
 						}
 					}
 					break;
 				default:
-					points = 6u; // This movement will win the game.
+					points = 12u; // This movement will win the game.
 					break;
 			}
 			break;
 
-    	case 2u:
-    		if (g == 1u) {
-    			if (   potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 2u
-					&& potentialPawnSeriesData.leftSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
-					points = 1u;
+		case 2u:
+			if (currentPlayerPawnsAfterEmptyFields == 1u) {
+				if (   potentialPawnSeriesData.currentPlayerPawnsInSeriesCount >= 2u
+					&& currentSideData.emptyFieldsAfterPawnSeriesAfterEmptyFields) {
+					points = 2u;
 				}
-    		} else if (g >= 2u) {
-    			points = 1u;
-    		}
-    		break;
-    	default:
-    		break; // Too long distance between pawns - not worth to put any points.
-    }
-    //KKK
+			} else if (currentPlayerPawnsAfterEmptyFields >= 2u) {
+				points = 2u;
+			}
+			break;
+		default:
+			break; // Too long distance between pawns - not worth to put any points.
+	}
 
-    return true;
+	return PotentialCoordinates(currentSideData.firstEmptyFieldCoordinates, pawnSeriesOrientation, MovementGrade(points));
 }
 
 void OffensiveManager::AddPotentialPawnSeriesToList(std::vector<std::list<PotentialPawnSeries>>& potentialPawnSeriesList, PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation) {
@@ -248,6 +276,13 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
             break;
         } else { // Empty field.
         	if (!firstEmptyFieldAlreadyFound) {
+        		Coordinates currentCoordinates(currentFieldXSizeT, currentFieldYSizeT);
+        		if (direction == Monotonicity::DECREASING) {
+        			potentialPawnSeriesData.leftSideData.firstEmptyFieldCoordinates = currentCoordinates;
+        		} else {
+        			potentialPawnSeriesData.rightSideData.firstEmptyFieldCoordinates = currentCoordinates;
+        		}
+
 				firstEmptyFieldAlreadyFound = true;
 				if (direction == Monotonicity::DECREASING) {
 					potentialPawnSeriesData.leftSideData.emptyFieldsCountBesidePawnSeries++;
@@ -279,7 +314,7 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
     }
 }
 
-bool OffensiveManager::updatePotentialPawnSeries(
+bool OffensiveManager::updateOrCreateNewPotentialPawnSeries(
 		PotentialPawnSeriesData& potentialPawnSeriesData,
 		PawnSeriesOrientation pawnSeriesOrientation,
 		std::size_t lenghtOfPawnSeriesToUpdate) {
@@ -575,8 +610,86 @@ bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGra
 		}
 	}
 
+	// Check potential coordinates list for good choices for offensive movement.
+	std::list<PotentialCoordinates>::iterator it = potentialCoordinatesList.begin();
+	while (it != potentialCoordinatesList.end()) {
+		const MovementGrade::GradeNumberType currentPotentialCoordinatesGrade = it->movementCoordinatesWithGrade.GetMovementImportanceGrade();
+		const MovementGrade::GradeNumberType bestGrade = coordinatesWithBestGrade.GetMovementImportanceGrade();
+		if (currentPotentialCoordinatesGrade > bestGrade) {
+			if (checkIfCoordinatesAreStillPotential(*it)) {
+				coordinatesWithBestGrade = it->movementCoordinatesWithGrade;
+			}
+		}
+		++it;
+	}
+
 	movementCoordinatesWithGrade.Set(coordinatesWithBestGrade.GetMovementCoordinates(), coordinatesWithBestGrade.GetMovementImportanceGrade());
 	return true;
+}
+
+bool OffensiveManager::checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates) {
+	(void)potentialCoordinates;
+	// TODO: continue work on that function.
+	/*
+	const PawnSeriesOrientation pawnSeriesOrientation = potentialCoordinates.pawnSeriesOrientation;
+	const Coordinates& coordinates = potentialCoordinates.movementCoordinatesWithGrade.GetMovementCoordinates();
+
+	const int K = fileAppConfigContainer.PawnsLineLenghtToWin;
+
+	for (int i = -K; i < K; ++i) {
+		int currentFieldX;
+		int currentFIeldY;
+
+		switch (pawnSeriesOrientation) {
+			case PawnSeriesOrientation::VERTICAL:
+				currentFieldX = static_cast<int>(coordinates.x);
+				currentFIeldY = static_cast<int>(coordinates.y) + i;
+				break;
+			case PawnSeriesOrientation::HORIZONTAL:
+				currentFieldX = static_cast<int>(coordinates.x) + i;
+				currentFIeldY = static_cast<int>(coordinates.y);
+				break;
+			case PawnSeriesOrientation::INCREASING:
+				currentFieldX = static_cast<int>(coordinates.x) + i;
+				currentFIeldY = static_cast<int>(coordinates.y) - i;
+				break;
+			case PawnSeriesOrientation::DECREASING:
+				currentFieldX = static_cast<int>(coordinates.x) + i;
+				currentFIeldY = static_cast<int>(coordinates.y) + i;
+				break;
+			default:
+				break;
+		}
+
+		if (currentFieldX < 0 || currentFIeldY < 0) {
+			// If current field is not on the board, we should not process it.
+			continue;
+		}
+		const std::size_t currentFieldXSizeT = static_cast<std::size_t>(currentFieldX);
+		const std::size_t currentFieldYSizeT = static_cast<std::size_t>(currentFIeldY);
+		if (board->IsFieldOnBoard(currentFieldXSizeT, currentFieldYSizeT) == false) {
+			// If current field is not on the board, we should not process it.
+			continue;
+		}
+
+		const Field field = board->at(currentFieldXSizeT, currentFieldYSizeT);
+
+		if (field == playerColor) {
+		}
+		//TODO: kontynuowac
+	}
+	*/
+	return true;
+}
+
+void OffensiveManager::RemoveFromPotentialCoordinates(const Coordinates& outputCoordinates) {
+	std::list<PotentialCoordinates>::iterator it = potentialCoordinatesList.begin();
+	while (it != potentialCoordinatesList.end()) {
+		if (outputCoordinates == it->movementCoordinatesWithGrade.GetMovementCoordinates()) {
+			potentialCoordinatesList.erase(it++);
+		}
+		++it;
+	}
 }
 
 bool OffensiveManager::determineOffensiveMovementInPawnSeriesList(
@@ -598,14 +711,26 @@ bool OffensiveManager::determineOffensiveMovementInPawnSeriesList(
 
 				const bool isFieldAOnBoard = board->IsFieldOnBoard(a.x, a.y);
 				const bool isFieldBOnBoard = board->IsFieldOnBoard(b.x, b.y);
-				const bool isFieldAEmpty = board->IsFieldEmpty(a);
-				const bool isFieldBEmpty = board->IsFieldEmpty(b);
+				bool isFieldAEmpty = false;
+				bool isFieldBEmpty = false;
+
+				if (isFieldAOnBoard) {
+					isFieldAEmpty = board->IsFieldEmpty(a);
+				}
+				if (isFieldBOnBoard) {
+					isFieldBEmpty = board->IsFieldEmpty(b);
+				}
+
+				MovementGrade::GradeNumberType movementImportanceGrade = potentialPawnSeriesListLength * 3u;
+				if (movementImportanceGrade > MovementGrade::MovementGradeMaxValue) {
+					movementImportanceGrade = MovementGrade::MovementGradeMaxValue;
+				}
 
 				if (isFieldAOnBoard && isFieldAEmpty) {
-					outputCoordinatesWithGrade.Set(a, potentialPawnSeriesListLength);
+					outputCoordinatesWithGrade.Set(a, movementImportanceGrade);
 					return true;
 				} else if (isFieldBOnBoard && isFieldBEmpty) {
-					outputCoordinatesWithGrade.Set(b, potentialPawnSeriesListLength);
+					outputCoordinatesWithGrade.Set(b, movementImportanceGrade);
 					return true;
 				} else {
 					it = pawnSeriesList.erase(it);

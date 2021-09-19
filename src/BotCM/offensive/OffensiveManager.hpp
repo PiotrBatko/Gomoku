@@ -10,6 +10,7 @@
 #include "../../Field.hpp"
 #include "PotentialPawnSeries.hpp"
 #include "../MovementCoordinatesWithGrade.h"
+#include "PotentialCoordinates.hpp"
 
 class Board;
 
@@ -32,6 +33,8 @@ public:
 
     bool DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade);
 
+    void RemoveFromPotentialCoordinates(const Coordinates& outputCoordinates);
+
 private:
     struct PotentialPawnSeriesData {
     	// Value 1 is the default, because the series count in each orientation equals always
@@ -44,6 +47,7 @@ private:
         	std::size_t emptyFieldsCountBesidePawnSeries = 0u;
 			std::size_t currentPlayerPawnsAfterEmptyFields = 0u;
 			bool emptyFieldsAfterPawnSeriesAfterEmptyFields = false;
+			Coordinates firstEmptyFieldCoordinates;
         } leftSideData, rightSideData;
     };
 
@@ -53,9 +57,12 @@ private:
     void AddPotentialPawn3LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation);
     void AddPotentialPawn4LongSeriesToListIfPotential(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation);
 
+    PotentialCoordinates determinePotentialCoordinatesForOneSide(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation, PotentialPawnSeriesData::OneSideData& currentSideData, PotentialPawnSeriesData::OneSideData& oppositeSideData);
+
     // This function could be called only for enlarging 2- or 3-long pawn series, by one pawn.
     // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
-    bool updatePotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation, std::size_t lenghtOfPawnSeriesToUpdate);
+    // This function makes new potential pawn series if a corresponding shorter one is not found.
+    bool updateOrCreateNewPotentialPawnSeries(PotentialPawnSeriesData& potentialPawnSeriesData, PawnSeriesOrientation pawnSeriesOrientation, std::size_t lenghtOfPawnSeriesToUpdate);
 
     // 'lenghtOfPawnSeriesToUpdate' - could equal only 2 or 3.
     bool enlargeExistingPotentialPawnSeries(
@@ -71,6 +78,8 @@ private:
 			MovementCoordinatesWithGrade& outputCoordinatesWithGrade,
 			unsigned int potentialPawnSeriesListLength);
 
+    bool checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates);
+
     Coordinates currentPlayerMovement;
 
     const Board* board;
@@ -83,6 +92,10 @@ private:
     std::vector<std::list<PotentialPawnSeries>> potentialPawn4LongSeriesList;
     std::vector<std::list<PotentialPawnSeries>> potentialPawn3LongSeriesList;
     std::vector<std::list<PotentialPawnSeries>> potentialPawn2LongSeriesList;
+
+    // This list contains coordinates of only free fields, where placing a pawn by
+    // current player will be very beneficial in the matted of offensive.
+    std::list<PotentialCoordinates> potentialCoordinatesList;
 
     // Finally this constant should be set to false.
     const bool TreatNotFoundPotentialPawnSeriesToEnlargeAsError = false;

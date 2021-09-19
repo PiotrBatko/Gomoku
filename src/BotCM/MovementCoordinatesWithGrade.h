@@ -10,7 +10,7 @@ class MovementCoordinatesWithGrade {
 public:
     MovementCoordinatesWithGrade();
 
-    bool Set(Coordinates& movementCoordinates, MovementGrade::GradeNumberType movementImportanceGrade);
+    bool Set(const Coordinates& movementCoordinates, MovementGrade::GradeNumberType movementImportanceGrade);
     bool SetZeroGrade();
 
     Coordinates& GetMovementCoordinates();

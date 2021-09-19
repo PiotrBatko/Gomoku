@@ -8,7 +8,7 @@ MovementCoordinatesWithGrade::MovementCoordinatesWithGrade()
     : movementCoordinates(), movementImportanceGrade(), valuesSet(false) {
 }
 
-bool MovementCoordinatesWithGrade::Set(Coordinates& movementCoordinates, const MovementGrade::GradeNumberType movementImportanceGrade) {
+bool MovementCoordinatesWithGrade::Set(const Coordinates& movementCoordinates, const MovementGrade::GradeNumberType movementImportanceGrade) {
     if (valuesSet) {
         LOG_ERROR("'valuesSet' equals true!");
         return false;

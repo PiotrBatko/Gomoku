@@ -31,9 +31,9 @@ bool InitialFieldCapturer::Run(Board& board, Player* blackPlayer, std::vector<Ga
 
     //White - BotCM
     //Black - console player
-    bool result = false;
-    result = SetFieldOnBoardAndNotifyView(6, 5, Field::Black); if (!result) return false;
-    result = SetFieldOnBoardAndNotifyView(9, 5, Field::Black); if (!result) return false;
+    //bool result = false;
+    //result = SetFieldOnBoardAndNotifyView(10, 6, Field::White); if (!result) return false;
+    //result = SetFieldOnBoardAndNotifyView(11, 5, Field::White); if (!result) return false;
     //result = SetFieldOnBoardAndNotifyView(6, 5, Field::Black); if (!result) return false;
     //result = SetFieldOnBoardAndNotifyView(10, 5, Field::Black); if (!result) return false;
     //result = SetFieldOnBoardAndNotifyView(11, 8, Field::Black); if (!result) return false;

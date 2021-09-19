@@ -8,6 +8,14 @@ MovementGrade::MovementGrade()
     : movementGrade(0u) {
 }
 
+MovementGrade::MovementGrade(GradeNumberType movementGrade)
+    : movementGrade(movementGrade) {
+	if (this->movementGrade > MovementGradeMaxValue) {
+		LOG_ERROR("this->movementGrade > MovementGradeMaxValue");
+		throw std::exception();
+	}
+}
+
 MovementGrade::~MovementGrade() {
 }
 
@@ -20,7 +28,7 @@ bool MovementGrade::SetGrade(const GradeNumberType grade) {
     return true;
 }
 
-MovementGrade::GradeNumberType MovementGrade::GetGrade() {
+MovementGrade::GradeNumberType MovementGrade::GetGrade() const {
     return movementGrade;
 }
 

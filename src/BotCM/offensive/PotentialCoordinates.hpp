@@ -2,18 +2,17 @@
 #define _BOTCM_OFFENSIVE_POTENTIALCOORDINATES_HPP_
 
 #include "../../Coordinates.hpp"
+#include "../MovementCoordinatesWithGrade.h"
 #include "../CMEnums.hpp"
 
 namespace CM {
 
 class PotentialCoordinates {
 public:
-	PotentialCoordinates();
+	PotentialCoordinates(const Coordinates& coordinates, PawnSeriesOrientation pawnSeriesOrientation, const MovementGrade& grade);
 	virtual ~PotentialCoordinates();
 
-private:
-	// Coordinates of the potential field.
-	Coordinates coordinates;
+	MovementCoordinatesWithGrade movementCoordinatesWithGrade;
 
 	PawnSeriesOrientation pawnSeriesOrientation;
 };
