@@ -9,6 +9,7 @@
 #include "../AppConfig/FileAppConfigContainer.hpp"
 #include "MovementGrade.h"
 #include "MovementCoordinatesWithGrade.h"
+#include "CommonUtils.hpp"
 
 namespace CM {
 
@@ -231,10 +232,20 @@ bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
 	}
 
 	if (bestDefensiveGrade > bestOffensiveGrade) {
-		outputCoordinates = defensiveCoordinatesWithBestGrade.GetMovementCoordinates();
-		if (LogMovementDeterminingData) {
-			LOG("Defensive");
-		}
+        const std::size_t lastTwoMovementsDistance = CalculateCoordinatesDistance(currentPlayerLastMove, opponentLastMove);
+
+        // If BotCM started the battle by a first movement, then opponent player put a pawn on a distant
+        // (distance >= 3 fields) coordinates from the first pawn on the board, and now there is the second
+        // movement of the BotCM player (currentTurnId == 1u, not 0u):
+        if (currentTurnId == 1u && lastTwoMovementsDistance >= 3u) {
+            // In that case we decide that we are attacking, not defending.
+            outputCoordinates = offensiveMovementCoordinatesWithGrade.GetMovementCoordinates();
+        } else {
+            outputCoordinates = defensiveCoordinatesWithBestGrade.GetMovementCoordinates();
+        }
+        if (LogMovementDeterminingData) {
+            LOG("Defensive");
+        }
 	} else {
 		outputCoordinates = offensiveMovementCoordinatesWithGrade.GetMovementCoordinates();
 		if (LogMovementDeterminingData) {
@@ -254,6 +265,9 @@ bool BotCM::doActionsAfterMovementChoosen(Coordinates& outputCoordinates) {
 	// After the movement coordinates are chosen by the current bot player, it should be updated
 	// potential pawn series data for offensive purposes for the current bot player.
 	const bool result = offensiveManager.UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(outputCoordinates);
+
+	currentPlayerLastMove = outputCoordinates;
+
 	return result;
 }
 

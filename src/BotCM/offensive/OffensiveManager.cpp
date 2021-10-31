@@ -3,6 +3,7 @@
 #include "../../AppConfig/FileAppConfigContainer.hpp"
 #include "../../Board.hpp"
 #include "../../DebugInfo.hpp"
+#include "../CommonUtils.hpp"
 
 namespace CM {
 
@@ -592,6 +593,7 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
 
 bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade) {
 	MovementCoordinatesWithGrade coordinatesWithGrades[3];
+	MovementCoordinatesWithGrade coordinatesWithBestGrade;
 
 	bool result = false;
 	result = determineOffensiveMovementInPawnSeriesList(potentialPawn4LongSeriesList, coordinatesWithGrades[0], 5u);
@@ -601,7 +603,6 @@ bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGra
 	result = determineOffensiveMovementInPawnSeriesList(potentialPawn2LongSeriesList, coordinatesWithGrades[2], 2u);
 	if (!result) return false;
 
-	MovementCoordinatesWithGrade coordinatesWithBestGrade;
 	for (MovementCoordinatesWithGrade& currentCoordinatesWithGrade : coordinatesWithGrades) {
 		const MovementGrade::GradeNumberType bestGrade               = coordinatesWithBestGrade   .GetMovementImportanceGrade();
 		const MovementGrade::GradeNumberType currentCoordinatesGrade = currentCoordinatesWithGrade.GetMovementImportanceGrade();
@@ -623,8 +624,57 @@ bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGra
 		++it;
 	}
 
+	// If there is still no offensive movement chosen, it means that no potential coordinates were assigned yet and
+	// there are no potential pawn series. So, it means that most probably there is currently only one movement made
+	// by the current player. In that case, the offensive movement will be the neighbor field to the last movement
+	// made by the current player.
+	if (!coordinatesWithBestGrade.IsSet()) {
+	    Coordinates coordinates = determineNeighbourCoordinatesToCurrentPlayerMovement();
+	    coordinatesWithBestGrade.Set(coordinates, 1u);
+	}
+
 	movementCoordinatesWithGrade.Set(coordinatesWithBestGrade.GetMovementCoordinates(), coordinatesWithBestGrade.GetMovementImportanceGrade());
 	return true;
+}
+
+Coordinates OffensiveManager::determineNeighbourCoordinatesToCurrentPlayerMovement() {
+    bool isFieldEmpty = false;
+    Coordinates coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y     );
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y     );
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x     , currentPlayerMovement.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x     , currentPlayerMovement.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
+    if (isFieldEmpty) return coordinates;
+
+    LOG_ERROR("All fields are not empty in the nearby of last player movement.");
+    return Coordinates();
 }
 
 bool OffensiveManager::checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates) {

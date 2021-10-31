@@ -35,6 +35,7 @@ public:
 private:
     bool opponentDidAtLeastOneMovement;
 
+    Coordinates currentPlayerLastMove;
     Coordinates opponentLastMove;
 
     // Identifier of current turn for current player. Opponent turns are not counted here.

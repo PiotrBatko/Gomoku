@@ -80,6 +80,9 @@ private:
 
     bool checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates);
 
+    bool isFieldOnBoardAndIsEmpty(const Coordinates& coordinates);
+    Coordinates determineNeighbourCoordinatesToCurrentPlayerMovement();
+
     Coordinates currentPlayerMovement;
 
     const Board* board;
