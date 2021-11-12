@@ -1,10 +1,19 @@
 #include "Random.hpp"
 
+#include "AppConfig/FileAppConfigContainer.hpp"
+#include "CommonEnums.hpp"
+
 std::default_random_engine		   Random::defaultRandomEngine;
 std::uniform_int_distribution<int> Random::uniformIntDistribution;
 
 void Random::Initialize() {
-	srand((unsigned int)time(NULL));
+    if (   fileAppConfigContainer.GameplayFileManagementMode == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_SAVING)
+        || fileAppConfigContainer.GameplayFileManagementMode == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_LOADING)) {
+        srand(591405u); // Some random but fixed value.
+    } else {
+        srand((unsigned int)time(NULL));
+    }
+
 	uniformIntDistribution = std::uniform_int_distribution<int>(0, INT_MAX);
 	defaultRandomEngine.seed((unsigned long)rand());
 }

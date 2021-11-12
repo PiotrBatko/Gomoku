@@ -12,4 +12,10 @@ enum class PlayerType
     ELEMENT_COUNT
 };
 
+enum class GameplayFileManagementMode {
+    NO_FILE_MANAGEMENT,
+    GAMEPLAY_SAVING,
+    GAMEPLAY_LOADING
+};
+
 #endif

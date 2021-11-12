@@ -20,3 +20,24 @@ PawnColor Player::GetColor() const
 {
     return m_PlayerColor;
 }
+
+bool Player::IsPlayerBot() const {
+    switch (m_PlayerType) {
+        case PlayerType::BOT_RANDOMIZER:
+        case PlayerType::BOT_CM:
+        case PlayerType::BOT_BATOBOT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool Player::IsPlayerHuman() const {
+    switch (m_PlayerType) {
+        case PlayerType::HUMAN_CONSOLE:
+        case PlayerType::HUMAN:
+            return true;
+        default:
+            return false;
+    }
+}

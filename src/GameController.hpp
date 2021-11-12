@@ -17,6 +17,11 @@
 
 class Player;
 
+namespace CM {
+    class GameplayInFileManager;
+}
+
+
 class GameController :
     public GameModel
 {
@@ -60,11 +65,14 @@ private:
 
     std::unique_ptr<Player> createPlayer(const int playerTypeId, PawnColor playerColor);
 
+    // Process the turn of the 'm_currentPlayer'.
     std::optional<GameResult> ProcessPlayerTurn();
 
     void waitForEnterKeyIfNeeded();
 
     void SwitchNextPlayerTurn();
+
+    bool verifyGameplayFileManagementModeAndPlayerTypes() const;
 
     Board m_Board;
 
@@ -78,6 +86,8 @@ private:
     std::atomic<bool> m_ShouldRun = false;
 
     std::vector<GameView*> m_Views;
+
+    std::unique_ptr<CM::GameplayInFileManager> gameplayInFileManager;
 };
 
 #endif

@@ -19,6 +19,7 @@
 #include "BotRandomizer.hpp"
 #include "ConsolePlayer.hpp"
 #include "UserControlledPlayer.hpp"
+#include "BotCM/GameplayInFileManager.hpp"
 
 // For testing purposes:
 #include "BotCM/InitialFieldCapturer.hpp"
@@ -75,6 +76,9 @@ bool GameController::Run()
 
     m_CurrentPlayer = m_WhitePlayer.get();
     m_OppositePlayer = m_BlackPlayer.get();
+
+    result = verifyGameplayFileManagementModeAndPlayerTypes();
+    if (!result) return false;
 
     // Main game loop.
     std::optional<GameResult> gameResult;
@@ -191,6 +195,11 @@ std::optional<GameController::GameResult> GameController::ProcessPlayerTurn()
         }
     }
 
+    if (fileAppConfigContainer.GameplayFileManagementMode
+            == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_SAVING)) {
+        gameplayInFileManager->SaveToFile(currentPlayerMove);
+    }
+
     bool battleFinished;
     const bool result = m_GameFinishedChecker.CheckIfGameFinished(currentPlayerMove, m_CurrentPlayer->GetColor(), battleFinished);
     if (!result) {
@@ -232,13 +241,48 @@ bool GameController::Initialize() {
     const std::size_t BoardSize = static_cast<std::size_t>(fileAppConfigContainer.BoardSize);
     m_Board.SetSize(BoardSize, BoardSize);
 
+    gameplayInFileManager = std::unique_ptr<CM::GameplayInFileManager>(new CM::GameplayInFileManager);
+
     return true;
 }
 
 Coordinates GameController::makePlayerMove(Player* const player,
                                            PlayerMovementStatus& playerMovementStatus) {
 
-    const Coordinates movement = player->MakeMove();
+    const bool processGameplayLoadingFromFile =
+        (fileAppConfigContainer.GameplayFileManagementMode
+            == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_LOADING));
+
+    // This flag tells if current player's movement should be loaded from file,
+    // so not processed the standard way.
+    bool getMovementFromFile = false;
+
+    if (processGameplayLoadingFromFile) {
+        if (m_CurrentPlayer->IsPlayerHuman()) {
+            getMovementFromFile = true;
+        }
+    }
+
+    Coordinates movement;
+    if (!getMovementFromFile) {
+        // Process normal player movement.
+        movement = player->MakeMove();
+
+        if (processGameplayLoadingFromFile) {
+            // We are here not getting the movement from a file. The movement was calculated the standard
+            // way a few lines above. However, we want to ensure that the calculated movement is the same
+            // as the one stored in a file.
+            Coordinates movementFromFile;
+            movementFromFile = gameplayInFileManager->LoadFromFile();
+            if (movement != movementFromFile) {
+                LOG_ERROR("Movement made by bot and corresponding movement loaded from the file are not the same. Did you forget to disable randomization?");
+                throw std::exception();
+            }
+        }
+    } else {
+        // Load the movement from a file.
+        movement = gameplayInFileManager->LoadFromFile();
+    }
 
     if (not m_ShouldRun)
     {
@@ -281,4 +325,18 @@ void GameController::waitForEnterKeyIfNeeded() {
 void GameController::SwitchNextPlayerTurn()
 {
     std::swap(m_CurrentPlayer, m_OppositePlayer);
+}
+
+bool GameController::verifyGameplayFileManagementModeAndPlayerTypes() const {
+    if (fileAppConfigContainer.GameplayFileManagementMode
+      == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_LOADING)) {
+        const bool isCurrentPlayerBot  = m_CurrentPlayer->IsPlayerBot();
+        const bool isOppositePlayerBot = m_OppositePlayer->IsPlayerBot();
+        if (   (isCurrentPlayerBot && isOppositePlayerBot)
+            || (!isCurrentPlayerBot && !isOppositePlayerBot)) {
+            LOG_ERROR("'GameplayFileManagementMode' is set to gameplay loading but one of the players should be bot player and one of the players should be not a bot player.");
+            return false;
+        }
+    }
+    return true;
 }

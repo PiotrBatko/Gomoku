@@ -29,6 +29,8 @@ public:
 
     PlayerType GetPlayerType();
     PawnColor GetColor() const;
+    bool IsPlayerBot() const;
+    bool IsPlayerHuman() const;
 
 protected:
 

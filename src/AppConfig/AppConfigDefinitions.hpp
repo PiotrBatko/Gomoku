@@ -8,3 +8,4 @@ DEFINE_CONSTANT(int,  PlayerWhite);
 DEFINE_CONSTANT(int,  PlayerBlack);
 DEFINE_CONSTANT(bool, EnterPressedNeededToMakeNextMove);
 DEFINE_CONSTANT(int,  PlayerTurnMaxTime);
+DEFINE_CONSTANT(int,  GameplayFileManagementMode);
