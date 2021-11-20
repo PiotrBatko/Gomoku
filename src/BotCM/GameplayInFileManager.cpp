@@ -33,7 +33,7 @@ Coordinates GameplayInFileManager::LoadFromFile() {
     if (!std::getline(inputFile, line)) {
         // Here we know that we have reached the end of the text file.
         LOG_ERROR("End of the file with the battle movements reached.");
-        exit(1);
+        exit(EXIT_SUCCESS);
     }
     Coordinates coordinates = getCoordinatesFromReadLine(line);
     return coordinates;

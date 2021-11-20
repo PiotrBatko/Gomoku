@@ -263,6 +263,17 @@ Coordinates GameController::makePlayerMove(Player* const player,
         }
     }
 
+    // This sleep has to be here in case when gameplay is loaded from file, so it is performed
+    // without user interaction. The sleep here is needed for the user only to see the gameboard
+    // displayed. Without the sleep, gameboard is not displayed because of a threading issue.
+    // I have tried to use std::this_thread::yield() or shorter sleeping time but without a
+    // success. This is strange.
+    if (fileAppConfigContainer.GameplayFileManagementMode
+            == static_cast<int>(GameplayFileManagementMode::GAMEPLAY_LOADING)) {
+        std::chrono::milliseconds timespan(200);
+        std::this_thread::sleep_for(timespan);
+    }
+
     Coordinates movement;
     if (!getMovementFromFile) {
         // Process normal player movement.
