@@ -22,6 +22,8 @@ public:
 
     bool RandomizeEmptyField(Coordinates& randomizedEmptyField);
 
+    bool IsFieldEmpty(const Coordinates& coordinates) const;
+
 private:
     // First dimension (vector): index of row in the game board.
     // Second dimension (list): list of column ids of empty fields, for given row.

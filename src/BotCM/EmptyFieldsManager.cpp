@@ -1,5 +1,7 @@
 #include "EmptyFieldsManager.hpp"
 
+#include <algorithm>
+
 #include "../DebugInfo.hpp"
 #include "../Coordinates.hpp"
 #include "../Random.hpp"
@@ -103,6 +105,15 @@ bool EmptyFieldsManager::RandomizeEmptyField(Coordinates& randomizedEmptyField) 
     }
 
     return true;
+}
+
+bool EmptyFieldsManager::IsFieldEmpty(const Coordinates& coordinates) const {
+    const std::list<std::size_t>& columnList = emptyFieldsCollection.at(coordinates.y);
+
+    if (std::find(columnList.begin(), columnList.end(), coordinates.x) != columnList.end()) {
+        return true;
+    }
+    return false;
 }
 
 void EmptyFieldsManager::DisplayEmptyFieldsCollection() {

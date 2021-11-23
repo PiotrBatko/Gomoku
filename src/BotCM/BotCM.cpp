@@ -79,7 +79,7 @@ bool BotCM::doFirstTurnInitializations() {
 		return false;
 	}
 
-	offensiveManager.Initialize(m_Board, m_PlayerColor, opponentPlayerColor);
+	offensiveManager.Initialize(m_Board, m_PlayerColor, opponentPlayerColor, &emptyFieldsManager);
 
 	if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
 		emptyFieldsManager.InitializeCollection(m_Board->getWidth(), m_Board->getHeight());
@@ -146,6 +146,12 @@ void BotCM::makeTestingMovements(Coordinates& outputCoordinates) {
 }
 
 bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
+    #if 0 // Code for testing:
+    if (currentTurnId == 10u) {
+        std::cout << "AAA" << std::endl;
+    }
+    #endif
+
 	bool result = false;
 	if (!opponentDidAtLeastOneMovement) {
 		// BotCM begins the battle, so random coordinates will be returned.
@@ -692,6 +698,12 @@ bool BotCM::makeMoveDecision(
             movementGrade *= 2u;
             if (movementGrade > MovementGrade::MovementGradeMaxValue) {
             	movementGrade = MovementGrade::MovementGradeMaxValue;
+            }
+
+            if (opponentPawnSeriesWithHisLastMoveLength == 3) {
+                if (movementGrade < MovementGrade::MovementGradeMaxValue) {
+                    movementGrade++;
+                }
             }
 
             outputCoordinatesAndGrade.Set(outputCoordinates, movementGrade);

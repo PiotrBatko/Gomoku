@@ -22,10 +22,16 @@ OffensiveManager::OffensiveManager() {
 OffensiveManager::~OffensiveManager() {
 }
 
-void OffensiveManager::Initialize(const Board* const board, PawnColor playerColor, Field opponentPlayerColor) {
+void OffensiveManager::Initialize(
+        const Board* const board,
+        const PawnColor playerColor,
+        const Field opponentPlayerColor,
+        EmptyFieldsManager* const emptyFieldsManager) {
+
     this->board = board;
     this->playerColor = playerColor;
     this->opponentPlayerColor = opponentPlayerColor;
+    this->emptyFieldsManager = emptyFieldsManager;
 }
 
 bool OffensiveManager::UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(Coordinates& currentPlayerMovement) {
@@ -678,7 +684,11 @@ Coordinates OffensiveManager::determineNeighbourCoordinatesToCurrentPlayerMoveme
 }
 
 bool OffensiveManager::checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates) {
-	(void)potentialCoordinates;
+    const Coordinates& coordinates = potentialCoordinates.movementCoordinatesWithGrade.GetMovementCoordinates();
+	const bool isFieldEmpty = emptyFieldsManager->IsFieldEmpty(coordinates);
+	if (!isFieldEmpty) {
+	    return false;
+	}
 	// TODO: continue work on that function.
 	/*
 	const PawnSeriesOrientation pawnSeriesOrientation = potentialCoordinates.pawnSeriesOrientation;

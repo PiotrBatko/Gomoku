@@ -11,6 +11,7 @@
 #include "PotentialPawnSeries.hpp"
 #include "../MovementCoordinatesWithGrade.h"
 #include "PotentialCoordinates.hpp"
+#include "../EmptyFieldsManager.hpp"
 
 class Board;
 
@@ -21,7 +22,11 @@ public:
     OffensiveManager();
     virtual ~OffensiveManager();
 
-    void Initialize(const Board* const board, PawnColor playerColor, Field opponentPlayerColor);
+    void Initialize(
+            const Board* const board,
+            const PawnColor playerColor,
+            const Field opponentPlayerColor,
+            EmptyFieldsManager* const emptyFieldsManager);
 
     bool UpdatePotentialPawnSeriesAfterCurrentPlayerMovement(Coordinates& currentPlayerMovement);
 
@@ -88,6 +93,8 @@ private:
     const Board* board;
     PawnColor playerColor;
     Field opponentPlayerColor;
+
+    EmptyFieldsManager* emptyFieldsManager;
 
     // For each collection below:
     // First dimension - column index of starting pawn of given potential series
