@@ -326,7 +326,10 @@ void GameController::waitForEnterKeyIfNeeded() {
         && fileAppConfigContainer.PlayerBlack != humanConsolePlayerId) {
 
         if (fileAppConfigContainer.EnterPressedNeededToMakeNextMove) {
-            // There is getchar() function used because it finishes just after pressing enter key
+            //   Important! While working with Eclipse with MinGW on Windows 10, getchar() or std::cin
+            // >> value is not working properly on debug mode (it is getting some debug information)
+            // but it works ok with run mode.
+            //   There is getchar() function used because it finishes just after pressing enter key
             // when "cin >> value" needs other key to be pressed before enter key.
             getchar();
         }

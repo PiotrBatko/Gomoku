@@ -48,6 +48,10 @@ private:
 
     OffensiveManager offensiveManager;
 
+    // This collection contains coordinates of empty fields F which are in places like: FXXXF
+    // where X is the opponent pawn and F is the empty field.
+    std::list<std::vector<Coordinates>> dangerousFields;
+
     // Struct having data of not gap processing in one orientation, for one (left or right) side.
     struct NotGapOneSideData {
         bool notOpponentPawnMet = false;

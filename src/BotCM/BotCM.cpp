@@ -147,7 +147,7 @@ void BotCM::makeTestingMovements(Coordinates& outputCoordinates) {
 
 bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
     #if 0 // Code for testing:
-    if (currentTurnId == 10u) {
+    if (currentTurnId == 4u) {
         std::cout << "AAA" << std::endl;
     }
     #endif
@@ -594,12 +594,15 @@ bool BotCM::makeMoveDecision(
         NotGapOneSideData& notGapRightSideData,
         MovementCoordinatesWithGrade& outputCoordinatesAndGrade) {
 
+    int opponentPawnSeriesWithHisLastMoveLength
+        = notGapLeftSideData.opponentPawnSeriesLength
+        + notGapRightSideData.opponentPawnSeriesLength
+        + 1;
+
+    bool addDangerousFields = false;
+
     const std::size_t gapsCount = gaps.size();
     if (gapsCount == 0u) {
-        int opponentPawnSeriesWithHisLastMoveLength
-            = notGapLeftSideData.opponentPawnSeriesLength
-            + notGapRightSideData.opponentPawnSeriesLength
-            + 1;
 
         // If there is free place only at left side of opponent pawn series, put pawn there.
         if (    notGapLeftSideData.emptyFieldsCountAfterOpponentPawnSeries != 0u
@@ -707,6 +710,7 @@ bool BotCM::makeMoveDecision(
             }
 
             outputCoordinatesAndGrade.Set(outputCoordinates, movementGrade);
+            addDangerousFields = true;
         }
 
     } else if (gapsCount == 1u) {
@@ -751,6 +755,40 @@ bool BotCM::makeMoveDecision(
         }
         outputCoordinatesAndGrade.Set(outputCoordinates, 8u);
     }
+
+    const MovementGrade::GradeNumberType grade = outputCoordinatesAndGrade.GetMovementImportanceGrade();
+    if (grade < 10u) {
+        if (dangerousFields.size() != 0u) {
+
+            std::list<std::vector<Coordinates>>::iterator i = dangerousFields.begin();
+            while (i != dangerousFields.end()) {
+
+                std::vector<Coordinates>& currentDangerousFields = *i;
+
+                Coordinates& dangerousField1 = currentDangerousFields[0];
+                Coordinates& dangerousField2 = currentDangerousFields[1];
+                if (   !m_Board->IsFieldEmpty(dangerousField1)
+                    || !m_Board->IsFieldEmpty(dangerousField2)) {
+                    // Remove no longer relevant dangerous fields.
+                    dangerousFields.erase(i++);
+                    continue;
+                }
+                outputCoordinatesAndGrade.Set(dangerousField1, 10u);
+                dangerousFields.erase(i);
+                break;
+            }
+        }
+    }
+
+    if (addDangerousFields) {
+        if (opponentPawnSeriesWithHisLastMoveLength == 3u) {
+            std::vector<Coordinates> v;
+            v.push_back(notGapLeftSideData.firstFreeFieldCoordinates);
+            v.push_back(notGapRightSideData.firstFreeFieldCoordinates);
+            dangerousFields.push_back(v);
+        }
+    }
+
     return true;
 }
 

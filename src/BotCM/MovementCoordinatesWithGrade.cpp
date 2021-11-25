@@ -9,11 +9,6 @@ MovementCoordinatesWithGrade::MovementCoordinatesWithGrade()
 }
 
 bool MovementCoordinatesWithGrade::Set(const Coordinates& movementCoordinates, const MovementGrade::GradeNumberType movementImportanceGrade) {
-    if (valuesSet) {
-        LOG_ERROR("'valuesSet' equals true!");
-        return false;
-    }
-
     this->movementCoordinates = movementCoordinates;
 
     const bool result = this->movementImportanceGrade.SetGrade(movementImportanceGrade);
