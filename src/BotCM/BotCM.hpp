@@ -10,6 +10,7 @@
 #include "../Coordinates.hpp"
 #include "../Field.hpp"
 #include "offensive/OffensiveManager.hpp"
+#include "DangerousFieldManager.hpp"
 
 class Board;
 
@@ -48,9 +49,7 @@ private:
 
     OffensiveManager offensiveManager;
 
-    // This collection contains coordinates of empty fields F which are in places like: FXXXF
-    // where X is the opponent pawn and F is the empty field.
-    std::list<std::vector<Coordinates>> dangerousFields;
+    DangerousFieldManager dangerousFieldManager;
 
     // Struct having data of not gap processing in one orientation, for one (left or right) side.
     struct NotGapOneSideData {

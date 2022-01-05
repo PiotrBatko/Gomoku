@@ -80,6 +80,7 @@ bool BotCM::doFirstTurnInitializations() {
 	}
 
 	offensiveManager.Initialize(m_Board, m_PlayerColor, opponentPlayerColor, &emptyFieldsManager);
+	dangerousFieldManager.Initialize(m_Board);
 
 	if (!emptyFieldsManager.IsFieldsCollectionInitialized()) {
 		emptyFieldsManager.InitializeCollection(m_Board->getWidth(), m_Board->getHeight());
@@ -758,34 +759,18 @@ bool BotCM::makeMoveDecision(
 
     const MovementGrade::GradeNumberType grade = outputCoordinatesAndGrade.GetMovementImportanceGrade();
     if (grade < 10u) {
-        if (dangerousFields.size() != 0u) {
-
-            std::list<std::vector<Coordinates>>::iterator i = dangerousFields.begin();
-            while (i != dangerousFields.end()) {
-
-                std::vector<Coordinates>& currentDangerousFields = *i;
-
-                Coordinates& dangerousField1 = currentDangerousFields[0];
-                Coordinates& dangerousField2 = currentDangerousFields[1];
-                if (   !m_Board->IsFieldEmpty(dangerousField1)
-                    || !m_Board->IsFieldEmpty(dangerousField2)) {
-                    // Remove no longer relevant dangerous fields.
-                    dangerousFields.erase(i++);
-                    continue;
-                }
-                outputCoordinatesAndGrade.Set(dangerousField1, 10u);
-                dangerousFields.erase(i);
-                break;
-            }
+        // In the current function, there is first
+        std::optional<Coordinates> dangerousField = dangerousFieldManager.GetDangerousField();
+        if (dangerousField) {
+            outputCoordinatesAndGrade.Set(*dangerousField, 10u);
         }
     }
 
     if (addDangerousFields) {
         if (opponentPawnSeriesWithHisLastMoveLength == 3u) {
-            std::vector<Coordinates> v;
-            v.push_back(notGapLeftSideData.firstFreeFieldCoordinates);
-            v.push_back(notGapRightSideData.firstFreeFieldCoordinates);
-            dangerousFields.push_back(v);
+            dangerousFieldManager.AddDangerousFields(
+                    notGapLeftSideData.firstFreeFieldCoordinates,
+                    notGapRightSideData.firstFreeFieldCoordinates);
         }
     }
 
