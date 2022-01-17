@@ -21,6 +21,7 @@ public:
     void LogPawnSeries();
 
     void SetSeriesOrientation(PawnSeriesOrientation pawnSeriesOrientation);
+    PawnSeriesOrientation GetSeriesOrientation();
 
     // Determine coordinates of a pawn which could be placed as an enlargement of
     // the potential pawn series.

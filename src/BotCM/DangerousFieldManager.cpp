@@ -28,8 +28,8 @@ std::optional<Coordinates> DangerousFieldManager::GetDangerousField() {
         while (it != dangerousFields.end()) {
 
             DangerousFieldsEntryT& currentDangerousFields = *it;
-            Coordinates& dangerousField1 = currentDangerousFields[0];
-            Coordinates& dangerousField2 = currentDangerousFields[1];
+            Coordinates dangerousField1 = currentDangerousFields[0];
+            Coordinates dangerousField2 = currentDangerousFields[1];
 
             if (   !board->IsFieldEmpty(dangerousField1)
                 || !board->IsFieldEmpty(dangerousField2)) {

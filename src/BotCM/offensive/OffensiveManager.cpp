@@ -689,57 +689,88 @@ bool OffensiveManager::checkIfCoordinatesAreStillPotential(PotentialCoordinates&
 	if (!isFieldEmpty) {
 	    return false;
 	}
-	// TODO: continue work on that function.
-	/*
-	const PawnSeriesOrientation pawnSeriesOrientation = potentialCoordinates.pawnSeriesOrientation;
-	const Coordinates& coordinates = potentialCoordinates.movementCoordinatesWithGrade.GetMovementCoordinates();
 
+	const PawnSeriesOrientation pawnSeriesOrientation = potentialCoordinates.pawnSeriesOrientation;
 	const int K = fileAppConfigContainer.PawnsLineLenghtToWin;
 
-	for (int i = -K; i < K; ++i) {
-		int currentFieldX;
-		int currentFIeldY;
+	std::size_t currentPlayerPawnSeriesLength = 0u;
+	std::size_t emptyFieldsCount = 0u;
 
-		switch (pawnSeriesOrientation) {
-			case PawnSeriesOrientation::VERTICAL:
-				currentFieldX = static_cast<int>(coordinates.x);
-				currentFIeldY = static_cast<int>(coordinates.y) + i;
-				break;
-			case PawnSeriesOrientation::HORIZONTAL:
-				currentFieldX = static_cast<int>(coordinates.x) + i;
-				currentFIeldY = static_cast<int>(coordinates.y);
-				break;
-			case PawnSeriesOrientation::INCREASING:
-				currentFieldX = static_cast<int>(coordinates.x) + i;
-				currentFIeldY = static_cast<int>(coordinates.y) - i;
-				break;
-			case PawnSeriesOrientation::DECREASING:
-				currentFieldX = static_cast<int>(coordinates.x) + i;
-				currentFIeldY = static_cast<int>(coordinates.y) + i;
-				break;
-			default:
-				break;
-		}
-
-		if (currentFieldX < 0 || currentFIeldY < 0) {
-			// If current field is not on the board, we should not process it.
-			continue;
-		}
-		const std::size_t currentFieldXSizeT = static_cast<std::size_t>(currentFieldX);
-		const std::size_t currentFieldYSizeT = static_cast<std::size_t>(currentFIeldY);
-		if (board->IsFieldOnBoard(currentFieldXSizeT, currentFieldYSizeT) == false) {
-			// If current field is not on the board, we should not process it.
-			continue;
-		}
-
-		const Field field = board->at(currentFieldXSizeT, currentFieldYSizeT);
-
-		if (field == playerColor) {
-		}
-		//TODO: kontynuowac
+	// In one direction:
+	for (int i = 0; i < K; ++i) {
+	    const bool result = checkCoordinatesPotentialityInNeighbourField(coordinates, i, pawnSeriesOrientation, currentPlayerPawnSeriesLength, emptyFieldsCount);
+	    if (!result) {
+	        break;
+	    }
 	}
-	*/
+	// In second direction:
+	for (int i = -1; i > -K; --i) {
+	    const bool result = checkCoordinatesPotentialityInNeighbourField(coordinates, i, pawnSeriesOrientation, currentPlayerPawnSeriesLength, emptyFieldsCount);
+        if (!result) {
+            break;
+        }
+	}
+
+	// Check if there is enough room for the winning pawn series, which depends on 'K'. If currently
+	// there is no enough room, remove set the potential coordinate to be removed from the collection.
+	if (currentPlayerPawnSeriesLength + emptyFieldsCount < static_cast<std::size_t>(K)) {
+	    return false;
+	}
 	return true;
+}
+
+bool OffensiveManager::checkCoordinatesPotentialityInNeighbourField(
+        const Coordinates& coordinates,
+        int i,
+        const PawnSeriesOrientation pawnSeriesOrientation,
+        std::size_t& currentPlayerPawnSeriesLength,
+        std::size_t& emptyFieldsCount) {
+
+    int currentFieldX;
+    int currentFIeldY;
+
+    switch (pawnSeriesOrientation) {
+        case PawnSeriesOrientation::VERTICAL:
+            currentFieldX = static_cast<int>(coordinates.x);
+            currentFIeldY = static_cast<int>(coordinates.y) + i;
+            break;
+        case PawnSeriesOrientation::HORIZONTAL:
+            currentFieldX = static_cast<int>(coordinates.x) + i;
+            currentFIeldY = static_cast<int>(coordinates.y);
+            break;
+        case PawnSeriesOrientation::INCREASING:
+            currentFieldX = static_cast<int>(coordinates.x) + i;
+            currentFIeldY = static_cast<int>(coordinates.y) - i;
+            break;
+        case PawnSeriesOrientation::DECREASING:
+            currentFieldX = static_cast<int>(coordinates.x) + i;
+            currentFIeldY = static_cast<int>(coordinates.y) + i;
+            break;
+        default:
+            break;
+    }
+
+    if (currentFieldX < 0 || currentFIeldY < 0) {
+        // If current field is not on the board, we should not process it.
+        return false;
+    }
+    const std::size_t currentFieldXSizeT = static_cast<std::size_t>(currentFieldX);
+    const std::size_t currentFieldYSizeT = static_cast<std::size_t>(currentFIeldY);
+    if (board->IsFieldOnBoard(currentFieldXSizeT, currentFieldYSizeT) == false) {
+        // If current field is not on the board, we should not process it.
+        return false;
+    }
+
+    const Field field = board->at(currentFieldXSizeT, currentFieldYSizeT);
+
+    if (field == playerColor) {
+        currentPlayerPawnSeriesLength++;
+    } else if (field == Field::Empty) {
+        emptyFieldsCount++;
+    } else { // opponentPlayerColor
+        return false;
+    }
+    return true;
 }
 
 void OffensiveManager::RemoveFromPotentialCoordinates(const Coordinates& outputCoordinates) {
@@ -759,11 +790,11 @@ bool OffensiveManager::determineOffensiveMovementInPawnSeriesList(
 
 	for (std::list<PotentialPawnSeries>& pawnSeriesList : potentialPawnXLongSeriesList) {
 		if (!pawnSeriesList.empty()) {
-			for (std::list<PotentialPawnSeries>::iterator it = pawnSeriesList.begin();
-				 it != pawnSeriesList.end(); ) {
+		    for (std::list<PotentialPawnSeries>::iterator it = pawnSeriesList.begin();
+				 it != pawnSeriesList.end();
+				 ++it) {
 
 				PotentialPawnSeries& potentialPawnSeries = *it;
-					//PotentialPawnSeries& potentialPawnSeries : pawnSeriesList) {
 
 				Coordinates a, b;
 				const bool result = potentialPawnSeries.DetermineEnlargementPawnCoordinates(a, b);
@@ -786,17 +817,27 @@ bool OffensiveManager::determineOffensiveMovementInPawnSeriesList(
 					movementImportanceGrade = MovementGrade::MovementGradeMaxValue;
 				}
 
+				Coordinates* offensiveMovement;
+
 				if (isFieldAOnBoard && isFieldAEmpty) {
-					outputCoordinatesWithGrade.Set(a, movementImportanceGrade);
-					return true;
+				    offensiveMovement = &a;
+
 				} else if (isFieldBOnBoard && isFieldBEmpty) {
-					outputCoordinatesWithGrade.Set(b, movementImportanceGrade);
-					return true;
+				    offensiveMovement = &b;
 				} else {
-					it = pawnSeriesList.erase(it);
-					LOG_LN("AAAAA");
-					//TODO: Musimy uznac taki series jako no longer potential pawn series! A wiec wyrzucic z kolekcji.
+				    it = pawnSeriesList.erase(it);
+				    continue;
 				}
+
+				PotentialCoordinates potentialCoordinates(*offensiveMovement, potentialPawnSeries.GetSeriesOrientation(), movementImportanceGrade);
+				const bool areCoordinatesStillPotential = checkIfCoordinatesAreStillPotential(potentialCoordinates);
+				if (!areCoordinatesStillPotential) {
+				    it = pawnSeriesList.erase(it);
+                    continue;
+				}
+
+				outputCoordinatesWithGrade.Set(*offensiveMovement, movementImportanceGrade);
+				return true;
 			}
 		}
 	}

@@ -43,6 +43,10 @@ void PotentialPawnSeries::SetSeriesOrientation(PawnSeriesOrientation pawnSeriesO
 	this->pawnSeriesOrientation = pawnSeriesOrientation;
 }
 
+PawnSeriesOrientation PotentialPawnSeries::GetSeriesOrientation() {
+    return pawnSeriesOrientation;
+}
+
 bool PotentialPawnSeries::DetermineEnlargementPawnCoordinates(Coordinates& a, Coordinates& b) {
 	Coordinates& firstPawn = pawnSeries.front();
 	Coordinates& lastPawn = pawnSeries.back();

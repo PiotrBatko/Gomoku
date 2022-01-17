@@ -84,6 +84,12 @@ private:
 			unsigned int potentialPawnSeriesListLength);
 
     bool checkIfCoordinatesAreStillPotential(PotentialCoordinates& potentialCoordinates);
+    bool checkCoordinatesPotentialityInNeighbourField(
+            const Coordinates& coordinates,
+            int i,
+            const PawnSeriesOrientation pawnSeriesOrientation,
+            std::size_t& currentPlayerPawnSeriesLength,
+            std::size_t& emptyFieldsCount);
 
     bool isFieldOnBoardAndIsEmpty(const Coordinates& coordinates);
     Coordinates determineNeighbourCoordinatesToCurrentPlayerMovement();

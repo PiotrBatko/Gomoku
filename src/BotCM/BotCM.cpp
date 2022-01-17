@@ -148,7 +148,7 @@ void BotCM::makeTestingMovements(Coordinates& outputCoordinates) {
 
 bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
     #if 0 // Code for testing:
-    if (currentTurnId == 4u) {
+    if (currentTurnId == 3u) {
         std::cout << "AAA" << std::endl;
     }
     #endif
