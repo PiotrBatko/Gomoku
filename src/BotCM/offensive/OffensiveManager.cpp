@@ -9,6 +9,7 @@ namespace CM {
 
 OffensiveManager::OffensiveManager() {
     board = nullptr;
+    emptyFieldsManager = nullptr;
     playerColor = PawnColor::White;
     opponentPlayerColor = Field::Empty;
 
@@ -225,8 +226,8 @@ void OffensiveManager::updatePotentialPawnSeriesOneSideData(PawnSeriesOrientatio
             iOriented *= -1;
         }
 
-        int currentFieldX;
-        int currentFIeldY;
+        int currentFieldX = 0;
+        int currentFIeldY = 0;
 
         switch (pawnSeriesOrientation) {
             case PawnSeriesOrientation::VERTICAL:
@@ -739,8 +740,8 @@ bool OffensiveManager::checkCoordinatesPotentialityInNeighbourField(
         std::size_t& currentPlayerPawnSeriesLength,
         std::size_t& emptyFieldsCount) {
 
-    int currentFieldX;
-    int currentFIeldY;
+    int currentFieldX = 0;
+    int currentFIeldY = 0;
 
     switch (pawnSeriesOrientation) {
         case PawnSeriesOrientation::VERTICAL:

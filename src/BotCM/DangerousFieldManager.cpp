@@ -5,7 +5,7 @@
 
 namespace CM {
 
-DangerousFieldManager::DangerousFieldManager() {
+DangerousFieldManager::DangerousFieldManager() : board(nullptr) {
 }
 
 DangerousFieldManager::~DangerousFieldManager() {
