@@ -148,7 +148,7 @@ void BotCM::makeTestingMovements(Coordinates& outputCoordinates) {
 
 bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
     #if 0 // Code for testing:
-    if (currentTurnId == 3u) {
+    if (currentTurnId == 29u) {
         std::cout << "AAA" << std::endl;
     }
     #endif
@@ -218,7 +218,7 @@ bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
 	}
 
 	MovementCoordinatesWithGrade offensiveMovementCoordinatesWithGrade;
-	result = offensiveManager.DetermineBestOffensiveMovement(offensiveMovementCoordinatesWithGrade);
+	result = offensiveManager.DetermineBestOffensiveMovement(offensiveMovementCoordinatesWithGrade, currentTurnId, currentPlayerLastMove);
 	if (!result) return result;
 
 	const MovementGrade::GradeNumberType bestOffensiveGrade = offensiveMovementCoordinatesWithGrade.GetMovementImportanceGrade();
@@ -247,11 +247,14 @@ bool BotCM::determineMovementCoordinates(Coordinates& outputCoordinates) {
         if (currentTurnId == 1u && lastTwoMovementsDistance >= 3u) {
             // In that case we decide that we are attacking, not defending.
             outputCoordinates = offensiveMovementCoordinatesWithGrade.GetMovementCoordinates();
+            if (LogMovementDeterminingData) {
+                LOG("Offensive");
+            }
         } else {
             outputCoordinates = defensiveCoordinatesWithBestGrade.GetMovementCoordinates();
-        }
-        if (LogMovementDeterminingData) {
-            LOG("Defensive");
+            if (LogMovementDeterminingData) {
+                LOG("Defensive");
+            }
         }
 	} else {
 		outputCoordinates = offensiveMovementCoordinatesWithGrade.GetMovementCoordinates();
@@ -696,10 +699,12 @@ bool BotCM::makeMoveDecision(
             // Because there is a free place at both left and right sides of opponent
             // pawn series, the danger of opponent win is very large, so we are making
             // larger the grade, if possible.
-            if (movementGrade < MovementGrade::MovementGradeMaxValue) {
+            if (movementGrade > 1u && movementGrade < MovementGrade::MovementGradeMaxValue) {
             	movementGrade++;
             }
-            movementGrade *= 2u;
+            if (movementGrade > 1u) {
+                movementGrade *= 2u;
+            }
             if (movementGrade > MovementGrade::MovementGradeMaxValue) {
             	movementGrade = MovementGrade::MovementGradeMaxValue;
             }
@@ -759,7 +764,7 @@ bool BotCM::makeMoveDecision(
 
     const MovementGrade::GradeNumberType grade = outputCoordinatesAndGrade.GetMovementImportanceGrade();
     if (grade < 10u) {
-        // In the current function, there is first
+
         std::optional<Coordinates> dangerousField = dangerousFieldManager.GetDangerousField();
         if (dangerousField) {
             outputCoordinatesAndGrade.Set(*dangerousField, 10u);

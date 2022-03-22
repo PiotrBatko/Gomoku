@@ -36,7 +36,10 @@ public:
 		Error
 	};
 
-    bool DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade);
+    bool DetermineBestOffensiveMovement(
+            MovementCoordinatesWithGrade& movementCoordinatesWithGrade,
+            unsigned int currentTurnId,
+            const Coordinates& currentPlayerLastMove);
 
     void RemoveFromPotentialCoordinates(const Coordinates& outputCoordinates);
 
@@ -92,7 +95,7 @@ private:
             std::size_t& emptyFieldsCount);
 
     bool isFieldOnBoardAndIsEmpty(const Coordinates& coordinates);
-    Coordinates determineNeighbourCoordinatesToCurrentPlayerMovement();
+    Coordinates determineFreeNeighbourCoordinatesToGivenCoordinates(const Coordinates& coordinates, MovementGrade::GradeNumberType& movementImportanceGrade);
 
     Coordinates currentPlayerMovement;
 

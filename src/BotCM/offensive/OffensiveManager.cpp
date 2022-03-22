@@ -597,7 +597,11 @@ bool OffensiveManager::enlargeExistingPotentialPawnSeries(
     return true;
 }
 
-bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGrade& movementCoordinatesWithGrade) {
+bool OffensiveManager::DetermineBestOffensiveMovement(
+        MovementCoordinatesWithGrade& movementCoordinatesWithGrade,
+        const unsigned int currentTurnId,
+        const Coordinates& currentPlayerLastMove) {
+
 	MovementCoordinatesWithGrade coordinatesWithGrades[3];
 	MovementCoordinatesWithGrade coordinatesWithBestGrade;
 
@@ -635,51 +639,60 @@ bool OffensiveManager::DetermineBestOffensiveMovement(MovementCoordinatesWithGra
 	// by the current player. In that case, the offensive movement will be the neighbor field to the last movement
 	// made by the current player.
 	if (!coordinatesWithBestGrade.IsSet()) {
-	    Coordinates coordinates = determineNeighbourCoordinatesToCurrentPlayerMovement();
-	    coordinatesWithBestGrade.Set(coordinates, 1u);
+	    Coordinates coordinates;
+	    MovementGrade::GradeNumberType movementImportanceGrade = 0u;
+	    if (currentTurnId == 0u) {
+	        movementImportanceGrade = 0u;
+	    } else {
+	        coordinates = currentPlayerLastMove;
+	        movementImportanceGrade = 5u;
+	    }
+	    coordinates = determineFreeNeighbourCoordinatesToGivenCoordinates(coordinates, movementImportanceGrade);
+	    coordinatesWithBestGrade.Set(coordinates, movementImportanceGrade);
 	}
 
 	movementCoordinatesWithGrade.Set(coordinatesWithBestGrade.GetMovementCoordinates(), coordinatesWithBestGrade.GetMovementImportanceGrade());
 	return true;
 }
 
-Coordinates OffensiveManager::determineNeighbourCoordinatesToCurrentPlayerMovement() {
+Coordinates OffensiveManager::determineFreeNeighbourCoordinatesToGivenCoordinates(const Coordinates& coordinates, MovementGrade::GradeNumberType& movementImportanceGrade) {
     bool isFieldEmpty = false;
-    Coordinates coordinates;
+    Coordinates currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y - 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x + 1u, coordinates.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y     );
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x + 1u, coordinates.y     );
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y     );
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x - 1u, coordinates.y     );
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x     , currentPlayerMovement.y + 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x     , coordinates.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x     , currentPlayerMovement.y - 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x     , coordinates.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y + 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x - 1u, coordinates.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x + 1u, currentPlayerMovement.y + 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x + 1u, coordinates.y + 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    coordinates = Coordinates(currentPlayerMovement.x - 1u, currentPlayerMovement.y - 1u);
-    isFieldEmpty = IsFieldOnBoardAndIsEmpty(coordinates, board);
-    if (isFieldEmpty) return coordinates;
+    currentCoordinates = Coordinates(coordinates.x - 1u, coordinates.y - 1u);
+    isFieldEmpty = IsFieldOnBoardAndIsEmpty(currentCoordinates, board);
+    if (isFieldEmpty) return currentCoordinates;
 
-    LOG_ERROR("All fields are not empty in the nearby of last player movement.");
+    // This event sometimes happens.
+    movementImportanceGrade = 0u;
     return Coordinates();
 }
 
